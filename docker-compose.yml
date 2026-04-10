@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: globalhub-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: khu_global_hub
+      POSTGRES_USER: globalhub
+      POSTGRES_PASSWORD: globalhub1234
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

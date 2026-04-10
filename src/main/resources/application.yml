@@ -1,0 +1,46 @@
+spring:
+  profiles:
+    active: local   # 운영 배포 시 환경변수 SPRING_PROFILES_ACTIVE=prod 로 덮어씀
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:validate}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+jwt:
+  # 로컬 개발용 기본값 제공. 운영 배포 시 JWT_SECRET 환경변수로 덮어씀.
+  secret: ${JWT_SECRET:a2h1Z2xvYmFsaHViLXN1cGVyLXNlY3JldC1rZXktZm9yLWxvY2FsLWRldg==}
+  expiration: 86400000        # Access Token 24시간 (밀리초)
+  refresh-expiration: 604800000  # Refresh Token 7일 (밀리초)
+
+azure:
+  translator:
+    key: ${AZURE_TRANSLATOR_KEY}
+    endpoint: https://api.cognitive.microsofttranslator.com
+    region: ${AZURE_REGION}
+
+aws:
+  s3:
+    bucket: ${S3_BUCKET_NAME}
+    region: ${AWS_REGION}
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
