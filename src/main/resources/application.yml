@@ -40,7 +40,7 @@ azure:
 
 aws:
   s3:
-    bucket: ${S3_BUCKET_NAME}
-    region: ${AWS_REGION}
+    bucket: ${AWS_S3_BUCKET}
+    region: ${AWS_S3_REGION}
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
