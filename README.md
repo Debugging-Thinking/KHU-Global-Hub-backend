@@ -24,9 +24,10 @@
 |------|------|
 | **프로젝트명** | KHU Global Hub |
 | **대상** | 경희대학교 유학생 |
-| **플랫폼** | Android (React Native) |
+| **플랫폼** | Android 앱 + Web |
 | **백엔드** | Spring Boot 3.4.5 + PostgreSQL |
-| **현재 상태** | 백엔드 완료 · AWS 운영 배포 중 / 프론트엔드 개발 예정 |
+| **프론트엔드** | React Native (Expo) + TypeScript |
+| **현재 상태** | 백엔드 완료 · AWS 운영 배포 중 / 프론트엔드 핵심 기능 완료 · 웹 배포 중 |
 
 ---
 
@@ -50,15 +51,20 @@
 
 | 항목 | 기술 |
 |------|------|
-| 프레임워크 | React Native |
-| 타겟 플랫폼 | Android |
+| 프레임워크 | Expo SDK 52 + React Native |
+| 언어 | TypeScript |
+| 라우팅 | expo-router (파일 기반) |
+| 상태관리 | Zustand |
+| HTTP | axios |
+| 타겟 플랫폼 | Android + Web |
 
 ---
 
 ## 3. 핵심 기능
 
 - **다국어 게시판** — 게시글·댓글 작성 시 6개 언어(한·영·중·베트남·스페인·몽골)로 자동 번역 (Azure Translator)
-- **Q&A 채택 시스템** — 질문에 답변을 달고, 질문자가 채택 가능
+- **익명 번호 시스템** — 게시글/Q&A별 독립 익명 컨텍스트, 작성자=익명1 → 이후 댓글 익명2, 3, ...
+- **Q&A 채택 시스템** — 질문에 답변을 달고 질문자가 채택, 채택 후 추가 답변 불가
 - **멘토-멘티 자동 매칭** — 매년 3월/9월 1일 스케줄러로 자동 매칭, 시스템 메시지 발송
 - **1:1 DM 채팅** — 멘토-멘티 및 자유 메시지, 읽음 처리 포함
 - **이미지 업로드** — 게시글·프로필 사진 AWS S3 비동기 업로드
@@ -68,14 +74,13 @@
 
 ## 4. 로컬 개발 환경
 
-### 사전 준비
+### 백엔드 사전 준비
 - Java 21 (JDK)
 - Docker Desktop
-- Gradle (또는 프로젝트 내 `./gradlew` Wrapper 사용)
 
 ### 1. application-local.yml 생성
 
-`src/main/resources/application-local.yml`은 `.gitignore` 처리되어 있으므로 직접 생성해야 합니다.
+`src/main/resources/application-local.yml`은 `.gitignore` 처리되어 있으므로 직접 생성:
 
 ```yaml
 spring:
@@ -107,6 +112,26 @@ docker compose up -d
 http://localhost:8080/swagger-ui/index.html
 ```
 
+### 5. 프론트엔드 실행
+
+```bash
+cd frontend
+npm install
+npx expo start
+```
+
+브라우저 웹: `w` 키 / Android 에뮬레이터: `a` 키
+
+### 6. 프론트엔드 웹 빌드 & 배포
+
+```bash
+cd frontend
+npx expo export --platform web   # dist/ 생성
+
+scp -i "{KEY}.pem" -r dist/* ubuntu@{EC2_IP}:~/web/
+ssh -i "{KEY}.pem" ubuntu@{EC2_IP} "sudo cp -r ~/web/* /var/www/html/globalhub/"
+```
+
 > Azure Translator, AWS S3, Gmail SMTP 기능은 해당 환경변수 없이는 동작하지 않습니다.
 
 ---
@@ -114,53 +139,51 @@ http://localhost:8080/swagger-ui/index.html
 ## 5. 디렉토리 구조
 
 ```
-globalhub/                              # 프로젝트 루트
-├── frontend/                           # React Native 프론트엔드
-├── src/
-├── build.gradle
-├── docker-compose.yml
-├── CLAUDE.md                           # AI 에이전트 컨텍스트 (내부용)
-└── README.md
+design_thinking/
+├── backend/                            # Spring Boot 백엔드
+│   ├── src/
+│   ├── build.gradle
+│   ├── docker-compose.yml
+│   └── README.md
+└── frontend/                           # Expo React Native 프론트엔드
+    ├── app/
+    │   ├── (auth)/                     # 로그인, 회원가입, 이메일인증, 프로필설정
+    │   └── (main)/                     # 탭 기반 메인 화면
+    │       ├── _layout.tsx             # 탭바 설정
+    │       ├── index.tsx               # 게시판 목록
+    │       ├── board/[postId].tsx      # 게시글 상세 + 댓글
+    │       ├── board/create.tsx        # 게시글 작성
+    │       ├── qna/                    # Q&A 목록 + 상세 + 작성
+    │       ├── chat/                   # 채팅 목록 + 상세
+    │       ├── mentoring.tsx           # 멘토링 매칭 정보
+    │       └── profile.tsx             # 내 프로필
+    ├── src/
+    │   ├── api/                        # boardApi, qnaApi, authApi, ...
+    │   ├── store/                      # authStore (Zustand)
+    │   ├── types/                      # TypeScript 타입 정의
+    │   └── components/                 # 공용 컴포넌트 (Screen 등)
+    └── constants/
+        └── theme.ts                    # Colors, Typography, Spacing, Radius, Shadow
 
-src/main/java/com/khu/globalhub/
+backend/src/main/java/com/khu/globalhub/
 ├── KhuGlobalHubApplication.java
-│
 ├── global/
-│   ├── common/
-│   │   ├── ApiResponse.java            # 통일 응답 래퍼 {success, message, data}
-│   │   └── BaseTimeEntity.java         # createdAt, updatedAt (JPA Auditing)
-│   ├── config/
-│   │   ├── AsyncConfig.java            # translationExecutor(4-8) + s3Executor(2-4)
-│   │   ├── JpaConfig.java              # @EnableJpaAuditing
-│   │   ├── S3Config.java               # S3Client Bean
-│   │   └── SecurityConfig.java         # STATELESS JWT, permitAll 경로 설정
-│   ├── enums/
-│   │   ├── Language.java               # KO/EN/ZH/VI/ES/MN
-│   │   ├── BoardType.java              # FRESHMAN/FREE/GRADUATE
-│   │   ├── CommentTargetType.java      # POST/QNA/ANSWER
-│   │   ├── MentoringRole.java          # MENTOR/MENTEE/NONE
-│   │   └── MatchStatus.java            # ACTIVE/COMPLETED/CANCELLED
-│   ├── exception/
-│   │   ├── ErrorCode.java              # 전체 에러코드 enum
-│   │   ├── CustomException.java
-│   │   └── GlobalExceptionHandler.java
-│   ├── infra/
-│   │   ├── TranslationService.java     # @Async Azure Translator 호출
-│   │   └── S3Service.java              # @Async S3 업로드
-│   ├── jwt/
-│   │   ├── JwtTokenProvider.java       # 토큰 생성/검증
-│   │   └── JwtAuthenticationFilter.java
-│   └── util/
-│       └── SecurityUtil.java           # getCurrentMemberId()
-│
+│   ├── common/       ApiResponse, BaseTimeEntity
+│   ├── config/       AsyncConfig, SecurityConfig, S3Config, JpaConfig
+│   ├── enums/        Language, BoardType, CommentTargetType, AliasContextType, ...
+│   ├── exception/    ErrorCode, CustomException, GlobalExceptionHandler
+│   ├── infra/        TranslationService, S3Service
+│   ├── jwt/          JwtTokenProvider, JwtAuthenticationFilter
+│   └── util/         SecurityUtil
 └── domain/
-    ├── auth/                           # 회원가입, 이메일 인증, 로그인
-    ├── member/                         # 프로필 관리, 멘토링 역할
-    ├── board/                          # 게시판 (FRESHMAN/FREE/GRADUATE)
-    ├── comment/                        # 댓글·대댓글 (POST/QNA/ANSWER 통합)
-    ├── qna/                            # Q&A + 답변 채택
-    ├── mentoring/                      # 멘토-멘티 매칭 + 스케줄러
-    └── chat/                           # 1:1 DM
+    ├── anonymous/    AnonymousAlias 엔티티 + 익명 번호 서비스
+    ├── auth/         회원가입, 이메일 인증, 로그인
+    ├── member/       프로필 관리, 멘토링 역할
+    ├── board/        게시판 (FRESHMAN/FREE/GRADUATE)
+    ├── comment/      댓글·대댓글 (POST/QNA/ANSWER 통합)
+    ├── qna/          Q&A + 답변 채택
+    ├── mentoring/    멘토-멘티 매칭 + 스케줄러
+    └── chat/         1:1 DM
 ```
 
 ---
@@ -222,7 +245,7 @@ src/main/java/com/khu/globalhub/
 | GET | `/{qnaId}?language=KO` | 질문 상세 + 답변 목록 |
 | DELETE | `/{qnaId}` | 질문 삭제 (작성자만) |
 | POST | `/{qnaId}/like` | 질문 좋아요 토글 |
-| POST | `/{qnaId}/answers` | 답변 작성 |
+| POST | `/{qnaId}/answers` | 답변 작성 (채택 후 불가, 본인 질문 불가, 1인 1답) |
 | DELETE | `/{qnaId}/answers/{answerId}` | 답변 삭제 (작성자만) |
 | POST | `/{qnaId}/answers/{answerId}/adopt` | 답변 채택 (질문 작성자만, 1회) |
 | POST | `/{qnaId}/answers/{answerId}/like` | 답변 좋아요 토글 |
@@ -288,7 +311,7 @@ Authorization: Bearer {accessToken}
 
 **게시글 목록 (`PostSummaryResponse`)**
 ```
-postId, boardType, title, authorName (익명이면 null),
+postId, boardType, title, authorName (익명이면 "익명N"),
 likeCount, commentCount, createdAt, isAnonymous
 ```
 
@@ -299,7 +322,7 @@ likeCount, commentCount, createdAt, isAnonymous
 
 **댓글 (`CommentResponse`)**
 ```
-commentId, content, authorName (익명이면 null),
+commentId, content, authorName (익명이면 "익명N"),
 likeCount, isLiked, isOwner, createdAt,
 children[] (대댓글, 동일 구조)
 ```
@@ -307,6 +330,12 @@ children[] (대댓글, 동일 구조)
 **Q&A 목록 (`QnASummaryResponse`)**
 ```
 qnaId, title, authorName, likeCount, answerCount, isAdopted, createdAt
+```
+
+**답변 (`AnswerResponse`)**
+```
+answerId, content, authorName (익명이면 "익명N"),
+likeCount, isLiked, isOwner, isAdopted, createdAt
 ```
 
 **멘토링 매칭 (`MentoringMatchResponse`)**
@@ -343,7 +372,9 @@ lastMessage, unreadCount, lastMessageAt
 | Q&A 채택 마일리지 | 채택 기능 구현 완료, 마일리지는 추후 |
 | 게시글 신고/블라인드 | Phase 2 |
 | 푸시 알림 | Phase 2 |
-| 게시글·댓글 수정 API | 삭제는 구현, 수정은 미구현 |
+| 게시글·댓글 수정 API | 삭제 구현 완료, 수정은 미구현 |
+| Q&A·답변 댓글 UI | 백엔드 API 있음, 프론트 미구현 |
+| APK 재빌드 | 최신 프론트 코드 반영 필요 |
 
 ---
 
@@ -369,4 +400,4 @@ DDL_AUTO
 
 ---
 
-*경희대학교 디자인씽킹 팀프로젝트 — 2025*
+*경희대학교 디자인씽킹 팀프로젝트 — 2026*

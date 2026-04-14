@@ -12,7 +12,7 @@ import java.util.List;
  * 번역된 제목/본문, 이미지 URL 목록, 좋아요 여부 포함.
  */
 public record PostDetailResponse(
-        Long id,
+        Long postId,
         BoardType boardType,
         String title,
         String content,
@@ -37,7 +37,7 @@ public record PostDetailResponse(
                 post.getBoardType(),
                 translation.getTitle(),
                 translation.getContent(),
-                post.getIsAnonymous() ? null : authorName,
+                authorName,   // 익명이면 서비스가 "익명N" 전달
                 post.getIsAnonymous() ? null : post.getAuthor().getId(),
                 post.getIsAnonymous(),
                 post.getLikeCount(),

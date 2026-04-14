@@ -11,7 +11,7 @@ import java.util.List;
  * 대댓글(children) 포함, 번역된 content 사용.
  */
 public record CommentResponse(
-        Long id,
+        Long commentId,
         String content,
         String authorName,     // isAnonymous=true면 null
         Long authorId,         // isAnonymous=true면 null
@@ -28,7 +28,7 @@ public record CommentResponse(
         return new CommentResponse(
                 comment.getId(),
                 translation.getContent(),
-                comment.getIsAnonymous() ? null : authorName,
+                authorName,   // 익명이면 서비스가 "익명N" 전달
                 comment.getIsAnonymous() ? null : comment.getAuthor().getId(),
                 comment.getIsAnonymous(),
                 comment.getLikeCount(),

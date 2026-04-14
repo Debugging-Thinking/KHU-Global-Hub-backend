@@ -42,3 +42,6 @@ application-prod.yml
 *.env
 *.pem
 
+# AI 에이전트 인수인계 (내부용, GitHub 비공개)
+CLAUDE.md
+

@@ -5,13 +5,13 @@ import com.khu.globalhub.domain.chat.entity.ChatMessage;
 import java.time.LocalDateTime;
 
 public record ChatMessageResponse(
-        Long id,
+        Long messageId,
         Long senderId,       // isSystem=true면 null
         String senderName,   // isSystem=true면 null
         String content,
         boolean isSystem,
         boolean isRead,
-        LocalDateTime sentAt
+        LocalDateTime createdAt
 ) {
     public static ChatMessageResponse of(ChatMessage msg, String senderName) {
         return new ChatMessageResponse(

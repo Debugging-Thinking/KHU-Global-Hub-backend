@@ -1,5 +1,6 @@
 package com.khu.globalhub.domain.comment.service;
 
+import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
 import com.khu.globalhub.domain.comment.dto.CommentResponse;
 import com.khu.globalhub.domain.comment.dto.CreateCommentRequest;
 import com.khu.globalhub.domain.comment.entity.Comment;
@@ -14,8 +15,10 @@ import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.domain.board.entity.Post;
 import com.khu.globalhub.domain.board.repository.PostRepository;
+import com.khu.globalhub.domain.qna.entity.Answer;
 import com.khu.globalhub.domain.qna.repository.QnARepository;
 import com.khu.globalhub.domain.qna.repository.AnswerRepository;
+import com.khu.globalhub.global.enums.AliasContextType;
 import com.khu.globalhub.global.enums.CommentTargetType;
 import com.khu.globalhub.global.enums.Language;
 import com.khu.globalhub.global.exception.CustomException;
@@ -25,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,6 +45,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final TranslationService translationService;
+    private final AnonymousAliasService anonymousAliasService;
 
     /**
      * 댓글 작성 (게시글/Q&A/답변 공통).
@@ -87,18 +92,43 @@ public class CommentService {
             postRepository.findById(targetId).ifPresent(Post::incrementCommentCount);
         }
 
+        // 익명 댓글: alias 할당 (POST → POST 컨텍스트, QNA/ANSWER → QNA 컨텍스트)
+        if (req.isAnonymous()) {
+            AliasContextType ctx = resolveAliasContext(targetType);
+            Long ctxId = resolveAliasContextId(targetType, targetId);
+            anonymousAliasService.assign(ctx, ctxId, memberId);
+        }
+
         return comment.getId();
     }
 
     /** 댓글 목록 조회 (게시글/Q&A/답변 공통, 요청자 언어 적용). */
     public List<CommentResponse> getComments(CommentTargetType targetType, Long targetId,
                                              Long memberId, Language language) {
+        AliasContextType aliasCtx = resolveAliasContext(targetType);
+        Long aliasCtxId = resolveAliasContextId(targetType, targetId);
+
         List<Comment> topLevel = commentRepository
                 .findByTargetTypeAndTargetIdAndParentIsNullOrderByCreatedAtAsc(targetType, targetId);
 
         return topLevel.stream()
-                .map(comment -> buildCommentResponse(comment, memberId, language))
+                .map(comment -> buildCommentResponse(comment, memberId, language, aliasCtx, aliasCtxId))
                 .toList();
+    }
+
+    /** targetType → alias 컨텍스트 타입 변환 (ANSWER도 QNA 컨텍스트 사용). */
+    private AliasContextType resolveAliasContext(CommentTargetType targetType) {
+        return targetType == CommentTargetType.POST ? AliasContextType.POST : AliasContextType.QNA;
+    }
+
+    /** targetType/targetId → alias 컨텍스트 ID 변환. ANSWER이면 qnaId 반환. */
+    private Long resolveAliasContextId(CommentTargetType targetType, Long targetId) {
+        if (targetType == CommentTargetType.ANSWER) {
+            Answer answer = answerRepository.findById(targetId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
+            return answer.getQna().getId();
+        }
+        return targetId;
     }
 
     private void validateTarget(CommentTargetType targetType, Long targetId) {
@@ -112,7 +142,7 @@ public class CommentService {
         }
     }
 
-    /** 댓글 삭제 (작성자 본인만). */
+    /** 댓글 삭제 (작성자 본인만). 대댓글·좋아요 cascade 삭제. */
     @Transactional
     public void deleteComment(Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
@@ -129,6 +159,12 @@ public class CommentService {
                         for (int i = 0; i < count; i++) post.decrementCommentCount();
                     });
         }
+
+        // 이 댓글 + 대댓글 좋아요 먼저 삭제
+        List<Long> allIds = new ArrayList<>();
+        allIds.add(commentId);
+        comment.getChildren().forEach(child -> allIds.add(child.getId()));
+        commentLikeRepository.deleteByCommentIdIn(allIds);
 
         commentRepository.delete(comment);
     }
@@ -152,22 +188,24 @@ public class CommentService {
         }
     }
 
-    private CommentResponse buildCommentResponse(Comment comment, Long memberId, Language language) {
+    private CommentResponse buildCommentResponse(Comment comment, Long memberId, Language language,
+                                                  AliasContextType aliasCtx, Long aliasCtxId) {
         CommentTranslation translation = commentTranslationRepository
                 .findByCommentIdAndLanguage(comment.getId(), language)
                 .orElseGet(() -> commentTranslationRepository
                         .findByCommentIdAndLanguage(comment.getId(), Language.EN)
                         .orElseGet(() -> comment.getTranslations().get(0)));
 
-        String authorName = profileRepository.findByMemberId(comment.getAuthor().getId())
-                .map(Profile::getName)
-                .orElse("Unknown");
+        String authorName = comment.getIsAnonymous()
+                ? anonymousAliasService.lookup(aliasCtx, aliasCtxId, comment.getAuthor().getId())
+                : profileRepository.findByMemberId(comment.getAuthor().getId())
+                        .map(Profile::getName).orElse("Unknown");
         boolean isLiked = commentLikeRepository.existsByMemberIdAndCommentId(memberId, comment.getId());
         boolean isOwner = comment.getAuthor().getId().equals(memberId);
 
         // 대댓글 재귀 변환
         List<CommentResponse> children = comment.getChildren().stream()
-                .map(child -> buildCommentResponse(child, memberId, language))
+                .map(child -> buildCommentResponse(child, memberId, language, aliasCtx, aliasCtxId))
                 .toList();
 
         return CommentResponse.of(comment, translation, authorName, isLiked, isOwner, children);

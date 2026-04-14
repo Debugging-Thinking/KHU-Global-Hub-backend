@@ -6,7 +6,7 @@ import com.khu.globalhub.domain.qna.entity.AnswerTranslation;
 import java.time.LocalDateTime;
 
 public record AnswerResponse(
-        Long id,
+        Long answerId,
         String content,
         String authorName,
         Long authorId,
@@ -22,7 +22,7 @@ public record AnswerResponse(
         return new AnswerResponse(
                 answer.getId(),
                 translation.getContent(),
-                answer.getIsAnonymous() ? null : authorName,
+                authorName,   // 익명이면 서비스가 "익명N" 전달
                 answer.getIsAnonymous() ? null : answer.getAuthor().getId(),
                 answer.getIsAnonymous(),
                 answer.getIsAdopted(),

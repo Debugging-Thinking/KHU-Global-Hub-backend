@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/mentoring")
@@ -20,14 +19,13 @@ public class MentoringController {
     private final MentoringService mentoringService;
 
     /**
-     * 내 현재 학기 매칭 목록 조회.
-     * 멘티: 1개, 멘토: 여러 개 가능. 빈 리스트 = 매칭 없음.
+     * 내 현재 ACTIVE 매칭 단건 조회.
+     * 매칭 없으면 404 반환 → 프론트에서 .catch로 처리.
      */
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<MentoringMatchResponse>>> getMyMatch() {
+    public ResponseEntity<ApiResponse<MentoringMatchResponse>> getMyMatch() {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        List<MentoringMatchResponse> result = mentoringService.getMyMatch(memberId);
-        String message = result.isEmpty() ? "현재 진행 중인 매칭이 없습니다." : "매칭 정보를 조회했습니다.";
-        return ResponseEntity.ok(ApiResponse.ok(message, result));
+        MentoringMatchResponse result = mentoringService.getMyMatch(memberId);
+        return ResponseEntity.ok(ApiResponse.ok("매칭 정보를 조회했습니다.", result));
     }
 }

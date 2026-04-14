@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record QnADetailResponse(
-        Long id,
+        Long qnaId,
         String title,
         String content,
         String authorName,
@@ -27,7 +27,7 @@ public record QnADetailResponse(
                 qna.getId(),
                 translation.getTitle(),
                 translation.getContent(),
-                qna.getIsAnonymous() ? null : authorName,
+                authorName,   // 익명이면 서비스가 "익명N" 전달
                 qna.getIsAnonymous() ? null : qna.getAuthor().getId(),
                 qna.getIsAnonymous(),
                 qna.getIsAdopted(),

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 본문 내용은 포함하지 않는다.
  */
 public record PostSummaryResponse(
-        Long id,
+        Long postId,
         BoardType boardType,
         String title,
         String authorName,     // isAnonymous=true면 null
@@ -26,7 +26,7 @@ public record PostSummaryResponse(
                 post.getId(),
                 post.getBoardType(),
                 translation.getTitle(),
-                post.getIsAnonymous() ? null : authorName,
+                authorName,   // 익명이면 서비스가 "익명N" 전달
                 post.getIsAnonymous(),
                 post.getLikeCount(),
                 post.getCommentCount(),

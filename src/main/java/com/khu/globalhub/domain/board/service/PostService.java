@@ -9,11 +9,17 @@ import com.khu.globalhub.domain.board.entity.PostTranslation;
 import com.khu.globalhub.domain.board.repository.PostLikeRepository;
 import com.khu.globalhub.domain.board.repository.PostRepository;
 import com.khu.globalhub.domain.board.repository.PostTranslationRepository;
+import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
+import com.khu.globalhub.domain.comment.entity.Comment;
+import com.khu.globalhub.domain.comment.repository.CommentLikeRepository;
+import com.khu.globalhub.domain.comment.repository.CommentRepository;
 import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
 import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
+import com.khu.globalhub.global.enums.AliasContextType;
 import com.khu.globalhub.global.enums.BoardType;
+import com.khu.globalhub.global.enums.CommentTargetType;
 import com.khu.globalhub.global.enums.Language;
 import com.khu.globalhub.global.exception.CustomException;
 import com.khu.globalhub.global.exception.ErrorCode;
@@ -29,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +45,13 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostTranslationRepository postTranslationRepository;
     private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final TranslationService translationService;
     private final S3Service s3Service;
+    private final AnonymousAliasService anonymousAliasService;
 
     /**
      * 게시글 작성.
@@ -69,6 +79,11 @@ public class PostService {
                 .title(req.title())
                 .content(req.content())
                 .build());
+
+        // 익명 게시 시 작성자에게 익명1 할당
+        if (req.isAnonymous()) {
+            anonymousAliasService.assign(AliasContextType.POST, post.getId(), memberId);
+        }
 
         // 나머지 5개 언어 비동기 번역
         translationService.translatePost(post, req.title(), req.content(), req.language());
@@ -101,7 +116,8 @@ public class PostService {
                             .orElseGet(() -> postTranslationRepository
                                     .findByPostIdAndLanguage(post.getId(), Language.EN)
                                     .orElseGet(() -> post.getTranslations().get(0)));
-                    String authorName = getAuthorName(post.getAuthor());
+                    String authorName = resolveAuthorName(post.getIsAnonymous(),
+                            AliasContextType.POST, post.getId(), post.getAuthor().getId());
                     return PostSummaryResponse.of(post, translation, authorName);
                 });
     }
@@ -115,7 +131,8 @@ public class PostService {
                             .orElseGet(() -> postTranslationRepository
                                     .findByPostIdAndLanguage(post.getId(), Language.EN)
                                     .orElseGet(() -> post.getTranslations().get(0)));
-                    String authorName = getAuthorName(post.getAuthor());
+                    String authorName = resolveAuthorName(post.getIsAnonymous(),
+                            AliasContextType.POST, post.getId(), post.getAuthor().getId());
                     return PostSummaryResponse.of(post, translation, authorName);
                 });
     }
@@ -131,14 +148,15 @@ public class PostService {
                         .findByPostIdAndLanguage(postId, Language.EN)
                         .orElseGet(() -> post.getTranslations().get(0)));
 
-        String authorName = getAuthorName(post.getAuthor());
+        String authorName = resolveAuthorName(post.getIsAnonymous(),
+                AliasContextType.POST, postId, post.getAuthor().getId());
         boolean isLiked = postLikeRepository.existsByMemberIdAndPostId(memberId, postId);
         boolean isOwner = post.getAuthor().getId().equals(memberId);
 
         return PostDetailResponse.of(post, translation, authorName, isLiked, isOwner);
     }
 
-    /** 게시글 삭제 (작성자 본인만 가능). */
+    /** 게시글 삭제 (작성자 본인만 가능). 댓글·좋아요 모두 cascade 삭제. */
     @Transactional
     public void deletePost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
@@ -146,6 +164,29 @@ public class PostService {
         if (!post.getAuthor().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.POST_UNAUTHORIZED);
         }
+
+        // 1) 이 게시글의 모든 댓글 ID 수집 (대댓글 포함)
+        List<Comment> topLevel = commentRepository
+                .findByTargetTypeAndTargetIdAndParentIsNullOrderByCreatedAtAsc(CommentTargetType.POST, postId);
+        List<Long> allCommentIds = topLevel.stream()
+                .flatMap(c -> {
+                    List<Long> ids = new ArrayList<>();
+                    ids.add(c.getId());
+                    c.getChildren().forEach(child -> ids.add(child.getId()));
+                    return ids.stream();
+                })
+                .collect(Collectors.toList());
+
+        // 2) 댓글 좋아요 삭제 → 댓글 삭제
+        if (!allCommentIds.isEmpty()) {
+            commentLikeRepository.deleteByCommentIdIn(allCommentIds);
+        }
+        commentRepository.deleteAll(topLevel);
+
+        // 3) 게시글 좋아요 삭제
+        postLikeRepository.deleteByPostId(postId);
+
+        // 4) 게시글 삭제 (PostTranslation, PostImage cascade)
         postRepository.delete(post);
     }
 
@@ -172,5 +213,12 @@ public class PostService {
         return profileRepository.findByMemberId(author.getId())
                 .map(Profile::getName)
                 .orElse("Unknown");
+    }
+
+    private String resolveAuthorName(boolean isAnonymous, AliasContextType ctx, Long contextId, Long authorId) {
+        if (isAnonymous) {
+            return anonymousAliasService.lookup(ctx, contextId, authorId);
+        }
+        return profileRepository.findByMemberId(authorId).map(Profile::getName).orElse("Unknown");
     }
 }

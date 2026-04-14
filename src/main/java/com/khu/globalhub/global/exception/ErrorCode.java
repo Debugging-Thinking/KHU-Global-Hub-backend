@@ -47,6 +47,14 @@ public enum ErrorCode {
     ALREADY_LIKED(HttpStatus.CONFLICT, "이미 좋아요를 눌렀습니다."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요 기록이 없습니다."),
 
+    // ── Mentoring ─────────────────────────────────────
+    MATCH_NOT_FOUND(HttpStatus.NOT_FOUND, "현재 진행 중인 매칭이 없습니다."),
+
+    // ── Q&A 답변 제한 ──────────────────────────────────────
+    QNA_ALREADY_ADOPTED(HttpStatus.CONFLICT, "채택이 완료된 질문에는 더 이상 답변할 수 없습니다."),
+    ANSWER_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 이 질문에 답변하셨습니다."),
+    SELF_ANSWER_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인의 질문에는 답변할 수 없습니다."),
+
     // ── Chat ──────────────────────────────────────────
     CANNOT_CHAT_WITH_SELF(HttpStatus.BAD_REQUEST, "자기 자신에게 메시지를 보낼 수 없습니다."),
 

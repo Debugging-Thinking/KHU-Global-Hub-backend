@@ -9,6 +9,8 @@ import com.khu.globalhub.global.enums.BoardType;
 import com.khu.globalhub.global.enums.Language;
 import com.khu.globalhub.global.util.SecurityUtil;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,20 +27,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@Validated
 public class PostController {
 
     private final PostService postService;
 
     /**
      * 게시글 작성.
-     * 이미지 첨부가 있을 수 있어 multipart/form-data 사용.
+     * React Native FormData 호환을 위해 @RequestParam 방식 사용.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Long>> createPost(
-            @Valid @RequestPart("request") CreatePostRequest request,
+            @RequestParam @NotBlank String title,
+            @RequestParam @NotBlank String content,
+            @RequestParam @NotNull BoardType boardType,
+            @RequestParam @NotNull Boolean isAnonymous,
+            @RequestParam(defaultValue = "KO") Language language,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         Long memberId = SecurityUtil.getCurrentMemberId();
+        CreatePostRequest request = new CreatePostRequest(boardType, isAnonymous, language, title, content);
         Long postId = postService.createPost(memberId, request, images);
         return ResponseEntity.ok(ApiResponse.ok("게시글이 작성되었습니다.", postId));
     }

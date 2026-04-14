@@ -29,21 +29,21 @@ public class MentoringService {
     private final ChatMessageRepository chatMessageRepository;
 
     /**
-     * 내 현재 ACTIVE 매칭 목록 조회.
-     * 멘티: 1개, 멘토: 여러 개 가능. 빈 리스트 = 매칭 없음.
+     * 내 현재 ACTIVE 매칭 단건 조회.
+     * 매칭 없으면 MATCH_NOT_FOUND 예외 발생 → 404 반환.
      */
     @Transactional(readOnly = true)
-    public List<MentoringMatchResponse> getMyMatch(Long memberId) {
-        return matchRepository.findActiveMatchesByMemberId(memberId, MatchStatus.ACTIVE)
+    public MentoringMatchResponse getMyMatch(Long memberId) {
+        MentorMenteeMatch match = matchRepository.findActiveMatchesByMemberId(memberId, MatchStatus.ACTIVE)
                 .stream()
-                .map(match -> {
-                    boolean isMentor = match.getMentor().getId().equals(memberId);
-                    Long partnerId = isMentor ? match.getMentee().getId() : match.getMentor().getId();
-                    Profile partnerProfile = profileRepository.findByMemberId(partnerId)
-                            .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
-                    return MentoringMatchResponse.of(match, memberId, partnerProfile);
-                })
-                .toList();
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.MATCH_NOT_FOUND));
+
+        boolean isMentor = match.getMentor().getId().equals(memberId);
+        Long partnerId = isMentor ? match.getMentee().getId() : match.getMentor().getId();
+        Profile partnerProfile = profileRepository.findByMemberId(partnerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
+        return MentoringMatchResponse.of(match, memberId, partnerProfile);
     }
 
     /**

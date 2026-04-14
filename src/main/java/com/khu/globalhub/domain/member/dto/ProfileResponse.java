@@ -6,8 +6,9 @@ import com.khu.globalhub.global.enums.MentoringRole;
 
 public record ProfileResponse(
         Long memberId,
+        String email,
         String name,
-        String profileImage,
+        String profileImageUrl,
         String department,
         String nationality,
         int admissionYear,
@@ -17,6 +18,7 @@ public record ProfileResponse(
     public static ProfileResponse from(Profile profile) {
         return new ProfileResponse(
                 profile.getMember().getId(),
+                profile.getMember().getEmail(),
                 profile.getName(),
                 profile.getProfileImage(),
                 profile.getDepartment(),

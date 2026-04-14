@@ -6,7 +6,7 @@ import com.khu.globalhub.domain.qna.entity.QnATranslation;
 import java.time.LocalDateTime;
 
 public record QnASummaryResponse(
-        Long id,
+        Long qnaId,
         String title,
         String authorName,
         boolean isAnonymous,
@@ -20,7 +20,7 @@ public record QnASummaryResponse(
         return new QnASummaryResponse(
                 qna.getId(),
                 translation.getTitle(),
-                qna.getIsAnonymous() ? null : authorName,
+                authorName,   // 익명이면 서비스가 "익명N" 전달
                 qna.getIsAnonymous(),
                 qna.getIsAdopted(),
                 qna.getLikeCount(),

@@ -1,5 +1,6 @@
 package com.khu.globalhub.domain.qna.service;
 
+import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
 import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
 import com.khu.globalhub.domain.member.repository.MemberRepository;
@@ -7,6 +8,7 @@ import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.domain.qna.dto.*;
 import com.khu.globalhub.domain.qna.entity.*;
 import com.khu.globalhub.domain.qna.repository.*;
+import com.khu.globalhub.global.enums.AliasContextType;
 import com.khu.globalhub.global.enums.Language;
 import com.khu.globalhub.global.exception.CustomException;
 import com.khu.globalhub.global.exception.ErrorCode;
@@ -33,6 +35,7 @@ public class QnAService {
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final TranslationService translationService;
+    private final AnonymousAliasService anonymousAliasService;
 
     // ───────── QnA CRUD ─────────
 
@@ -58,6 +61,11 @@ public class QnAService {
         // 나머지 5개 언어 비동기 번역
         translationService.translateQnA(qna, req.title(), req.content(), req.language());
 
+        // 익명 질문 시 작성자에게 익명1 할당
+        if (req.isAnonymous()) {
+            anonymousAliasService.assign(AliasContextType.QNA, qna.getId(), memberId);
+        }
+
         return qna.getId();
     }
 
@@ -65,7 +73,8 @@ public class QnAService {
         return qnaRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(qna -> {
                     QnATranslation translation = resolveQnATranslation(qna, language);
-                    String authorName = getAuthorName(qna.getAuthor());
+                    String authorName = resolveAuthorName(qna.getIsAnonymous(),
+                            AliasContextType.QNA, qna.getId(), qna.getAuthor().getId());
                     int answerCount = answerRepository.countByQnaId(qna.getId());
                     return QnASummaryResponse.of(qna, translation, authorName, answerCount);
                 });
@@ -76,13 +85,14 @@ public class QnAService {
                 .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
 
         QnATranslation translation = resolveQnATranslation(qna, language);
-        String authorName = getAuthorName(qna.getAuthor());
+        String authorName = resolveAuthorName(qna.getIsAnonymous(),
+                AliasContextType.QNA, qnaId, qna.getAuthor().getId());
         boolean isLiked = qnaLikeRepository.existsByMemberIdAndQnaId(memberId, qnaId);
         boolean isOwner = qna.getAuthor().getId().equals(memberId);
 
         List<AnswerResponse> answers = answerRepository.findByQnaIdOrderByCreatedAtAsc(qnaId)
                 .stream()
-                .map(answer -> buildAnswerResponse(answer, memberId, language))
+                .map(answer -> buildAnswerResponse(answer, qnaId, memberId, language))
                 .toList();
 
         return QnADetailResponse.of(qna, translation, authorName, isLiked, isOwner, answers);
@@ -95,6 +105,19 @@ public class QnAService {
         if (!qna.getAuthor().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.QNA_UNAUTHORIZED);
         }
+
+        // 답변 좋아요 먼저 삭제 (answer_likes FK)
+        List<Long> answerIds = qna.getAnswers().stream()
+                .map(Answer::getId)
+                .toList();
+        if (!answerIds.isEmpty()) {
+            answerLikeRepository.deleteByAnswerIdIn(answerIds);
+        }
+
+        // QnA 좋아요 삭제 (qna_likes FK)
+        qnaLikeRepository.deleteByQnaId(qnaId);
+
+        // QnA 삭제 (Answer, QnATranslation, AnswerTranslation cascade)
         qnaRepository.delete(qna);
     }
 
@@ -122,6 +145,20 @@ public class QnAService {
     public Long createAnswer(Long qnaId, Long memberId, CreateAnswerRequest req) {
         QnA qna = qnaRepository.findById(qnaId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
+
+        // 채택 완료된 질문엔 답변 불가
+        if (qna.getIsAdopted()) {
+            throw new CustomException(ErrorCode.QNA_ALREADY_ADOPTED);
+        }
+        // 본인 질문엔 답변 불가
+        if (qna.getAuthor().getId().equals(memberId)) {
+            throw new CustomException(ErrorCode.SELF_ANSWER_NOT_ALLOWED);
+        }
+        // 1인 1답 제한
+        if (answerRepository.existsByQnaIdAndAuthorId(qnaId, memberId)) {
+            throw new CustomException(ErrorCode.ANSWER_ALREADY_EXISTS);
+        }
+
         Member author = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -140,6 +177,11 @@ public class QnAService {
 
         translationService.translateAnswer(answer, req.content(), req.language());
 
+        // 익명 답변 시 QNA 컨텍스트에서 alias 할당
+        if (req.isAnonymous()) {
+            anonymousAliasService.assign(AliasContextType.QNA, qnaId, memberId);
+        }
+
         return answer.getId();
     }
 
@@ -150,6 +192,11 @@ public class QnAService {
         if (!answer.getAuthor().getId().equals(memberId)) {
             throw new CustomException(ErrorCode.ANSWER_UNAUTHORIZED);
         }
+
+        // 답변 좋아요 먼저 삭제 (answer_likes FK)
+        answerLikeRepository.deleteByAnswerId(answerId);
+
+        // 답변 삭제 (AnswerTranslation cascade)
         answerRepository.delete(answer);
     }
 
@@ -210,14 +257,15 @@ public class QnAService {
                         .orElseGet(() -> qna.getTranslations().get(0)));
     }
 
-    private AnswerResponse buildAnswerResponse(Answer answer, Long memberId, Language language) {
+    private AnswerResponse buildAnswerResponse(Answer answer, Long qnaId, Long memberId, Language language) {
         AnswerTranslation translation = answerTranslationRepository
                 .findByAnswerIdAndLanguage(answer.getId(), language)
                 .orElseGet(() -> answerTranslationRepository
                         .findByAnswerIdAndLanguage(answer.getId(), Language.EN)
                         .orElseGet(() -> answer.getTranslations().get(0)));
 
-        String authorName = getAuthorName(answer.getAuthor());
+        String authorName = resolveAuthorName(answer.getIsAnonymous(),
+                AliasContextType.QNA, qnaId, answer.getAuthor().getId());
         boolean isLiked = answerLikeRepository.existsByMemberIdAndAnswerId(memberId, answer.getId());
         boolean isOwner = answer.getAuthor().getId().equals(memberId);
 
@@ -228,5 +276,12 @@ public class QnAService {
         return profileRepository.findByMemberId(author.getId())
                 .map(Profile::getName)
                 .orElse("Unknown");
+    }
+
+    private String resolveAuthorName(boolean isAnonymous, AliasContextType ctx, Long contextId, Long authorId) {
+        if (isAnonymous) {
+            return anonymousAliasService.lookup(ctx, contextId, authorId);
+        }
+        return profileRepository.findByMemberId(authorId).map(Profile::getName).orElse("Unknown");
     }
 }
