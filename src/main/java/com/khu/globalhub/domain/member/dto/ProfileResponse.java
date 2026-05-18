@@ -13,7 +13,8 @@ public record ProfileResponse(
         String nationality,
         int admissionYear,
         Language language,
-        MentoringRole mentoringRole
+        MentoringRole mentoringRole,
+        double quizScore
 ) {
     public static ProfileResponse from(Profile profile) {
         return new ProfileResponse(
@@ -25,7 +26,8 @@ public record ProfileResponse(
                 profile.getNationality(),
                 profile.getAdmissionYear(),
                 profile.getLanguage(),
-                profile.getMentoringRole()
+                profile.getMentoringRole(),
+                profile.getQuizScore()
         );
     }
 }

@@ -58,6 +58,9 @@ public enum ErrorCode {
     // ── Chat ──────────────────────────────────────────
     CANNOT_CHAT_WITH_SELF(HttpStatus.BAD_REQUEST, "자기 자신에게 메시지를 보낼 수 없습니다."),
 
+    // ── Quiz ──────────────────────────────────────────
+    QUIZ_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 퀴즈 문항입니다."),
+
     // ── Common ────────────────────────────────────────
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "잘못된 입력값입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
