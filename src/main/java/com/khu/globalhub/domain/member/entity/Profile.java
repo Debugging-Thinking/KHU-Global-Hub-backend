@@ -55,6 +55,11 @@ public class Profile extends BaseTimeEntity {
     @Column(nullable = false)
     private MentoringRole mentoringRole;
 
+    /** 퀴즈 최고 점수 (0.0 ~ 100.0). 당근 온도처럼 프로필에 표시. */
+    @Column(nullable = false)
+    @Builder.Default
+    private Double quizScore = 0.0;
+
     public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
@@ -65,6 +70,10 @@ public class Profile extends BaseTimeEntity {
 
     public void updateLanguage(Language language) {
         this.language = language;
+    }
+
+    public void updateQuizScore(Double score) {
+        this.quizScore = score;
     }
 
     public void updateProfile(String name, String department, String nationality,
