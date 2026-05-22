@@ -38,7 +38,6 @@ class BoardFlowTest extends AbstractIntegrationTest {
         MvcResult result = mockMvc.perform(multipart("/api/posts")
                         .param("title", title)
                         .param("content", content)
-                        .param("boardType", "FREE")
                         .param("isAnonymous", String.valueOf(anonymous))
                         .param("language", "KO")
                         .header("Authorization", bearer(token)))
@@ -85,7 +84,6 @@ class BoardFlowTest extends AbstractIntegrationTest {
         createPost(token, "second", "c2", false);
 
         mockMvc.perform(get("/api/posts")
-                        .param("boardType", "FREE")
                         .param("language", "KO")
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk())

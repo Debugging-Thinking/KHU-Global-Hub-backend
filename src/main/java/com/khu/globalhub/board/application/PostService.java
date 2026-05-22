@@ -15,8 +15,6 @@ import com.khu.globalhub.board.infrastructure.CommentLikeRepository;
 import com.khu.globalhub.board.infrastructure.CommentRepository;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.shared.enums.AliasContextType;
-import com.khu.globalhub.shared.enums.BoardType;
-import com.khu.globalhub.shared.enums.CommentTargetType;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
@@ -60,7 +58,6 @@ public class PostService {
     public Long createPost(Long memberId, CreatePostRequest req, List<MultipartFile> images) {
         Post post = Post.builder()
                 .authorId(memberId)
-                .boardType(req.boardType())
                 .isAnonymous(req.isAnonymous())
                 .build();
         postRepository.save(post);
@@ -100,9 +97,9 @@ public class PostService {
         return post.getId();
     }
 
-    /** 게시판별 목록 조회. 요청자의 언어 설정에 맞는 번역본 반환. */
-    public Page<PostSummaryResponse> getPostList(BoardType boardType, Language language, Pageable pageable) {
-        return postRepository.findByBoardTypeOrderByCreatedAtDesc(boardType, pageable)
+    /** 게시글 목록 조회 (게시판 1종). 요청자의 언어 설정에 맞는 번역본 반환. */
+    public Page<PostSummaryResponse> getPostList(Language language, Pageable pageable) {
+        return postRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(post -> {
                     PostTranslation translation = postTranslationRepository
                             .findByPostIdAndLanguage(post.getId(), language)
@@ -166,7 +163,7 @@ public class PostService {
 
         // 1) 이 게시글의 모든 댓글 ID 수집 (대댓글 포함)
         List<Comment> topLevel = commentRepository
-                .findByTargetTypeAndTargetIdAndParentIsNullOrderByCreatedAtAsc(CommentTargetType.POST, postId);
+                .findByTargetIdAndParentIsNullOrderByCreatedAtAsc(postId);
         List<Long> allCommentIds = topLevel.stream()
                 .flatMap(c -> {
                     List<Long> ids = new ArrayList<>();

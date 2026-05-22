@@ -5,7 +5,6 @@ import com.khu.globalhub.board.presentation.dto.PostDetailResponse;
 import com.khu.globalhub.board.presentation.dto.PostSummaryResponse;
 import com.khu.globalhub.board.application.PostService;
 import com.khu.globalhub.shared.common.ApiResponse;
-import com.khu.globalhub.shared.enums.BoardType;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.util.SecurityUtil;
 import jakarta.validation.Valid;
@@ -40,29 +39,26 @@ public class PostController {
     public ResponseEntity<ApiResponse<Long>> createPost(
             @RequestParam @NotBlank String title,
             @RequestParam @NotBlank String content,
-            @RequestParam @NotNull BoardType boardType,
             @RequestParam @NotNull Boolean isAnonymous,
             @RequestParam(defaultValue = "KO") Language language,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        CreatePostRequest request = new CreatePostRequest(boardType, isAnonymous, language, title, content);
+        CreatePostRequest request = new CreatePostRequest(isAnonymous, language, title, content);
         Long postId = postService.createPost(memberId, request, images);
         return ResponseEntity.ok(ApiResponse.ok("게시글이 작성되었습니다.", postId));
     }
 
     /**
-     * 게시판별 목록 조회.
-     * boardType: FRESHMAN / FREE / GRADUATE
+     * 게시글 목록 조회 (게시판 1종 — 자유게시판).
      * language: 조회자의 언어 (번역본 선택용)
      */
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PostSummaryResponse>>> getPostList(
-            @RequestParam BoardType boardType,
             @RequestParam(defaultValue = "KO") Language language,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<PostSummaryResponse> result = postService.getPostList(boardType, language, pageable);
+        Page<PostSummaryResponse> result = postService.getPostList(language, pageable);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

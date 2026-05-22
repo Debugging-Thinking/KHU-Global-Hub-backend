@@ -4,7 +4,6 @@ import com.khu.globalhub.board.presentation.dto.CommentResponse;
 import com.khu.globalhub.board.presentation.dto.CreateCommentRequest;
 import com.khu.globalhub.board.application.CommentService;
 import com.khu.globalhub.shared.common.ApiResponse;
-import com.khu.globalhub.shared.enums.CommentTargetType;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.util.SecurityUtil;
 import jakarta.validation.Valid;
@@ -28,7 +27,7 @@ public class CommentController {
             @Valid @RequestBody CreateCommentRequest request
     ) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        Long commentId = commentService.createComment(CommentTargetType.POST, postId, memberId, request);
+        Long commentId = commentService.createComment(postId, memberId, request);
         return ResponseEntity.ok(ApiResponse.ok("댓글이 작성되었습니다.", commentId));
     }
 
@@ -39,7 +38,7 @@ public class CommentController {
             @RequestParam(defaultValue = "KO") Language language
     ) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        List<CommentResponse> result = commentService.getComments(CommentTargetType.POST, postId, memberId, language);
+        List<CommentResponse> result = commentService.getComments(postId, memberId, language);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

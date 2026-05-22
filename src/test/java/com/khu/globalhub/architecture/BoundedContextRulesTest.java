@@ -15,10 +15,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
  * 각 BC는 ID 참조 / 통합 이벤트 / shared 포트로만 다른 BC와 통신해야 한다.
  *
  * 현재 허용된 잔여 결합 (의도적, 문서화됨):
- *  - board → qna : generic Comment가 qna 댓글을 섬김 → D3(qna 댓글 폐기)에서 제거 예정.
  *  - mentoring → profile : 매칭 알고리즘이 Profile(역할/입학년도) 직접 조회 → 추후 포트화.
- *  - shared.infra.TranslationService → board/qna : 번역 영속화가 BC 엔티티에 결합 → 추후 분리.
+ *  - shared.infra(Translation/S3) → board/qna : 영속화가 BC 엔티티에 결합 → 추후 분리.
  *    (shared→BC는 아래 규칙 범위 밖. 별도 부채로 추적.)
+ *
+ * (board → qna 결합은 D3로 qna 댓글이 폐기되며 제거됨 → board도 완전 격리.)
  */
 @DisplayName("[architecture] BC 격리 경계 규칙")
 class BoundedContextRulesTest {
@@ -79,9 +80,9 @@ class BoundedContextRulesTest {
     }
 
     @Test
-    @DisplayName("board는 qna 외 다른 BC를 의존하지 않는다 (board→qna는 generic Comment 잔여, D3 제거 예정)")
-    void boardOnlyTouchesQna() {
-        bcMustNotDependOn("board", "identity", "profile", "chat", "mentoring", "campusguide");
+    @DisplayName("board는 어떤 BC도 의존하지 않는다 (댓글 흡수·D3 후 완전 격리)")
+    void boardIsIsolated() {
+        bcMustNotDependOn("board", "identity", "profile", "qna", "chat", "mentoring", "campusguide");
     }
 
     @Test

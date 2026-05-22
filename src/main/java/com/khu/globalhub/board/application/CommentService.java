@@ -12,11 +12,7 @@ import com.khu.globalhub.board.infrastructure.CommentTranslationRepository;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.board.domain.Post;
 import com.khu.globalhub.board.infrastructure.PostRepository;
-import com.khu.globalhub.qna.domain.Answer;
-import com.khu.globalhub.qna.infrastructure.QnARepository;
-import com.khu.globalhub.qna.infrastructure.AnswerRepository;
 import com.khu.globalhub.shared.enums.AliasContextType;
-import com.khu.globalhub.shared.enums.CommentTargetType;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
@@ -28,6 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 게시글 댓글 서비스 (board BC 전용 — D3/D4로 QnA 댓글 폐기).
+ * 익명 번호는 게시글(POST) 컨텍스트를 공유한다.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,23 +37,21 @@ public class CommentService {
     private final CommentTranslationRepository commentTranslationRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final PostRepository postRepository;
-    private final QnARepository qnaRepository;
-    private final AnswerRepository answerRepository;
     private final ProfileQueryPort profileQueryPort;
     private final TranslationService translationService;
     private final AnonymousAliasService anonymousAliasService;
 
     /**
-     * 댓글 작성 (게시글/Q&A/답변 공통).
-     * 1) 대상 존재 검증
-     * 2) Comment 저장
-     * 3) 원문 CommentTranslation 동기 저장
-     * 4) 나머지 5개 언어 번역 @Async
-     * 5) POST 타입인 경우 commentCount 증가
+     * 게시글 댓글 작성.
+     * 1) 게시글 존재 검증
+     * 2) Comment 저장 (원문 번역 동기, 나머지 5개 언어 @Async)
+     * 3) 게시글 commentCount 증가 (대댓글 포함)
+     * 4) 익명 댓글이면 POST 컨텍스트 alias 할당
      */
     @Transactional
-    public Long createComment(CommentTargetType targetType, Long targetId, Long memberId, CreateCommentRequest req) {
-        validateTarget(targetType, targetId);
+    public Long createComment(Long postId, Long memberId, CreateCommentRequest req) {
+        postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         Comment parent = null;
         if (req.parentId() != null) {
@@ -62,8 +60,7 @@ public class CommentService {
         }
 
         Comment comment = Comment.builder()
-                .targetType(targetType)
-                .targetId(targetId)
+                .targetId(postId)
                 .parent(parent)
                 .authorId(memberId)
                 .isAnonymous(req.isAnonymous())
@@ -81,61 +78,27 @@ public class CommentService {
         translationService.translateComment(comment, req.content(), req.language());
 
         // 게시글 commentCount 증가 (대댓글도 카운트)
-        if (targetType == CommentTargetType.POST) {
-            postRepository.findById(targetId).ifPresent(Post::incrementCommentCount);
-        }
+        postRepository.findById(postId).ifPresent(Post::incrementCommentCount);
 
-        // 익명 댓글: alias 할당 (POST → POST 컨텍스트, QNA/ANSWER → QNA 컨텍스트)
+        // 익명 댓글: 게시글 컨텍스트에서 alias 할당
         if (req.isAnonymous()) {
-            AliasContextType ctx = resolveAliasContext(targetType);
-            Long ctxId = resolveAliasContextId(targetType, targetId);
-            anonymousAliasService.assign(ctx, ctxId, memberId);
+            anonymousAliasService.assign(AliasContextType.POST, postId, memberId);
         }
 
         return comment.getId();
     }
 
-    /** 댓글 목록 조회 (게시글/Q&A/답변 공통, 요청자 언어 적용). */
-    public List<CommentResponse> getComments(CommentTargetType targetType, Long targetId,
-                                             Long memberId, Language language) {
-        AliasContextType aliasCtx = resolveAliasContext(targetType);
-        Long aliasCtxId = resolveAliasContextId(targetType, targetId);
-
+    /** 게시글 댓글 목록 조회 (요청자 언어 적용). */
+    public List<CommentResponse> getComments(Long postId, Long memberId, Language language) {
         List<Comment> topLevel = commentRepository
-                .findByTargetTypeAndTargetIdAndParentIsNullOrderByCreatedAtAsc(targetType, targetId);
+                .findByTargetIdAndParentIsNullOrderByCreatedAtAsc(postId);
 
         return topLevel.stream()
-                .map(comment -> buildCommentResponse(comment, memberId, language, aliasCtx, aliasCtxId))
+                .map(comment -> buildCommentResponse(comment, memberId, language))
                 .toList();
     }
 
-    /** targetType → alias 컨텍스트 타입 변환 (ANSWER도 QNA 컨텍스트 사용). */
-    private AliasContextType resolveAliasContext(CommentTargetType targetType) {
-        return targetType == CommentTargetType.POST ? AliasContextType.POST : AliasContextType.QNA;
-    }
-
-    /** targetType/targetId → alias 컨텍스트 ID 변환. ANSWER이면 qnaId 반환. */
-    private Long resolveAliasContextId(CommentTargetType targetType, Long targetId) {
-        if (targetType == CommentTargetType.ANSWER) {
-            Answer answer = answerRepository.findById(targetId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
-            return answer.getQna().getId();
-        }
-        return targetId;
-    }
-
-    private void validateTarget(CommentTargetType targetType, Long targetId) {
-        switch (targetType) {
-            case POST -> postRepository.findById(targetId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-            case QNA -> qnaRepository.findById(targetId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
-            case ANSWER -> answerRepository.findById(targetId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
-        }
-    }
-
-    /** 댓글 삭제 (작성자 본인만). 대댓글·좋아요 cascade 삭제. */
+    /** 댓글 삭제 (작성자 본인만). 대댓글·좋아요 cascade 삭제, 게시글 commentCount 감소. */
     @Transactional
     public void deleteComment(Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
@@ -144,14 +107,11 @@ public class CommentService {
             throw new CustomException(ErrorCode.COMMENT_UNAUTHORIZED);
         }
 
-        // 게시글 댓글인 경우에만 commentCount 감소
-        if (comment.getTargetType() == CommentTargetType.POST) {
-            int count = 1 + comment.getChildren().size();
-            postRepository.findById(comment.getTargetId())
-                    .ifPresent(post -> {
-                        for (int i = 0; i < count; i++) post.decrementCommentCount();
-                    });
-        }
+        int count = 1 + comment.getChildren().size();
+        postRepository.findById(comment.getTargetId())
+                .ifPresent(post -> {
+                    for (int i = 0; i < count; i++) post.decrementCommentCount();
+                });
 
         // 이 댓글 + 대댓글 좋아요 먼저 삭제
         List<Long> allIds = new ArrayList<>();
@@ -179,23 +139,23 @@ public class CommentService {
         }
     }
 
-    private CommentResponse buildCommentResponse(Comment comment, Long memberId, Language language,
-                                                  AliasContextType aliasCtx, Long aliasCtxId) {
+    private CommentResponse buildCommentResponse(Comment comment, Long memberId, Language language) {
         CommentTranslation translation = commentTranslationRepository
                 .findByCommentIdAndLanguage(comment.getId(), language)
                 .orElseGet(() -> commentTranslationRepository
                         .findByCommentIdAndLanguage(comment.getId(), Language.EN)
                         .orElseGet(() -> comment.getTranslations().get(0)));
 
+        // 익명 번호는 게시글(POST) 컨텍스트 공유 — targetId = postId
         String authorName = comment.getIsAnonymous()
-                ? anonymousAliasService.lookup(aliasCtx, aliasCtxId, comment.getAuthorId())
+                ? anonymousAliasService.lookup(AliasContextType.POST, comment.getTargetId(), comment.getAuthorId())
                 : profileQueryPort.findName(comment.getAuthorId()).orElse("Unknown");
         boolean isLiked = commentLikeRepository.existsByMemberIdAndCommentId(memberId, comment.getId());
         boolean isOwner = comment.getAuthorId().equals(memberId);
 
         // 대댓글 재귀 변환
         List<CommentResponse> children = comment.getChildren().stream()
-                .map(child -> buildCommentResponse(child, memberId, language, aliasCtx, aliasCtxId))
+                .map(child -> buildCommentResponse(child, memberId, language))
                 .toList();
 
         return CommentResponse.of(comment, translation, authorName, isLiked, isOwner, children);

@@ -1,7 +1,6 @@
 package com.khu.globalhub.board.domain;
 
 import com.khu.globalhub.shared.common.BaseTimeEntity;
-import com.khu.globalhub.shared.enums.BoardType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 게시글 엔티티.
+ * 게시글 엔티티. (게시판 1종 — 자유게시판)
  * 실제 텍스트(제목, 내용)는 PostTranslation에 6개 언어 버전으로 저장된다.
- * 이 테이블은 메타 정보(작성자, 게시판 종류, 익명 여부 등)만 관리한다.
+ * 이 테이블은 메타 정보(작성자, 익명 여부 등)만 관리한다.
  */
 @Entity
 @Table(name = "posts")
@@ -28,11 +27,6 @@ public class Post extends BaseTimeEntity {
     /** 게시글 작성자 ID. 익명 게시글이라도 DB에는 author_id가 저장된다 (삭제/신고 처리용). identity BC를 ID로만 참조 (D7). */
     @Column(name = "author_id", nullable = false)
     private Long authorId;
-
-    /** 어느 게시판에 올린 글인지 (FRESHMAN / FREE / GRADUATE). */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BoardType boardType;
 
     /** 익명 게시 여부. true이면 프론트에서 작성자 정보를 숨긴다. */
     @Column(nullable = false)

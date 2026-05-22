@@ -2,7 +2,6 @@ package com.khu.globalhub.board.presentation.dto;
 
 import com.khu.globalhub.board.domain.Post;
 import com.khu.globalhub.board.domain.PostTranslation;
-import com.khu.globalhub.shared.enums.BoardType;
 import com.khu.globalhub.shared.enums.Language;
 
 import java.time.LocalDateTime;
@@ -14,7 +13,6 @@ import java.util.List;
  */
 public record PostDetailResponse(
         Long postId,
-        BoardType boardType,
         String title,
         String content,
         String authorName,     // isAnonymous=true면 null
@@ -37,7 +35,6 @@ public record PostDetailResponse(
 
         return new PostDetailResponse(
                 post.getId(),
-                post.getBoardType(),
                 translation.getTitle(),
                 translation.getContent(),
                 authorName,   // 익명이면 서비스가 "익명N" 전달
