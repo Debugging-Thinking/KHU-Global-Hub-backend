@@ -9,9 +9,7 @@ import com.khu.globalhub.domain.comment.entity.CommentTranslation;
 import com.khu.globalhub.domain.comment.repository.CommentLikeRepository;
 import com.khu.globalhub.domain.comment.repository.CommentRepository;
 import com.khu.globalhub.domain.comment.repository.CommentTranslationRepository;
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.domain.board.entity.Post;
 import com.khu.globalhub.domain.board.repository.PostRepository;
@@ -42,7 +40,6 @@ public class CommentService {
     private final PostRepository postRepository;
     private final QnARepository qnaRepository;
     private final AnswerRepository answerRepository;
-    private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final TranslationService translationService;
     private final AnonymousAliasService anonymousAliasService;
@@ -59,9 +56,6 @@ public class CommentService {
     public Long createComment(CommentTargetType targetType, Long targetId, Long memberId, CreateCommentRequest req) {
         validateTarget(targetType, targetId);
 
-        Member author = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         Comment parent = null;
         if (req.parentId() != null) {
             parent = commentRepository.findById(req.parentId())
@@ -72,7 +66,7 @@ public class CommentService {
                 .targetType(targetType)
                 .targetId(targetId)
                 .parent(parent)
-                .author(author)
+                .authorId(memberId)
                 .isAnonymous(req.isAnonymous())
                 .build();
         commentRepository.save(comment);
@@ -147,7 +141,7 @@ public class CommentService {
     public void deleteComment(Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-        if (!comment.getAuthor().getId().equals(memberId)) {
+        if (!comment.getAuthorId().equals(memberId)) {
             throw new CustomException(ErrorCode.COMMENT_UNAUTHORIZED);
         }
 
@@ -174,15 +168,13 @@ public class CommentService {
     public boolean toggleLike(Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (commentLikeRepository.existsByMemberIdAndCommentId(memberId, commentId)) {
             commentLikeRepository.deleteByMemberIdAndCommentId(memberId, commentId);
             comment.decreaseLikeCount();
             return false;
         } else {
-            commentLikeRepository.save(CommentLike.builder().member(member).comment(comment).build());
+            commentLikeRepository.save(CommentLike.builder().memberId(memberId).comment(comment).build());
             comment.increaseLikeCount();
             return true;
         }
@@ -197,11 +189,11 @@ public class CommentService {
                         .orElseGet(() -> comment.getTranslations().get(0)));
 
         String authorName = comment.getIsAnonymous()
-                ? anonymousAliasService.lookup(aliasCtx, aliasCtxId, comment.getAuthor().getId())
-                : profileRepository.findByMemberId(comment.getAuthor().getId())
+                ? anonymousAliasService.lookup(aliasCtx, aliasCtxId, comment.getAuthorId())
+                : profileRepository.findByMemberId(comment.getAuthorId())
                         .map(Profile::getName).orElse("Unknown");
         boolean isLiked = commentLikeRepository.existsByMemberIdAndCommentId(memberId, comment.getId());
-        boolean isOwner = comment.getAuthor().getId().equals(memberId);
+        boolean isOwner = comment.getAuthorId().equals(memberId);
 
         // 대댓글 재귀 변환
         List<CommentResponse> children = comment.getChildren().stream()

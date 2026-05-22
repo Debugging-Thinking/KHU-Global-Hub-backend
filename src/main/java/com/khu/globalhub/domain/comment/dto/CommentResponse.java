@@ -29,7 +29,7 @@ public record CommentResponse(
                 comment.getId(),
                 translation.getContent(),
                 authorName,   // 익명이면 서비스가 "익명N" 전달
-                comment.getIsAnonymous() ? null : comment.getAuthor().getId(),
+                comment.getIsAnonymous() ? null : comment.getAuthorId(),
                 comment.getIsAnonymous(),
                 comment.getLikeCount(),
                 isLiked,

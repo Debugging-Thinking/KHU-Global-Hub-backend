@@ -1,6 +1,5 @@
 package com.khu.globalhub.domain.comment.entity;
 
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.shared.common.BaseTimeEntity;
 import com.khu.globalhub.shared.enums.CommentTargetType;
 import jakarta.persistence.*;
@@ -60,10 +59,9 @@ public class Comment extends BaseTimeEntity {
     @Builder.Default
     private List<Comment> children = new ArrayList<>();
 
-    /** 댓글 작성자. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private Member author;
+    /** 댓글 작성자 ID. identity BC를 ID로만 참조 (D7). */
+    @Column(name = "author_id", nullable = false)
+    private Long authorId;
 
     /** 익명 작성 여부. */
     @Column(nullable = false)
