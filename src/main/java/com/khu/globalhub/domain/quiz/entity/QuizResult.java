@@ -1,6 +1,5 @@
 package com.khu.globalhub.domain.quiz.entity;
 
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.shared.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,9 +16,9 @@ public class QuizResult extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    /** 응시자 ID. identity BC를 ID로만 참조 (D7). */
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
 
     @Column(nullable = false)
     private Integer correctCount;

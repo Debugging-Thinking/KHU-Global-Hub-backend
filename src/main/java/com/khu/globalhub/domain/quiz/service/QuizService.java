@@ -1,8 +1,5 @@
 package com.khu.globalhub.domain.quiz.service;
 
-import com.khu.globalhub.domain.member.entity.Member;
-import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.domain.quiz.dto.MyQuizResultResponse;
 import com.khu.globalhub.domain.quiz.dto.QuizQuestionResponse;
@@ -12,8 +9,6 @@ import com.khu.globalhub.domain.quiz.entity.QuizQuestion;
 import com.khu.globalhub.domain.quiz.entity.QuizResult;
 import com.khu.globalhub.domain.quiz.repository.QuizQuestionRepository;
 import com.khu.globalhub.domain.quiz.repository.QuizResultRepository;
-import com.khu.globalhub.shared.exception.CustomException;
-import com.khu.globalhub.shared.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +25,6 @@ public class QuizService {
 
     private final QuizQuestionRepository questionRepository;
     private final QuizResultRepository resultRepository;
-    private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
 
     /** 전체 문제 조회 (정답 미포함). 카테고리 필터 선택 가능. */
@@ -44,9 +38,6 @@ public class QuizService {
     /** 답안 제출 → 채점 → QuizResult 저장 → Profile.quizScore 갱신. */
     @Transactional
     public QuizSubmitResponse submitQuiz(Long memberId, QuizSubmitRequest request) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         Map<Long, QuizQuestion> questionMap = questionRepository
                 .findAllById(request.answers().stream().map(QuizSubmitRequest.QuizAnswerItem::questionId).toList())
                 .stream().collect(Collectors.toMap(QuizQuestion::getId, q -> q));
@@ -70,7 +61,7 @@ public class QuizService {
         double score = total > 0 ? Math.round((double) correctCount / total * 1000.0) / 10.0 : 0.0;
 
         resultRepository.save(QuizResult.builder()
-                .member(member)
+                .memberId(memberId)
                 .correctCount(correctCount)
                 .totalCount(total)
                 .score(score)
