@@ -4,7 +4,7 @@
 > 민감 정보(실제 IP, 키, 엔드포인트)는 포함하지 않습니다 — 운영 접속 정보는 팀 내부 채널에서 관리.
 > **코드 변경 시 이 문서도 함께 업데이트할 것.**
 >
-> 🛠 로컬 실행: [`README-local.md`](./README-local.md) · 팀 협업 규칙 요약: [`README.md` §10](./README.md) · 리팩토링 로그: [`docs/refactor-bc-isolation.md`](./docs/refactor-bc-isolation.md)
+> 🛠 로컬 실행: [`README-local.md`](./README-local.md) · 팀 협업 규칙 요약: [`README.md` §10](./README.md) · 리팩토링 로그: [`docs/refactor-bc-isolation.md`](../Lim/refactor-bc-isolation.md)
 
 ---
 

@@ -405,7 +405,7 @@ DDL_AUTO
 ## 10. BC 협업 가이드 (Bounded Context 격리 후)
 
 > 백엔드는 **BC(Bounded Context) 단위로 격리**되어 있어, 각자 자기 영역만 수정하면 충돌이 거의 없습니다.
-> 설계 배경·결정 로그는 [`docs/refactor-bc-isolation.md`](docs/refactor-bc-isolation.md), 아키텍처 전반은 [`ARCHITECTURE.md`](ARCHITECTURE.md).
+> 설계 배경·결정 로그는 [`docs/refactor-bc-isolation.md`](../Lim/refactor-bc-isolation.md), 아키텍처 전반은 [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ### 10-1. 소유권 (누가 뭘 만지나)
 
