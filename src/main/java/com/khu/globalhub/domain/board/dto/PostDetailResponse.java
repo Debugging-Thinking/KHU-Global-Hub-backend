@@ -41,7 +41,7 @@ public record PostDetailResponse(
                 translation.getTitle(),
                 translation.getContent(),
                 authorName,   // 익명이면 서비스가 "익명N" 전달
-                post.getIsAnonymous() ? null : post.getAuthor().getId(),
+                post.getIsAnonymous() ? null : post.getAuthorId(),
                 post.getIsAnonymous(),
                 post.getLikeCount(),
                 post.getCommentCount(),

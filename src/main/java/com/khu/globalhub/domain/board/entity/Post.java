@@ -1,6 +1,5 @@
 package com.khu.globalhub.domain.board.entity;
 
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.shared.common.BaseTimeEntity;
 import com.khu.globalhub.shared.enums.BoardType;
 import jakarta.persistence.*;
@@ -26,10 +25,9 @@ public class Post extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 게시글 작성자. 익명 게시글이라도 DB에는 author_id가 저장된다 (삭제/신고 처리용). */
-    @ManyToOne(fetch = FetchType.LAZY) // LAZY: 게시글 조회 시 유저 정보는 필요할 때만 DB에서 가져옴
-    @JoinColumn(name = "author_id", nullable = false)
-    private Member author;
+    /** 게시글 작성자 ID. 익명 게시글이라도 DB에는 author_id가 저장된다 (삭제/신고 처리용). identity BC를 ID로만 참조 (D7). */
+    @Column(name = "author_id", nullable = false)
+    private Long authorId;
 
     /** 어느 게시판에 올린 글인지 (FRESHMAN / FREE / GRADUATE). */
     @Enumerated(EnumType.STRING)

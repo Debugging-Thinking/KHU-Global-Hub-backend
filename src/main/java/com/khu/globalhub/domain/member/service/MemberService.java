@@ -114,7 +114,7 @@ public class MemberService {
                             .findByPostIdAndLanguage(post.getId(), Language.EN)
                             .orElseGet(() -> post.getTranslations().get(0)));
 
-            Profile authorProfile = profileRepository.findByMemberId(post.getAuthor().getId())
+            Profile authorProfile = profileRepository.findByMemberId(post.getAuthorId())
                     .orElse(null);
             String authorName = authorProfile != null ? authorProfile.getName() : "Unknown";
 

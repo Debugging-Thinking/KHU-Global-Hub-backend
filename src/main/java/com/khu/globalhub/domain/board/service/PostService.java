@@ -13,9 +13,7 @@ import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
 import com.khu.globalhub.domain.comment.entity.Comment;
 import com.khu.globalhub.domain.comment.repository.CommentLikeRepository;
 import com.khu.globalhub.domain.comment.repository.CommentRepository;
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.shared.enums.AliasContextType;
 import com.khu.globalhub.shared.enums.BoardType;
@@ -47,7 +45,6 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
-    private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final TranslationService translationService;
     private final S3Service s3Service;
@@ -62,11 +59,8 @@ public class PostService {
      */
     @Transactional
     public Long createPost(Long memberId, CreatePostRequest req, List<MultipartFile> images) {
-        Member author = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         Post post = Post.builder()
-                .author(author)
+                .authorId(memberId)
                 .boardType(req.boardType())
                 .isAnonymous(req.isAnonymous())
                 .build();
@@ -117,7 +111,7 @@ public class PostService {
                                     .findByPostIdAndLanguage(post.getId(), Language.EN)
                                     .orElseGet(() -> post.getTranslations().get(0)));
                     String authorName = resolveAuthorName(post.getIsAnonymous(),
-                            AliasContextType.POST, post.getId(), post.getAuthor().getId());
+                            AliasContextType.POST, post.getId(), post.getAuthorId());
                     return PostSummaryResponse.of(post, translation, authorName);
                 });
     }
@@ -132,7 +126,7 @@ public class PostService {
                                     .findByPostIdAndLanguage(post.getId(), Language.EN)
                                     .orElseGet(() -> post.getTranslations().get(0)));
                     String authorName = resolveAuthorName(post.getIsAnonymous(),
-                            AliasContextType.POST, post.getId(), post.getAuthor().getId());
+                            AliasContextType.POST, post.getId(), post.getAuthorId());
                     return PostSummaryResponse.of(post, translation, authorName);
                 });
     }
@@ -155,9 +149,9 @@ public class PostService {
                 .orElse(Language.KO);
 
         String authorName = resolveAuthorName(post.getIsAnonymous(),
-                AliasContextType.POST, postId, post.getAuthor().getId());
+                AliasContextType.POST, postId, post.getAuthorId());
         boolean isLiked = postLikeRepository.existsByMemberIdAndPostId(memberId, postId);
-        boolean isOwner = post.getAuthor().getId().equals(memberId);
+        boolean isOwner = post.getAuthorId().equals(memberId);
 
         return PostDetailResponse.of(post, translation, authorName, isLiked, isOwner, originalLanguage);
     }
@@ -167,7 +161,7 @@ public class PostService {
     public void deletePost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-        if (!post.getAuthor().getId().equals(memberId)) {
+        if (!post.getAuthorId().equals(memberId)) {
             throw new CustomException(ErrorCode.POST_UNAUTHORIZED);
         }
 
@@ -201,24 +195,16 @@ public class PostService {
     public boolean toggleLike(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (postLikeRepository.existsByMemberIdAndPostId(memberId, postId)) {
             postLikeRepository.deleteByMemberIdAndPostId(memberId, postId);
             post.decreaseLikeCount();
             return false; // 취소됨
         } else {
-            postLikeRepository.save(PostLike.builder().member(member).post(post).build());
+            postLikeRepository.save(PostLike.builder().memberId(memberId).post(post).build());
             post.increaseLikeCount();
             return true; // 추가됨
         }
-    }
-
-    private String getAuthorName(Member author) {
-        return profileRepository.findByMemberId(author.getId())
-                .map(Profile::getName)
-                .orElse("Unknown");
     }
 
     private String resolveAuthorName(boolean isAnonymous, AliasContextType ctx, Long contextId, Long authorId) {
