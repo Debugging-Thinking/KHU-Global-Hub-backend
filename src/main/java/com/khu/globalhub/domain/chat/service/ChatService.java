@@ -5,9 +5,8 @@ import com.khu.globalhub.domain.chat.dto.ConversationSummaryResponse;
 import com.khu.globalhub.domain.chat.dto.SendMessageRequest;
 import com.khu.globalhub.domain.chat.entity.ChatMessage;
 import com.khu.globalhub.domain.chat.repository.ChatMessageRepository;
-import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.identity.infrastructure.MemberRepository;
-import com.khu.globalhub.profile.infrastructure.ProfileRepository;
+import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
-    private final ProfileRepository profileRepository;
+    private final ProfileQueryPort profileQueryPort;
 
     /**
      * 메시지 전송.
@@ -68,8 +67,7 @@ public class ChatService {
                 .map(msg -> {
                     String senderName = null;
                     if (!msg.getIsSystem() && msg.getSenderId() != null) {
-                        senderName = profileRepository.findByMemberId(msg.getSenderId())
-                                .map(Profile::getName)
+                        senderName = profileQueryPort.findName(msg.getSenderId())
                                 .orElse("Unknown");
                     }
                     return ChatMessageResponse.of(msg, senderName);
@@ -87,9 +85,9 @@ public class ChatService {
         for (Long partnerId : partnerIds) {
             if (partnerId == null) continue;
 
-            Profile partnerProfile = profileRepository.findByMemberId(partnerId).orElse(null);
-            String partnerName = partnerProfile != null ? partnerProfile.getName() : "Unknown";
-            String partnerImage = partnerProfile != null ? partnerProfile.getProfileImage() : null;
+            ProfileQueryPort.ProfileCard partnerCard = profileQueryPort.findCard(partnerId).orElse(null);
+            String partnerName = partnerCard != null ? partnerCard.name() : "Unknown";
+            String partnerImage = partnerCard != null ? partnerCard.profileImage() : null;
 
             ChatMessage last = chatMessageRepository.findLastMessage(myId, partnerId).orElse(null);
             if (last == null) continue;

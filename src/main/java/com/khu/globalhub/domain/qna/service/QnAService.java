@@ -1,8 +1,7 @@
 package com.khu.globalhub.domain.qna.service;
 
 import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
-import com.khu.globalhub.profile.domain.Profile;
-import com.khu.globalhub.profile.infrastructure.ProfileRepository;
+import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.domain.qna.dto.*;
 import com.khu.globalhub.domain.qna.entity.*;
 import com.khu.globalhub.domain.qna.repository.*;
@@ -30,7 +29,7 @@ public class QnAService {
     private final AnswerRepository answerRepository;
     private final AnswerTranslationRepository answerTranslationRepository;
     private final AnswerLikeRepository answerLikeRepository;
-    private final ProfileRepository profileRepository;
+    private final ProfileQueryPort profileQueryPort;
     private final TranslationService translationService;
     private final AnonymousAliasService anonymousAliasService;
 
@@ -269,6 +268,6 @@ public class QnAService {
         if (isAnonymous) {
             return anonymousAliasService.lookup(ctx, contextId, authorId);
         }
-        return profileRepository.findByMemberId(authorId).map(Profile::getName).orElse("Unknown");
+        return profileQueryPort.findName(authorId).orElse("Unknown");
     }
 }

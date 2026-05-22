@@ -9,8 +9,7 @@ import com.khu.globalhub.domain.comment.entity.CommentTranslation;
 import com.khu.globalhub.domain.comment.repository.CommentLikeRepository;
 import com.khu.globalhub.domain.comment.repository.CommentRepository;
 import com.khu.globalhub.domain.comment.repository.CommentTranslationRepository;
-import com.khu.globalhub.profile.domain.Profile;
-import com.khu.globalhub.profile.infrastructure.ProfileRepository;
+import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.domain.board.entity.Post;
 import com.khu.globalhub.domain.board.repository.PostRepository;
 import com.khu.globalhub.domain.qna.entity.Answer;
@@ -40,7 +39,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final QnARepository qnaRepository;
     private final AnswerRepository answerRepository;
-    private final ProfileRepository profileRepository;
+    private final ProfileQueryPort profileQueryPort;
     private final TranslationService translationService;
     private final AnonymousAliasService anonymousAliasService;
 
@@ -190,8 +189,7 @@ public class CommentService {
 
         String authorName = comment.getIsAnonymous()
                 ? anonymousAliasService.lookup(aliasCtx, aliasCtxId, comment.getAuthorId())
-                : profileRepository.findByMemberId(comment.getAuthorId())
-                        .map(Profile::getName).orElse("Unknown");
+                : profileQueryPort.findName(comment.getAuthorId()).orElse("Unknown");
         boolean isLiked = commentLikeRepository.existsByMemberIdAndCommentId(memberId, comment.getId());
         boolean isOwner = comment.getAuthorId().equals(memberId);
 

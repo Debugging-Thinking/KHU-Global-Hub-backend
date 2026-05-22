@@ -13,8 +13,7 @@ import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
 import com.khu.globalhub.domain.comment.entity.Comment;
 import com.khu.globalhub.domain.comment.repository.CommentLikeRepository;
 import com.khu.globalhub.domain.comment.repository.CommentRepository;
-import com.khu.globalhub.profile.domain.Profile;
-import com.khu.globalhub.profile.infrastructure.ProfileRepository;
+import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.shared.enums.AliasContextType;
 import com.khu.globalhub.shared.enums.BoardType;
 import com.khu.globalhub.shared.enums.CommentTargetType;
@@ -45,7 +44,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
-    private final ProfileRepository profileRepository;
+    private final ProfileQueryPort profileQueryPort;
     private final TranslationService translationService;
     private final S3Service s3Service;
     private final AnonymousAliasService anonymousAliasService;
@@ -211,6 +210,6 @@ public class PostService {
         if (isAnonymous) {
             return anonymousAliasService.lookup(ctx, contextId, authorId);
         }
-        return profileRepository.findByMemberId(authorId).map(Profile::getName).orElse("Unknown");
+        return profileQueryPort.findName(authorId).orElse("Unknown");
     }
 }
