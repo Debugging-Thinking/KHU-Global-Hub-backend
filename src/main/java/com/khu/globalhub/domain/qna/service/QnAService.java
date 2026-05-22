@@ -90,12 +90,18 @@ public class QnAService {
         boolean isLiked = qnaLikeRepository.existsByMemberIdAndQnaId(memberId, qnaId);
         boolean isOwner = qna.getAuthor().getId().equals(memberId);
 
+        // 원문 언어: ID가 가장 낮은(가장 먼저 저장된) 번역 행의 language
+        Language originalLanguage = qnaTranslationRepository
+                .findFirstByQnaIdOrderByIdAsc(qnaId)
+                .map(QnATranslation::getLanguage)
+                .orElse(Language.KO);
+
         List<AnswerResponse> answers = answerRepository.findByQnaIdOrderByCreatedAtAsc(qnaId)
                 .stream()
                 .map(answer -> buildAnswerResponse(answer, qnaId, memberId, language))
                 .toList();
 
-        return QnADetailResponse.of(qna, translation, authorName, isLiked, isOwner, answers);
+        return QnADetailResponse.of(qna, translation, authorName, isLiked, isOwner, answers, originalLanguage);
     }
 
     @Transactional

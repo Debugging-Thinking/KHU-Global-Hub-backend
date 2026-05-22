@@ -2,6 +2,7 @@ package com.khu.globalhub.domain.qna.dto;
 
 import com.khu.globalhub.domain.qna.entity.QnA;
 import com.khu.globalhub.domain.qna.entity.QnATranslation;
+import com.khu.globalhub.global.enums.Language;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,11 +19,12 @@ public record QnADetailResponse(
         boolean isLiked,
         boolean isOwner,
         List<AnswerResponse> answers,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        Language originalLanguage  // Q&A 원문 언어
 ) {
     public static QnADetailResponse of(QnA qna, QnATranslation translation,
                                        String authorName, boolean isLiked, boolean isOwner,
-                                       List<AnswerResponse> answers) {
+                                       List<AnswerResponse> answers, Language originalLanguage) {
         return new QnADetailResponse(
                 qna.getId(),
                 translation.getTitle(),
@@ -35,7 +37,8 @@ public record QnADetailResponse(
                 isLiked,
                 isOwner,
                 answers,
-                qna.getCreatedAt()
+                qna.getCreatedAt(),
+                originalLanguage
         );
     }
 }

@@ -148,12 +148,18 @@ public class PostService {
                         .findByPostIdAndLanguage(postId, Language.EN)
                         .orElseGet(() -> post.getTranslations().get(0)));
 
+        // 원문 언어: ID가 가장 낮은(가장 먼저 저장된) 번역 행의 language
+        Language originalLanguage = postTranslationRepository
+                .findFirstByPostIdOrderByIdAsc(postId)
+                .map(PostTranslation::getLanguage)
+                .orElse(Language.KO);
+
         String authorName = resolveAuthorName(post.getIsAnonymous(),
                 AliasContextType.POST, postId, post.getAuthor().getId());
         boolean isLiked = postLikeRepository.existsByMemberIdAndPostId(memberId, postId);
         boolean isOwner = post.getAuthor().getId().equals(memberId);
 
-        return PostDetailResponse.of(post, translation, authorName, isLiked, isOwner);
+        return PostDetailResponse.of(post, translation, authorName, isLiked, isOwner, originalLanguage);
     }
 
     /** 게시글 삭제 (작성자 본인만 가능). 댓글·좋아요 모두 cascade 삭제. */
