@@ -1,9 +1,11 @@
 # 로컬 개발용 설정 예시 파일.
-# 이 파일을 같은 폴더에 application-local.yml 로 복사해서 사용하세요.
-#   (application-local.yml 은 .gitignore 처리되어 있어 git에 올라가지 않습니다)
+#   · dev.ps1 / dev.sh 를 쓰면 이 파일이 application-local.yml 로 자동 복사됩니다 (직접 만들 필요 X).
+#   · 수동 실행 시에만:  Copy-Item application-local.yml.example application-local.yml
+#   · application-local.yml 은 .gitignore (개인 설정·비밀키 자리라 유출 방지)
 #
-# 아래 DB 접속 정보는 docker-compose.yml 의 로컬 PostgreSQL 과 동일한 더미 값입니다.
-# 민감 정보 아님 — 그대로 사용하면 됩니다.
+# DB 접속 정보는 docker-compose.yml 의 로컬 PostgreSQL 과 동일한 더미 값 — 그대로 쓰면 됩니다.
+# ※ 로그인용 테스트 계정(demo / alice / bob / carol @khu.ac.kr, 비번 password123)은
+#   이 파일과 무관합니다. 앱이 켜질 때 LocalTestDataInitializer 가 DB에 자동 시드합니다.
 
 spring:
   datasource:
@@ -13,5 +15,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create   # 앱 재시작 시마다 테이블 초기화. 데이터 유지하려면 update 로 변경
+      # 스키마는 Flyway가 생성/관리한다. 로컬은 update 권장:
+      #   - 데이터 유지(재시작해도 안 날아감) + 스키마 드리프트 자동 보정(앱이 안 죽음)
+      # 깨끗이 초기화하려면 ddl-auto가 아니라  docker compose down -v && up -d  로.
+      # (테스트/운영은 validate — 스키마 변경은 반드시 Flyway 마이그레이션으로)
+      ddl-auto: update
     show-sql: true

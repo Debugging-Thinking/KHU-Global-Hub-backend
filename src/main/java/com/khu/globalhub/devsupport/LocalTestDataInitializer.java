@@ -2,6 +2,7 @@ package com.khu.globalhub.devsupport;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -9,15 +10,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 로컬 개발용 테스트 데이터 시드 (local 프로필 전용).
  *
  * <p>로컬은 SMTP가 더미라 회원가입(이메일 인증)이 안 되므로, 팀원이 매번 계정을 만들 필요 없이
  * 표준 테스트 계정과 샘플 콘텐츠를 자동 생성한다. 모든 계정 비밀번호는 {@code password123}.
  *
+ * <p><b>매 실행마다 초기화 후 재시드</b> — 켤 때마다 항상 동일한 테스트 셋이 보장된다
+ * (이전 실행에서 만지작거린 데이터가 남지 않음). quiz 문항/Flyway 이력은 보존.
+ *
  * <ul>
  *   <li>{@code @Profile("local")} — 운영(prod)에서는 절대 실행되지 않는다.</li>
- *   <li>멱등 — demo 계정이 이미 있으면 건너뛴다(중복 시드 방지).</li>
+ *   <li>datasource가 localhost가 아니면 건드리지 않는다(원격 DB 안전장치).</li>
  *   <li>JdbcTemplate만 사용 — 특정 BC 패키지에 의존하지 않는 순수 개발 보조 도구.</li>
  * </ul>
  *
@@ -29,21 +35,25 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LocalTestDataInitializer implements ApplicationRunner {
 
-    private static final String SENTINEL_EMAIL = "demo@khu.ac.kr";
-
     private final JdbcTemplate jdbc;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${spring.datasource.url:}")
+    private String datasourceUrl;
+
     @Override
     public void run(ApplicationArguments args) {
-        Integer count = jdbc.queryForObject(
-                "SELECT count(*) FROM members WHERE email = ?", Integer.class, SENTINEL_EMAIL);
-        if (count != null && count > 0) {
-            log.info("[LocalSeed] 테스트 데이터가 이미 있어 시드를 건너뜁니다.");
+        // 안전장치: 로컬 DB(localhost)가 아니면 절대 초기화/시드하지 않는다.
+        if (datasourceUrl == null
+                || !(datasourceUrl.contains("localhost") || datasourceUrl.contains("127.0.0.1"))) {
+            log.warn("[LocalSeed] datasource가 localhost가 아니라 시드를 건너뜁니다: {}", datasourceUrl);
             return;
         }
 
-        log.info("[LocalSeed] 로컬 테스트 데이터 시드 시작…");
+        // 매 실행마다 동일한 셋 보장 — 기존 데이터 초기화 후 재시드 (quiz 문항/Flyway 이력 보존).
+        resetTestData();
+
+        log.info("[LocalSeed] 로컬 테스트 데이터 초기화 후 재시드…");
         String pw = passwordEncoder.encode("password123");
 
         long demo = member("demo@khu.ac.kr", pw);   profile(demo, "데모", "컴퓨터공학과", "대한민국", 2020, "MENTEE");
@@ -75,6 +85,17 @@ public class LocalTestDataInitializer implements ApplicationRunner {
         match(bob, demo, "2026-1");
 
         log.info("[LocalSeed] 완료 ✅  로그인 계정: demo / alice / bob / carol @khu.ac.kr  (비밀번호: password123)");
+    }
+
+    /** quiz 문항 시드와 Flyway 이력을 제외한 모든 테이블을 비우고 ID 시퀀스를 초기화한다. */
+    private void resetTestData() {
+        List<String> tables = jdbc.queryForList(
+                "SELECT tablename FROM pg_tables WHERE schemaname = 'public' " +
+                        "AND tablename NOT IN ('flyway_schema_history', 'quiz_questions', 'quiz_options')",
+                String.class);
+        if (!tables.isEmpty()) {
+            jdbc.execute("TRUNCATE TABLE " + String.join(", ", tables) + " RESTART IDENTITY CASCADE");
+        }
     }
 
     private long member(String email, String encodedPw) {

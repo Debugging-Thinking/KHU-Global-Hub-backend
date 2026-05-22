@@ -4,7 +4,7 @@
 > 민감 정보(실제 IP, 키, 엔드포인트)는 포함하지 않습니다 — 운영 접속 정보는 팀 내부 채널에서 관리.
 > **코드 변경 시 이 문서도 함께 업데이트할 것.**
 >
-> 🛠 로컬 실행: [`README-local.md`](./README-local.md) · 팀 협업 규칙 요약: [`README.md` §10](./README.md) · 리팩토링 로그: [`docs/refactor-bc-isolation.md`](../Lim/refactor-bc-isolation.md)
+> 🛠 로컬 실행: [`localtest.md`](./localtest.md) · 팀 협업 규칙 요약: [`README.md` §10](./README.md) · 리팩토링 로그: [`docs/refactor-bc-isolation.md`](../Lim/refactor-bc-isolation.md)
 
 ---
 
@@ -310,7 +310,7 @@ frontend/app/(main)/
 - **characterization 테스트**: 인증/게시판/댓글/Q&A/채택/좋아요/채팅/멘토링/퀴즈 핵심 경로 동작 박제.
 - **ArchUnit**(`BoundedContextRulesTest`): BC 의존 경계 강제.
 - 검증: `./gradlew test`. 리팩토링·기능 추가 후 그린이면 "동작 불변 + 경계 유지" 보장.
-- 로컬은 `LocalTestDataInitializer`(@Profile local)가 테스트 계정·데이터 자동 시드 → README-local.md 참고.
+- 로컬은 `LocalTestDataInitializer`(@Profile local)가 테스트 계정·데이터 자동 시드 → localtest.md 참고.
 
 ---
 
@@ -343,7 +343,7 @@ frontend/app/(main)/
 
 ## 12. 개발 환경 주의사항
 
-- 로컬 실행: [`README-local.md`](./README-local.md) (`dev.ps1`/`dev.sh` 원클릭 — 카톡 공유, gitignore)
+- 로컬 실행: [`localtest.md`](./localtest.md) (`dev.ps1`/`dev.sh` 원클릭 — 카톡 공유, gitignore)
 - `application-local.yml`·`application-prod.yml`은 `.gitignore` (dev 런처가 `.example`에서 자동 생성). `*.pem`, `*.env`, `CLAUDE.md`도 gitignore.
 - 메일/Azure/AWS 키는 더미 기본값이 있어 **키 없이도 앱 실행 가능**(해당 기능만 비활성). 실제 테스트 시 환경변수 주입.
 - 로컬 DB는 docker 포트 **5433**(네이티브 PostgreSQL 5432 충돌 방지). Flyway가 스키마 생성.

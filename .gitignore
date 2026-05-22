@@ -48,7 +48,3 @@ CLAUDE.md
 # Claude Code 로컬 설정 (개인별, 공유 금지 — 서버 IP 등 포함 가능)
 .claude/settings.local.json
 
-# 개인 로컬 풀스택 실행 스크립트 (개인별 환경 — 팀 공유 X)
-dev.ps1
-dev.sh
-

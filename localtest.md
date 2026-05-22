@@ -10,11 +10,23 @@ KHU Global Hub 백엔드를 로컬에서 실행하는 방법입니다. 운영 �
 | 항목 | 설명 |
 |------|------|
 | **JDK 21** | [Temurin 21](https://adoptium.net/temurin/releases/?version=21) 등 설치. `java -version` 으로 21 확인 |
-| **Docker Desktop** | 로컬 PostgreSQL 실행용. [docker.com](https://www.docker.com/products/docker-desktop/) 에서 설치 |
+| **Docker Desktop** | 로컬 PostgreSQL DB 실행용. [docker.com](https://www.docker.com/products/docker-desktop/) 에서 설치 |
+| **Node.js** | 프론트(Expo) 실행용 (`npm install` / `npm run web`) |
+| **Git** | 레포 clone |
 
-> Docker를 쓰기 싫으면 로컬에 PostgreSQL을 직접 설치해도 됩니다.
-> 그 경우 DB명 `khu_global_hub`, 유저 `globalhub`, 비번 `globalhub1234` 로 맞추고,
-> `application-local.yml` 의 포트를 본인 PostgreSQL 포트(보통 `5432`)로 변경하세요.
+> **왜 Docker?** 백엔드는 PostgreSQL DB가 필요합니다. 도커로 DB를 컨테이너로 띄우면
+> PostgreSQL을 직접 설치·설정할 필요 없이 `docker compose up` 한 줄로 모든 팀원이 **동일한 DB 환경**을 얻습니다.
+>
+> Docker 없이 하려면 PostgreSQL을 직접 설치해도 됩니다 — DB명 `khu_global_hub`, 유저 `globalhub`,
+> 비번 `globalhub1234` 로 맞추고 `application-local.yml` 포트를 본인 포트(보통 `5432`)로 변경하세요.
+
+> **비밀번호 2종:**
+> 
+> |**DB 접속 비번** : `globalhub1234`  앱 ↔ PostgreSQL **연결**용. 설정 파일에 자동으로 들어감,  |
+> 
+> | **앱 로그인 비번** : `password123`  테스트 계정(demo/alice/bob/carol) **로그인**용. |
+>
+> docker/`dev.ps1`을 쓰면 `globalhub1234`는 볼 일도 없습니다. **네가 실제로 쓰는 건 `password123`(로그인) 뿐.**
 
 ### 로컬 설정 파일 (`application-local.yml`)
 `src/main/resources/application-local.yml` 은 git에 올라가지 않습니다 — 각자 환경·비밀키를 넣는 개인 파일이라 유출 방지 목적으로 gitignore 처리.
@@ -64,9 +76,9 @@ docker compose up -d          # 1) 로컬 DB (끌 때 docker compose down, 데�
 → 백엔드: `http://localhost:8080` · Swagger: `http://localhost:8080/swagger-ui.html`
 → 프론트(Expo Web): 실행 시 안내되는 브라우저 주소(보통 `http://localhost:8081`)
 
-> 💡 **테스트 계정 자동 시드** — local 첫 실행 시 테스트 계정·샘플 데이터가 자동 생성됩니다 (회원가입/이메일 불필요).
+> 💡 **테스트 계정 자동 시드** — local 프로필은 **실행할 때마다** 테스트 계정·샘플 데이터를 초기화 후 재시드합니다 (회원가입/이메일 불필요, **항상 동일한 셋**).
 > `demo` / `alice` / `bob` / `carol` `@khu.ac.kr` — 비밀번호 전부 `password123`. 두 명 동시 테스트는 **시크릿 탭**.
-> 깨끗이 초기화: `docker compose down -v` 후 다시 실행. (`LocalTestDataInitializer`, local 프로필 전용 — 운영 미적용)
+> (`LocalTestDataInitializer`, `@Profile("local")` + localhost DB만 — 운영 미적용. ⚠️ 매 실행 초기화라 로컬에서 직접 만든 데이터는 재시작 시 사라집니다.)
 
 ---
 
@@ -101,7 +113,7 @@ $env:AWS_SECRET_KEY="..."
 
 ## 4. 자주 묻는 것
 
-- **앱 재시작하면 데이터가 사라져요** → `application-local.yml` 의 `ddl-auto: create` 때문입니다. 데이터를 유지하려면 `update` 로 바꾸세요.
+- **앱 재시작하면 내가 만든 데이터가 사라져요** → **의도된 동작**입니다. local 프로필은 매 실행마다 테스트 셋을 초기화 후 재시드(`LocalTestDataInitializer`)해 항상 동일한 상태로 시작합니다. 보존이 필요하면 그 초기화기의 `resetTestData()` 호출을 빼면 됩니다. (스키마는 Flyway 관리, `ddl-auto=update`)
 - **DB 연결/인증 실패** → 도커 DB는 호스트 **5433** 포트로 매핑돼 있습니다 (로컬 네이티브 PostgreSQL의 5432와 충돌 방지용). `application-local.yml` 이 `localhost:5433` 을 가리키는지 확인하세요. 그래도 5433이 충돌하면 `docker-compose.yml` 과 `application-local.yml` 양쪽 포트를 비어있는 다른 번호로 바꾸면 됩니다.
 - **`DB_URL` 관련 에러로 시작 실패** → `application-local.yml` 을 안 만들었을 가능성이 큽니다. (1번 마지막 단계 확인)
-- **프론트 연동** → 프론트의 API base URL을 `http://localhost:8080` 으로 변경하면 로컬 백엔드와 통신합니다.
+- **프론트 연동** → 프론트 기본 API 주소가 이미 `http://localhost:8080`입니다(`src/api/client.ts`). 로컬 백엔드를 띄웠으면 별도 설정 없이 붙습니다. (다른 서버를 보려면 `frontend/.env.local`에 `EXPO_PUBLIC_API_URL` 설정)

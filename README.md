@@ -72,72 +72,14 @@
 
 ---
 
-## 4. 로컬 개발 환경
+## 4. 로컬 개발 / 실행
 
-### 백엔드 사전 준비
-- Java 21 (JDK)
-- Docker Desktop
+> 로컬 풀스택 실행 · 환경 설정 · **테스트 계정** 등 상세는 → **[`localtest.md`](./localtest.md)**
 
-### 1. application-local.yml 생성
-
-`src/main/resources/application-local.yml`은 `.gitignore` 처리되어 있으므로 직접 생성:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/khu_global_hub
-    username: globalhub
-    password: globalhub1234
-  jpa:
-    hibernate:
-      ddl-auto: create   # 최초 실행: create / 이후: update
-    show-sql: true
-```
-
-### 2. DB 실행
-
-```bash
-docker compose up -d
-```
-
-### 3. 백엔드 실행
-
-```bash
-./gradlew bootRun
-```
-
-> 💡 **로컬 테스트 계정 자동 시드** — `local` 프로필 첫 실행 시 테스트 계정·샘플 데이터가 자동 생성됩니다 (회원가입/이메일 인증 불필요).
-> 계정: `demo` / `alice` / `bob` / `carol` `@khu.ac.kr` — **비밀번호 전부 `password123`**.
-> 서로의 글에 댓글, demo↔alice 채팅, bob↔demo 멘토링 매칭 등 멀티유저 시나리오가 미리 들어있습니다.
-> (`LocalTestDataInitializer`, `@Profile("local")` — 멱등·운영 미적용. 깨끗이 다시 시드하려면 `docker compose down -v && up -d` 후 재실행.)
-
-### 4. Swagger UI (로컬)
-
-```
-http://localhost:8080/swagger-ui/index.html
-```
-
-### 5. 프론트엔드 실행
-
-```bash
-cd frontend
-npm install
-npx expo start
-```
-
-브라우저 웹: `w` 키 / Android 에뮬레이터: `a` 키
-
-### 6. 프론트엔드 웹 빌드 & 배포
-
-```bash
-cd frontend
-npx expo export --platform web   # dist/ 생성
-
-scp -i "{KEY}.pem" -r dist/* ubuntu@{EC2_IP}:~/web/
-ssh -i "{KEY}.pem" ubuntu@{EC2_IP} "sudo cp -r ~/web/* /var/www/html/globalhub/"
-```
-
-> Azure Translator, AWS S3, Gmail SMTP 기능은 해당 환경변수 없이는 동작하지 않습니다.
+요약: `docker compose up -d` → `./gradlew bootRun` (또는 원클릭 `dev.ps1`/`dev.sh`) → 프론트 `npm run web`.
+- 로그인은 자동 시드 계정 사용 (회원가입 불필요) — 자세히는 `localtest.md`.
+- 프론트 기본 API 주소 = 로컬 백엔드 `http://localhost:8080`.
+- 운영 배포 절차는 [`ARCHITECTURE.md`](./ARCHITECTURE.md) §7.
 
 ---
 
