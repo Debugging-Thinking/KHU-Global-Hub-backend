@@ -13,8 +13,12 @@
 > - ✅ **profile BC 추출 완료** (커밋 2개):
 >   - P1: `domain/member`(Profile/ProfileRepository/MemberService/MemberController/DTO3) → `com.khu.globalhub.profile` 4계층으로 `git mv`. 클래스명 유지(순수 이동). 테이블명 불변=스키마 무변경.
 >   - P2: identity→profile 결합 제거 — `AuthService`가 `Profile`/`ProfileRepository` 대신 **`ProfileGateway`(DIP 포트, identity가 정의)** 만 의존. 어댑터(`ProfileGatewayAdapter`)는 profile BC가 구현. 프로필 생성 규칙은 profile로 이전. `POST /api/auth/profile`·login `hasProfile` 동작/경로 불변. → **identity는 profile을 import하지 않음**.
-> - ⏭️ **다음 재개 지점: board BC 정리** — 콘텐츠 BC들(board/qna/comment/chat)이 작성자 이름 조회로 `ProfileRepository`를 직접 import하는 잔여 결합을 **`ProfileQueryPort`(profile 노출, 배치 findNames)** 로 분리. + profile→identity 이메일 조회도 포트화 고려(`MemberQueryPort`). 그 다음 댓글 흡수/extevent/스키마 정리(V2~).
-> - ⏳ 남음: ArchUnit 규칙(task 7) / 콘텐츠 BC 포트 분리 / 댓글 board 흡수 / extevent 인프라 / 스키마 정리(V2~V4)
+> - ✅ **ProfileQueryPort 분리 완료** (커밋 1개): 콘텐츠/채팅 BC(board/qna/comment/chat)가 작성자·발신자 이름 조회로 `ProfileRepository`를 직접 import하던 결합을 **`shared.port.ProfileQueryPort`** (findName + findCard) 계약으로 전환. 구현은 `profile/application/ProfileQueryAdapter`. → 4개 BC에서 profile 패키지 import 완전 제거. (배치 `findNames`는 N+1 최적화 단계로 미룸.)
+> - ⏭️ **다음 재개 지점 (택1)**:
+>   - (a) **남은 BC 패키지 재배치**: `domain/{board,qna,comment,chat,mentoring,quiz,anonymous}` → 톱레벨 `com.khu.globalhub.{board,qna,chat,mentoring,campusguide,...}` 4계층 (identity/profile과 동일 방식).
+>   - (b) **extevent 인프라 + 위반 결합 정리**: `MentoringService`의 chat 직접쓰기(`ChatMessageRepository` INSERT) → `MatchCreatedEvent`, quiz→profile `quizScore` → `QuizCompletedEvent`. mentoring→profile(매칭용 Profile 직접조회)·profile→identity(email) 포트화.
+>   - (c) **댓글 board 흡수(D3/D4) + 스키마 V2~V4**: qna/answer 댓글 폐기, target_type·board_type 제거. ⚠️ 동작/프론트 변경 동반.
+> - ⏳ 남음: ArchUnit 규칙(task 7) / 남은 BC 재배치 / extevent / 댓글 흡수 / 스키마 정리(V2~V4)
 > 목적: 바이브코딩으로 결합된 현재 모놀리식을 **BC 단위로 격리**해서 3인 팀이 각자 자기 영역을 온전히 소유하도록 재구성한다.
 > 레퍼런스 아키텍처: `tech-blog-be` (DDD-Lite, 싱글 모듈, 패키지 기반 BC + 통합 이벤트)
 >
