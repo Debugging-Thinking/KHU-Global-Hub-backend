@@ -1,6 +1,6 @@
-package com.khu.globalhub.domain.member.dto;
+package com.khu.globalhub.profile.presentation.dto;
 
-import com.khu.globalhub.domain.member.entity.Profile;
+import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.enums.MentoringRole;
 

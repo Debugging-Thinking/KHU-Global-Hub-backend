@@ -1,10 +1,10 @@
-package com.khu.globalhub.domain.member.controller;
+package com.khu.globalhub.profile.presentation;
 
 import com.khu.globalhub.domain.board.dto.PostSummaryResponse;
-import com.khu.globalhub.domain.member.dto.ProfileResponse;
-import com.khu.globalhub.domain.member.dto.UpdateMentoringRoleRequest;
-import com.khu.globalhub.domain.member.dto.UpdateProfileRequest;
-import com.khu.globalhub.domain.member.service.MemberService;
+import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
+import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
+import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;
+import com.khu.globalhub.profile.application.MemberService;
 import com.khu.globalhub.shared.common.ApiResponse;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.util.SecurityUtil;

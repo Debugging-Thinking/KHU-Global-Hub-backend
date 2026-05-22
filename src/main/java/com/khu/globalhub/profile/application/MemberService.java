@@ -1,15 +1,15 @@
-package com.khu.globalhub.domain.member.service;
+package com.khu.globalhub.profile.application;
 
 import com.khu.globalhub.domain.board.dto.PostSummaryResponse;
 import com.khu.globalhub.domain.board.entity.PostTranslation;
 import com.khu.globalhub.domain.board.repository.PostRepository;
 import com.khu.globalhub.domain.board.repository.PostTranslationRepository;
-import com.khu.globalhub.domain.member.dto.ProfileResponse;
-import com.khu.globalhub.domain.member.dto.UpdateMentoringRoleRequest;
-import com.khu.globalhub.domain.member.dto.UpdateProfileRequest;
-import com.khu.globalhub.domain.member.entity.Profile;
+import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
+import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
+import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;
+import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.identity.infrastructure.MemberRepository;
-import com.khu.globalhub.domain.member.repository.ProfileRepository;
+import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.enums.MentoringRole;
 import com.khu.globalhub.shared.exception.CustomException;

@@ -1,6 +1,6 @@
-package com.khu.globalhub.domain.member.repository;
+package com.khu.globalhub.profile.infrastructure;
 
-import com.khu.globalhub.domain.member.entity.Profile;
+import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.shared.enums.MentoringRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 

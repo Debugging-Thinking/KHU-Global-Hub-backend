@@ -1,4 +1,4 @@
-package com.khu.globalhub.domain.member.dto;
+package com.khu.globalhub.profile.presentation.dto;
 
 import com.khu.globalhub.shared.enums.MentoringRole;
 import jakarta.validation.constraints.NotNull;

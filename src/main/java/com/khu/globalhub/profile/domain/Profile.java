@@ -1,4 +1,4 @@
-package com.khu.globalhub.domain.member.entity;
+package com.khu.globalhub.profile.domain;
 
 import com.khu.globalhub.shared.common.BaseTimeEntity;
 import com.khu.globalhub.shared.enums.Language;

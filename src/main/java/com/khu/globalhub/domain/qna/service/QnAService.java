@@ -1,8 +1,8 @@
 package com.khu.globalhub.domain.qna.service;
 
 import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
-import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.ProfileRepository;
+import com.khu.globalhub.profile.domain.Profile;
+import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.domain.qna.dto.*;
 import com.khu.globalhub.domain.qna.entity.*;
 import com.khu.globalhub.domain.qna.repository.*;

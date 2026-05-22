@@ -1,6 +1,6 @@
 package com.khu.globalhub.domain.quiz.service;
 
-import com.khu.globalhub.domain.member.repository.ProfileRepository;
+import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.domain.quiz.dto.MyQuizResultResponse;
 import com.khu.globalhub.domain.quiz.dto.QuizQuestionResponse;
 import com.khu.globalhub.domain.quiz.dto.QuizSubmitRequest;
