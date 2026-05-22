@@ -6,6 +6,7 @@ import com.khu.globalhub.identity.infrastructure.MemberRepository;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
 import com.khu.globalhub.shared.jwt.JwtTokenProvider;
+import com.khu.globalhub.shared.port.ProfileGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

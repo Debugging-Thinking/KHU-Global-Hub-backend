@@ -1,4 +1,4 @@
-package com.khu.globalhub.identity.application;
+package com.khu.globalhub.shared.port;
 
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.enums.MentoringRole;

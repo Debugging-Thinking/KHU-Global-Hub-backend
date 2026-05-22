@@ -1,6 +1,6 @@
 package com.khu.globalhub.profile.application;
 
-import com.khu.globalhub.identity.application.ProfileGateway;
+import com.khu.globalhub.shared.port.ProfileGateway;
 import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
