@@ -1,6 +1,13 @@
 # Refactor — Bounded Context 격리 (대규모 리팩토링 계획)
 
-> 상태: **계획 합의 완료, 착수 전** · 최종 갱신: 2026-05-22
+> 상태: **진행 중 — Phase 0 완료 + Phase 1 일부** · 최종 갱신: 2026-05-22
+> 브랜치: `refactor/bc-isolation`
+>
+> **진행 현황:**
+> - ✅ Phase 0 (안전망): Flyway 도입 + V1 baseline(21테이블) + Testcontainers 하네스 + characterization 테스트 35개 — 커밋 `f563de3`
+> - ✅ Phase 1-a: `global` → `shared` 패키지 리네임 (77파일, 동작 불변 검증) — 커밋 `2ab70fd`
+> - ⏭️ **다음 재개 지점: identity BC 재배치** (task 8) — `Member` 엔티티 이동 + 이를 `@ManyToOne`으로 참조하는 ~15파일을 `Long memberId`로 전환. 각 단계마다 `./gradlew test`(35개, ~1분)로 동작 불변 확인하며 진행.
+> - ⏳ 남음: top-level BC 골격(task 7) / profile(task 9) / board·qna 이전 / 이벤트 / 스키마 정리(V2~)
 > 목적: 바이브코딩으로 결합된 현재 모놀리식을 **BC 단위로 격리**해서 3인 팀이 각자 자기 영역을 온전히 소유하도록 재구성한다.
 > 레퍼런스 아키텍처: `tech-blog-be` (DDD-Lite, 싱글 모듈, 패키지 기반 BC + 통합 이벤트)
 >
