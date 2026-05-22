@@ -3,6 +3,7 @@ package com.khu.globalhub.domain.mentoring.service;
 import com.khu.globalhub.domain.chat.entity.ChatMessage;
 import com.khu.globalhub.domain.chat.repository.ChatMessageRepository;
 import com.khu.globalhub.domain.member.entity.Profile;
+import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.domain.mentoring.dto.MentoringMatchResponse;
 import com.khu.globalhub.domain.mentoring.entity.MentorMenteeMatch;
@@ -25,6 +26,7 @@ import java.util.List;
 public class MentoringService {
 
     private final ProfileRepository profileRepository;
+    private final MemberRepository memberRepository;
     private final MentorMenteeMatchRepository matchRepository;
     private final ChatMessageRepository chatMessageRepository;
 
@@ -39,11 +41,14 @@ public class MentoringService {
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.MATCH_NOT_FOUND));
 
-        boolean isMentor = match.getMentor().getId().equals(memberId);
-        Long partnerId = isMentor ? match.getMentee().getId() : match.getMentor().getId();
+        boolean isMentor = match.getMentorId().equals(memberId);
+        Long partnerId = isMentor ? match.getMenteeId() : match.getMentorId();
         Profile partnerProfile = profileRepository.findByMemberId(partnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
-        return MentoringMatchResponse.of(match, memberId, partnerProfile);
+        String partnerEmail = memberRepository.findById(partnerId)
+                .map(m -> m.getEmail())
+                .orElse(null);
+        return MentoringMatchResponse.of(match, memberId, partnerProfile, partnerEmail);
     }
 
     /**
@@ -81,7 +86,7 @@ public class MentoringService {
     public void runMatching(String semester) {
         List<Profile> allMentees = profileRepository.findByMentoringRole(MentoringRole.MENTEE);
         List<Profile> unmatchedMentees = allMentees.stream()
-                .filter(p -> !matchRepository.existsByMenteeIdAndSemester(p.getMember().getId(), semester))
+                .filter(p -> !matchRepository.existsByMenteeIdAndSemester(p.getMemberId(), semester))
                 .toList();
 
         List<Profile> mentors = profileRepository.findByMentoringRole(MentoringRole.MENTOR);
@@ -103,24 +108,24 @@ public class MentoringService {
 
     private void createMatch(Profile mentorProfile, Profile menteeProfile, String semester) {
         MentorMenteeMatch match = MentorMenteeMatch.builder()
-                .mentor(mentorProfile.getMember())
-                .mentee(menteeProfile.getMember())
+                .mentorId(mentorProfile.getMemberId())
+                .menteeId(menteeProfile.getMemberId())
                 .semester(semester)
                 .build();
         matchRepository.save(match);
 
         // 멘토에게 시스템 메시지 삽입
         chatMessageRepository.save(ChatMessage.builder()
-                .receiverId(mentorProfile.getMember().getId())
-                .contextPartnerId(menteeProfile.getMember().getId())
+                .receiverId(mentorProfile.getMemberId())
+                .contextPartnerId(menteeProfile.getMemberId())
                 .content(buildSystemMessage(mentorProfile.getName(), menteeProfile.getName()))
                 .isSystem(true)
                 .build());
 
         // 멘티에게도 동일 시스템 메시지 삽입
         chatMessageRepository.save(ChatMessage.builder()
-                .receiverId(menteeProfile.getMember().getId())
-                .contextPartnerId(mentorProfile.getMember().getId())
+                .receiverId(menteeProfile.getMemberId())
+                .contextPartnerId(mentorProfile.getMemberId())
                 .content(buildSystemMessage(mentorProfile.getName(), menteeProfile.getName()))
                 .isSystem(true)
                 .build());

@@ -17,15 +17,16 @@ public record MentoringMatchResponse(
 ) {
     public static MentoringMatchResponse of(MentorMenteeMatch match,
                                             Long myMemberId,
-                                            Profile partnerProfile) {
-        boolean isMentor = match.getMentor().getId().equals(myMemberId);
+                                            Profile partnerProfile,
+                                            String partnerEmail) {
+        boolean isMentor = match.getMentorId().equals(myMemberId);
         return new MentoringMatchResponse(
                 match.getId(),
                 match.getSemester(),
                 match.getStatus(),
                 isMentor ? "MENTOR" : "MENTEE",
                 match.getMatchedAt(),
-                ProfileResponse.from(partnerProfile)
+                ProfileResponse.from(partnerProfile, partnerEmail)
         );
     }
 }

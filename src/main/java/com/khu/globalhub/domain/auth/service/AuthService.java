@@ -75,7 +75,7 @@ public class AuthService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        if (profileRepository.existsByMember(member)) {
+        if (profileRepository.existsByMemberId(member.getId())) {
             throw new CustomException(ErrorCode.PROFILE_ALREADY_EXISTS);
         }
         if (request.getMentoringRole() == MentoringRole.NONE) {
@@ -88,7 +88,7 @@ public class AuthService {
         }
 
         Profile profile = Profile.builder()
-                .member(member)
+                .memberId(member.getId())
                 .name(request.getName())
                 .department(request.getDepartment())
                 .nationality(request.getNationality())
@@ -182,7 +182,7 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(member.getId());
         member.updateRefreshToken(refreshToken, LocalDateTime.now().plusDays(7));
 
-        boolean hasProfile = profileRepository.existsByMember(member);
+        boolean hasProfile = profileRepository.existsByMemberId(member.getId());
         return LoginResponse.of(accessToken, refreshToken, hasProfile);
     }
 

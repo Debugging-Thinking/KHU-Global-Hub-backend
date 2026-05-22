@@ -16,10 +16,10 @@ public record ProfileResponse(
         MentoringRole mentoringRole,
         double quizScore
 ) {
-    public static ProfileResponse from(Profile profile) {
+    public static ProfileResponse from(Profile profile, String email) {
         return new ProfileResponse(
-                profile.getMember().getId(),
-                profile.getMember().getEmail(),
+                profile.getMemberId(),
+                email,
                 profile.getName(),
                 profile.getProfileImage(),
                 profile.getDepartment(),

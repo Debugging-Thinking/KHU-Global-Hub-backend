@@ -23,9 +23,9 @@ public class Profile extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false, unique = true)
-    private Member member;
+    /** 소유 계정 ID. identity BC를 ID로만 참조 (D7). */
+    @Column(name = "member_id", nullable = false, unique = true)
+    private Long memberId;
 
     @Column(nullable = false)
     private String name;

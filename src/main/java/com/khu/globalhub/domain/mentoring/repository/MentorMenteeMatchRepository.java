@@ -22,7 +22,7 @@ public interface MentorMenteeMatchRepository extends JpaRepository<MentorMenteeM
 
     /** 해당 멤버(멘토 or 멘티)의 현재 ACTIVE 매칭 목록 조회 (멘토는 복수 가능) */
     @Query("SELECT m FROM MentorMenteeMatch m " +
-           "WHERE (m.mentor.id = :memberId OR m.mentee.id = :memberId) " +
+           "WHERE (m.mentorId = :memberId OR m.menteeId = :memberId) " +
            "AND m.status = :status " +
            "ORDER BY m.matchedAt DESC")
     List<MentorMenteeMatch> findActiveMatchesByMemberId(

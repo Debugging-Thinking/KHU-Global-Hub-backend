@@ -8,6 +8,7 @@ import com.khu.globalhub.domain.member.dto.ProfileResponse;
 import com.khu.globalhub.domain.member.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.domain.member.dto.UpdateProfileRequest;
 import com.khu.globalhub.domain.member.entity.Profile;
+import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.enums.MentoringRole;
@@ -28,15 +29,23 @@ import java.time.LocalDate;
 public class MemberService {
 
     private final ProfileRepository profileRepository;
+    private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final PostTranslationRepository postTranslationRepository;
     private final S3Service s3Service;
+
+    /** 프로필 응답 조립용 이메일 조회 (identity BC를 ID로만 참조). */
+    private String resolveEmail(Long memberId) {
+        return memberRepository.findById(memberId)
+                .map(m -> m.getEmail())
+                .orElse(null);
+    }
 
     /** 프로필 조회 (본인 또는 타인). */
     public ProfileResponse getProfile(Long targetMemberId) {
         Profile profile = profileRepository.findByMemberId(targetMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
-        return ProfileResponse.from(profile);
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
     }
 
     /** 프로필 수정 (본인만). */
@@ -60,7 +69,7 @@ public class MemberService {
                 req.language()
         );
         profile.updateMentoringRole(req.mentoringRole());
-        return ProfileResponse.from(profile);
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
     }
 
     /** 프로필 이미지 업로드 및 URL 저장. */
@@ -91,7 +100,7 @@ public class MemberService {
         }
 
         profile.updateMentoringRole(req.mentoringRole());
-        return ProfileResponse.from(profile);
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.khu.globalhub.domain.mentoring.entity;
 
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.shared.enums.MatchStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,15 +33,13 @@ public class MentorMenteeMatch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 멘토 역할의 유저. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mentor_id", nullable = false)
-    private Member mentor;
+    /** 멘토 역할 유저 ID. identity BC를 ID로만 참조 (D7). */
+    @Column(name = "mentor_id", nullable = false)
+    private Long mentorId;
 
-    /** 멘티 역할의 유저. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mentee_id", nullable = false)
-    private Member mentee;
+    /** 멘티 역할 유저 ID. identity BC를 ID로만 참조 (D7). */
+    @Column(name = "mentee_id", nullable = false)
+    private Long menteeId;
 
     /**
      * 매칭이 이루어진 학기. 형식: "2025-1", "2025-2"
