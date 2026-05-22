@@ -8,7 +8,7 @@ import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
 import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;
 import com.khu.globalhub.profile.domain.Profile;
-import com.khu.globalhub.identity.infrastructure.MemberRepository;
+import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.enums.MentoringRole;
@@ -29,16 +29,14 @@ import java.time.LocalDate;
 public class MemberService {
 
     private final ProfileRepository profileRepository;
-    private final MemberRepository memberRepository;
+    private final MemberQueryPort memberQueryPort;
     private final PostRepository postRepository;
     private final PostTranslationRepository postTranslationRepository;
     private final S3Service s3Service;
 
     /** 프로필 응답 조립용 이메일 조회 (identity BC를 ID로만 참조). */
     private String resolveEmail(Long memberId) {
-        return memberRepository.findById(memberId)
-                .map(m -> m.getEmail())
-                .orElse(null);
+        return memberQueryPort.findEmail(memberId).orElse(null);
     }
 
     /**

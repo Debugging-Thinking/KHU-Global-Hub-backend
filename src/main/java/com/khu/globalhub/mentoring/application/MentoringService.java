@@ -1,7 +1,7 @@
 package com.khu.globalhub.mentoring.application;
 
 import com.khu.globalhub.profile.domain.Profile;
-import com.khu.globalhub.identity.infrastructure.MemberRepository;
+import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.mentoring.presentation.dto.MentoringMatchResponse;
 import com.khu.globalhub.mentoring.domain.MentorMenteeMatch;
@@ -26,7 +26,7 @@ import java.util.List;
 public class MentoringService {
 
     private final ProfileRepository profileRepository;
-    private final MemberRepository memberRepository;
+    private final MemberQueryPort memberQueryPort;
     private final MentorMenteeMatchRepository matchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -45,9 +45,7 @@ public class MentoringService {
         Long partnerId = isMentor ? match.getMenteeId() : match.getMentorId();
         Profile partnerProfile = profileRepository.findByMemberId(partnerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
-        String partnerEmail = memberRepository.findById(partnerId)
-                .map(m -> m.getEmail())
-                .orElse(null);
+        String partnerEmail = memberQueryPort.findEmail(partnerId).orElse(null);
         return MentoringMatchResponse.of(match, memberId, partnerProfile, partnerEmail);
     }
 

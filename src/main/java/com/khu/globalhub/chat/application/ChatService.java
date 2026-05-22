@@ -5,7 +5,7 @@ import com.khu.globalhub.chat.presentation.dto.ConversationSummaryResponse;
 import com.khu.globalhub.chat.presentation.dto.SendMessageRequest;
 import com.khu.globalhub.chat.domain.ChatMessage;
 import com.khu.globalhub.chat.infrastructure.ChatMessageRepository;
-import com.khu.globalhub.identity.infrastructure.MemberRepository;
+import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
@@ -22,7 +22,7 @@ import java.util.List;
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
-    private final MemberRepository memberRepository;
+    private final MemberQueryPort memberQueryPort;
     private final ProfileQueryPort profileQueryPort;
 
     /**
@@ -35,7 +35,7 @@ public class ChatService {
         }
 
         // receiverId는 클라이언트 입력값 → 존재 검증 유지 (senderId는 JWT라 항상 유효)
-        if (!memberRepository.existsById(req.receiverId())) {
+        if (!memberQueryPort.exists(req.receiverId())) {
             throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
