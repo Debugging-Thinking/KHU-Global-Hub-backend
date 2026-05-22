@@ -1,6 +1,6 @@
-package com.khu.globalhub.domain.comment.repository;
+package com.khu.globalhub.board.infrastructure;
 
-import com.khu.globalhub.domain.comment.entity.CommentLike;
+import com.khu.globalhub.board.domain.CommentLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentLikeRepository extends JpaRepository<CommentLike, Long> {

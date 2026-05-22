@@ -1,4 +1,4 @@
-package com.khu.globalhub.domain.comment.entity;
+package com.khu.globalhub.board.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

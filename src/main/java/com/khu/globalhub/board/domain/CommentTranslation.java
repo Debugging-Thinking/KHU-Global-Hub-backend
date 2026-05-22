@@ -1,4 +1,4 @@
-package com.khu.globalhub.domain.comment.entity;
+package com.khu.globalhub.board.domain;
 
 import com.khu.globalhub.shared.enums.Language;
 import jakarta.persistence.*;

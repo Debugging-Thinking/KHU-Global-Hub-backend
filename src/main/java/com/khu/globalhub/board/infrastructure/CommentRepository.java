@@ -1,6 +1,6 @@
-package com.khu.globalhub.domain.comment.repository;
+package com.khu.globalhub.board.infrastructure;
 
-import com.khu.globalhub.domain.comment.entity.Comment;
+import com.khu.globalhub.board.domain.Comment;
 import com.khu.globalhub.shared.enums.CommentTargetType;
 import org.springframework.data.jpa.repository.JpaRepository;
 

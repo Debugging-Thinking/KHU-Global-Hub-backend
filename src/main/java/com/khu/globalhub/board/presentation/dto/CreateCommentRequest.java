@@ -1,4 +1,4 @@
-package com.khu.globalhub.domain.comment.dto;
+package com.khu.globalhub.board.presentation.dto;
 
 import com.khu.globalhub.shared.enums.Language;
 import jakarta.validation.constraints.NotBlank;

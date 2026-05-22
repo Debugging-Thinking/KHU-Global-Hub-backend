@@ -1,8 +1,8 @@
-package com.khu.globalhub.domain.comment.controller;
+package com.khu.globalhub.board.presentation;
 
-import com.khu.globalhub.domain.comment.dto.CommentResponse;
-import com.khu.globalhub.domain.comment.dto.CreateCommentRequest;
-import com.khu.globalhub.domain.comment.service.CommentService;
+import com.khu.globalhub.board.presentation.dto.CommentResponse;
+import com.khu.globalhub.board.presentation.dto.CreateCommentRequest;
+import com.khu.globalhub.board.application.CommentService;
 import com.khu.globalhub.shared.common.ApiResponse;
 import com.khu.globalhub.shared.enums.CommentTargetType;
 import com.khu.globalhub.shared.enums.Language;

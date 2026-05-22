@@ -1,14 +1,14 @@
-package com.khu.globalhub.domain.comment.service;
+package com.khu.globalhub.board.application;
 
 import com.khu.globalhub.shared.anonymous.service.AnonymousAliasService;
-import com.khu.globalhub.domain.comment.dto.CommentResponse;
-import com.khu.globalhub.domain.comment.dto.CreateCommentRequest;
-import com.khu.globalhub.domain.comment.entity.Comment;
-import com.khu.globalhub.domain.comment.entity.CommentLike;
-import com.khu.globalhub.domain.comment.entity.CommentTranslation;
-import com.khu.globalhub.domain.comment.repository.CommentLikeRepository;
-import com.khu.globalhub.domain.comment.repository.CommentRepository;
-import com.khu.globalhub.domain.comment.repository.CommentTranslationRepository;
+import com.khu.globalhub.board.presentation.dto.CommentResponse;
+import com.khu.globalhub.board.presentation.dto.CreateCommentRequest;
+import com.khu.globalhub.board.domain.Comment;
+import com.khu.globalhub.board.domain.CommentLike;
+import com.khu.globalhub.board.domain.CommentTranslation;
+import com.khu.globalhub.board.infrastructure.CommentLikeRepository;
+import com.khu.globalhub.board.infrastructure.CommentRepository;
+import com.khu.globalhub.board.infrastructure.CommentTranslationRepository;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
 import com.khu.globalhub.board.domain.Post;
 import com.khu.globalhub.board.infrastructure.PostRepository;

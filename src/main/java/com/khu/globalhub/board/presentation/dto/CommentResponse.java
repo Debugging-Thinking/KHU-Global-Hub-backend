@@ -1,7 +1,7 @@
-package com.khu.globalhub.domain.comment.dto;
+package com.khu.globalhub.board.presentation.dto;
 
-import com.khu.globalhub.domain.comment.entity.Comment;
-import com.khu.globalhub.domain.comment.entity.CommentTranslation;
+import com.khu.globalhub.board.domain.Comment;
+import com.khu.globalhub.board.domain.CommentTranslation;
 
 import java.time.LocalDateTime;
 import java.util.List;
