@@ -1,13 +1,18 @@
 # Refactor — Bounded Context 격리 (대규모 리팩토링 계획)
 
-> 상태: **진행 중 — Phase 0 완료 + Phase 1 일부** · 최종 갱신: 2026-05-22
+> 상태: **진행 중 — Phase 0 완료 + Phase 1 골격/identity 완료** · 최종 갱신: 2026-05-22
 > 브랜치: `refactor/bc-isolation`
 >
 > **진행 현황:**
 > - ✅ Phase 0 (안전망): Flyway 도입 + V1 baseline(21테이블) + Testcontainers 하네스 + characterization 테스트 35개 — 커밋 `f563de3`
 > - ✅ Phase 1-a: `global` → `shared` 패키지 리네임 (77파일, 동작 불변 검증) — 커밋 `2ab70fd`
-> - ⏭️ **다음 재개 지점: identity BC 재배치** (task 8) — `Member` 엔티티 이동 + 이를 `@ManyToOne`으로 참조하는 ~15파일을 `Long memberId`로 전환. 각 단계마다 `./gradlew test`(35개, ~1분)로 동작 불변 확인하며 진행.
-> - ⏳ 남음: top-level BC 골격(task 7) / profile(task 9) / board·qna 이전 / 이벤트 / 스키마 정리(V2~)
+> - ✅ **identity BC 재배치 완료** (커밋 7개, 매 단계 `./gradlew test` 35개 그린):
+>   - 풀 격리(D7): `@ManyToOne/@OneToOne Member` 참조 12엔티티 전부 `Long ID`로 전환 (Post/PostLike/Comment/CommentLike/QnA/Answer/QnALike/AnswerLike/ChatMessage/MentorMenteeMatch/QuizResult/Profile). 컬럼명 동일 → 스키마 무변경.
+>   - 빌더 전달용 `memberRepository.findById` 존재검사 제거 (JWT+FK 보장). 단 chat `receiverId`(클라 입력)만 `existsById` 유지.
+>   - `Member`+`MemberRepository`+`auth`(컨트롤러/서비스/DTO8) → `com.khu.globalhub.identity` BC 4계층(domain/application/infrastructure/presentation)으로 `git mv`.
+>   - ⚠️ **잔여 결합**: `AuthService`가 아직 `Profile`/`ProfileRepository` 직접 참조(`POST /api/auth/profile`, login `hasProfile`). identity→profile 역방향 → profile BC 추출 시 이벤트/포트로 분리.
+> - ⏭️ **다음 재개 지점: profile BC 추출** — `Profile`/`ProfileRepository`/`MemberService`(/api/members)/`ProfileResponse`/member DTO를 `com.khu.globalhub.profile` 4계층으로 이동 + 위 AuthService 잔여 결합 분리(`ProfileQueryPort` 또는 이벤트). 그 다음 board·qna 이전 / extevent 인프라 / 스키마 정리(V2~).
+> - ⏳ 남음: top-level BC 골격(task 7, ArchUnit) / profile(task 9) / board·qna 이전 / 이벤트 / 스키마 정리(V2~)
 > 목적: 바이브코딩으로 결합된 현재 모놀리식을 **BC 단위로 격리**해서 3인 팀이 각자 자기 영역을 온전히 소유하도록 재구성한다.
 > 레퍼런스 아키텍처: `tech-blog-be` (DDD-Lite, 싱글 모듈, 패키지 기반 BC + 통합 이벤트)
 >
