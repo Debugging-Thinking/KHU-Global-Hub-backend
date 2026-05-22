@@ -1,6 +1,6 @@
 package com.khu.globalhub.domain.comment.entity;
 
-import com.khu.globalhub.global.enums.Language;
+import com.khu.globalhub.shared.enums.Language;
 import jakarta.persistence.*;
 import lombok.*;
 

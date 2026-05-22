@@ -2,8 +2,8 @@ package com.khu.globalhub.domain.auth.controller;
 
 import com.khu.globalhub.domain.auth.dto.*;
 import com.khu.globalhub.domain.auth.service.AuthService;
-import com.khu.globalhub.global.common.ApiResponse;
-import com.khu.globalhub.global.util.SecurityUtil;
+import com.khu.globalhub.shared.common.ApiResponse;
+import com.khu.globalhub.shared.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

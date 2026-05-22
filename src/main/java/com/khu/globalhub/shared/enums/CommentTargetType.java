@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.enums;
+package com.khu.globalhub.shared.enums;
 
 /**
  * 댓글이 달리는 대상의 종류.

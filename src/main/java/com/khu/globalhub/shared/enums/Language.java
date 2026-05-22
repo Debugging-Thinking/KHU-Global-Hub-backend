@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.enums;
+package com.khu.globalhub.shared.enums;
 
 /**
  * 앱에서 지원하는 6개 언어.

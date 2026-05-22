@@ -1,8 +1,8 @@
 package com.khu.globalhub.domain.board.entity;
 
 import com.khu.globalhub.domain.member.entity.Member;
-import com.khu.globalhub.global.common.BaseTimeEntity;
-import com.khu.globalhub.global.enums.BoardType;
+import com.khu.globalhub.shared.common.BaseTimeEntity;
+import com.khu.globalhub.shared.enums.BoardType;
 import jakarta.persistence.*;
 import lombok.*;
 

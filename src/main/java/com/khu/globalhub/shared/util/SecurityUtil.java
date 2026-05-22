@@ -1,7 +1,7 @@
-package com.khu.globalhub.global.util;
+package com.khu.globalhub.shared.util;
 
-import com.khu.globalhub.global.exception.CustomException;
-import com.khu.globalhub.global.exception.ErrorCode;
+import com.khu.globalhub.shared.exception.CustomException;
+import com.khu.globalhub.shared.exception.ErrorCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

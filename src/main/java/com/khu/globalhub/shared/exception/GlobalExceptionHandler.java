@@ -1,6 +1,6 @@
-package com.khu.globalhub.global.exception;
+package com.khu.globalhub.shared.exception;
 
-import com.khu.globalhub.global.common.ApiResponse;
+import com.khu.globalhub.shared.common.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;

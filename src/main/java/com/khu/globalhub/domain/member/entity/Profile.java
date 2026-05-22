@@ -1,8 +1,8 @@
 package com.khu.globalhub.domain.member.entity;
 
-import com.khu.globalhub.global.common.BaseTimeEntity;
-import com.khu.globalhub.global.enums.Language;
-import com.khu.globalhub.global.enums.MentoringRole;
+import com.khu.globalhub.shared.common.BaseTimeEntity;
+import com.khu.globalhub.shared.enums.Language;
+import com.khu.globalhub.shared.enums.MentoringRole;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,7 +1,7 @@
 package com.khu.globalhub.domain.mentoring.entity;
 
 import com.khu.globalhub.domain.member.entity.Member;
-import com.khu.globalhub.global.enums.MatchStatus;
+import com.khu.globalhub.shared.enums.MatchStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

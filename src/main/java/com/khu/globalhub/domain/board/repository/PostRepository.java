@@ -1,7 +1,7 @@
 package com.khu.globalhub.domain.board.repository;
 
 import com.khu.globalhub.domain.board.entity.Post;
-import com.khu.globalhub.global.enums.BoardType;
+import com.khu.globalhub.shared.enums.BoardType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

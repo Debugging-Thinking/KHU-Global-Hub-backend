@@ -3,7 +3,7 @@ package com.khu.globalhub.domain.mentoring.dto;
 import com.khu.globalhub.domain.member.dto.ProfileResponse;
 import com.khu.globalhub.domain.member.entity.Profile;
 import com.khu.globalhub.domain.mentoring.entity.MentorMenteeMatch;
-import com.khu.globalhub.global.enums.MatchStatus;
+import com.khu.globalhub.shared.enums.MatchStatus;
 
 import java.time.LocalDateTime;
 

@@ -1,8 +1,8 @@
 package com.khu.globalhub.characterization;
 
 import com.khu.globalhub.AbstractIntegrationTest;
-import com.khu.globalhub.global.infra.S3Service;
-import com.khu.globalhub.global.infra.TranslationService;
+import com.khu.globalhub.shared.infra.S3Service;
+import com.khu.globalhub.shared.infra.TranslationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;

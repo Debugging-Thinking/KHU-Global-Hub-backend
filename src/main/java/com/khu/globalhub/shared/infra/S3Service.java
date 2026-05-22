@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.infra;
+package com.khu.globalhub.shared.infra;
 
 import com.khu.globalhub.domain.board.entity.Post;
 import com.khu.globalhub.domain.board.entity.PostImage;

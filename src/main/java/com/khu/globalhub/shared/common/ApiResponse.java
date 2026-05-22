@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.common;
+package com.khu.globalhub.shared.common;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

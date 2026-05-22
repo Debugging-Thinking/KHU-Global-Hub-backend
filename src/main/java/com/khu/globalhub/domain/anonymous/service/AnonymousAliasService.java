@@ -2,7 +2,7 @@ package com.khu.globalhub.domain.anonymous.service;
 
 import com.khu.globalhub.domain.anonymous.entity.AnonymousAlias;
 import com.khu.globalhub.domain.anonymous.repository.AnonymousAliasRepository;
-import com.khu.globalhub.global.enums.AliasContextType;
+import com.khu.globalhub.shared.enums.AliasContextType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

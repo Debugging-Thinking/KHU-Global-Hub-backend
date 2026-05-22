@@ -9,11 +9,11 @@ import com.khu.globalhub.domain.member.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.domain.member.dto.UpdateProfileRequest;
 import com.khu.globalhub.domain.member.entity.Profile;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
-import com.khu.globalhub.global.enums.Language;
-import com.khu.globalhub.global.enums.MentoringRole;
-import com.khu.globalhub.global.exception.CustomException;
-import com.khu.globalhub.global.exception.ErrorCode;
-import com.khu.globalhub.global.infra.S3Service;
+import com.khu.globalhub.shared.enums.Language;
+import com.khu.globalhub.shared.enums.MentoringRole;
+import com.khu.globalhub.shared.exception.CustomException;
+import com.khu.globalhub.shared.exception.ErrorCode;
+import com.khu.globalhub.shared.infra.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,6 +45,13 @@ public class MemberService {
         Profile profile = profileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
+        // 신입생(입학년도 == 현재년도)은 MENTEE 고정 — PATCH /me/mentoring-role 과 동일 규칙 (우회 방지)
+        int currentYear = LocalDate.now().getYear();
+        boolean isNewStudent = req.admissionYear() == currentYear;
+        if (isNewStudent && req.mentoringRole() != MentoringRole.MENTEE) {
+            throw new CustomException(ErrorCode.INVALID_MENTORING_ROLE);
+        }
+
         profile.updateProfile(
                 req.name(),
                 req.department(),
@@ -52,6 +59,7 @@ public class MemberService {
                 req.admissionYear(),
                 req.language()
         );
+        profile.updateMentoringRole(req.mentoringRole());
         return ProfileResponse.from(profile);
     }
 

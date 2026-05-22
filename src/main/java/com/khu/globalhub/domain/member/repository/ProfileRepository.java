@@ -2,7 +2,7 @@ package com.khu.globalhub.domain.member.repository;
 
 import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.global.enums.MentoringRole;
+import com.khu.globalhub.shared.enums.MentoringRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

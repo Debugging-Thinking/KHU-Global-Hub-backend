@@ -1,8 +1,8 @@
 package com.khu.globalhub.domain.member.dto;
 
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.global.enums.Language;
-import com.khu.globalhub.global.enums.MentoringRole;
+import com.khu.globalhub.shared.enums.Language;
+import com.khu.globalhub.shared.enums.MentoringRole;
 
 public record ProfileResponse(
         Long memberId,

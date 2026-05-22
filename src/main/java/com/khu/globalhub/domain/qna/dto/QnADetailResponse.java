@@ -2,7 +2,7 @@ package com.khu.globalhub.domain.qna.dto;
 
 import com.khu.globalhub.domain.qna.entity.QnA;
 import com.khu.globalhub.domain.qna.entity.QnATranslation;
-import com.khu.globalhub.global.enums.Language;
+import com.khu.globalhub.shared.enums.Language;
 
 import java.time.LocalDateTime;
 import java.util.List;

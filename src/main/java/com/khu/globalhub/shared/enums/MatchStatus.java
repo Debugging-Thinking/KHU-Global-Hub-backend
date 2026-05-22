@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.enums;
+package com.khu.globalhub.shared.enums;
 
 /**
  * 멘토-멘티 매칭의 진행 상태.

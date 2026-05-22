@@ -1,6 +1,6 @@
 package com.khu.globalhub.domain.anonymous.entity;
 
-import com.khu.globalhub.global.enums.AliasContextType;
+import com.khu.globalhub.shared.enums.AliasContextType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

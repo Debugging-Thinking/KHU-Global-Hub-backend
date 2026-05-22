@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.enums;
+package com.khu.globalhub.shared.enums;
 
 /**
  * 게시판 종류.

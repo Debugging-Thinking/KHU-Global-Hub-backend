@@ -1,7 +1,7 @@
 package com.khu.globalhub.domain.board.dto;
 
-import com.khu.globalhub.global.enums.BoardType;
-import com.khu.globalhub.global.enums.Language;
+import com.khu.globalhub.shared.enums.BoardType;
+import com.khu.globalhub.shared.enums.Language;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

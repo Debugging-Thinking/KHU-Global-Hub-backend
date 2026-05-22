@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.infra;
+package com.khu.globalhub.shared.infra;
 
 import com.khu.globalhub.domain.board.entity.Post;
 import com.khu.globalhub.domain.board.entity.PostTranslation;
@@ -12,7 +12,7 @@ import com.khu.globalhub.domain.qna.entity.QnA;
 import com.khu.globalhub.domain.qna.entity.QnATranslation;
 import com.khu.globalhub.domain.qna.repository.AnswerTranslationRepository;
 import com.khu.globalhub.domain.qna.repository.QnATranslationRepository;
-import com.khu.globalhub.global.enums.Language;
+import com.khu.globalhub.shared.enums.Language;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

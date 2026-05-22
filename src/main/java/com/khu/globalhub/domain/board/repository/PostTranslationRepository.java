@@ -1,7 +1,7 @@
 package com.khu.globalhub.domain.board.repository;
 
 import com.khu.globalhub.domain.board.entity.PostTranslation;
-import com.khu.globalhub.global.enums.Language;
+import com.khu.globalhub.shared.enums.Language;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

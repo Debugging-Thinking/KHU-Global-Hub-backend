@@ -2,9 +2,9 @@ package com.khu.globalhub.domain.qna.controller;
 
 import com.khu.globalhub.domain.qna.dto.*;
 import com.khu.globalhub.domain.qna.service.QnAService;
-import com.khu.globalhub.global.common.ApiResponse;
-import com.khu.globalhub.global.enums.Language;
-import com.khu.globalhub.global.util.SecurityUtil;
+import com.khu.globalhub.shared.common.ApiResponse;
+import com.khu.globalhub.shared.enums.Language;
+import com.khu.globalhub.shared.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

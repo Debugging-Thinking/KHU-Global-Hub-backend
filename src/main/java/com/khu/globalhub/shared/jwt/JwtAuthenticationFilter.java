@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.jwt;
+package com.khu.globalhub.shared.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

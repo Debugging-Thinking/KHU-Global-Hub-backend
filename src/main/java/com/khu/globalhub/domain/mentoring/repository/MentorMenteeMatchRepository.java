@@ -1,7 +1,7 @@
 package com.khu.globalhub.domain.mentoring.repository;
 
 import com.khu.globalhub.domain.mentoring.entity.MentorMenteeMatch;
-import com.khu.globalhub.global.enums.MatchStatus;
+import com.khu.globalhub.shared.enums.MatchStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

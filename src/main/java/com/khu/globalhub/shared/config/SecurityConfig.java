@@ -1,6 +1,6 @@
-package com.khu.globalhub.global.config;
+package com.khu.globalhub.shared.config;
 
-import com.khu.globalhub.global.jwt.JwtAuthenticationFilter;
+import com.khu.globalhub.shared.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

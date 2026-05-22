@@ -2,7 +2,7 @@ package com.khu.globalhub.domain.board.dto;
 
 import com.khu.globalhub.domain.board.entity.Post;
 import com.khu.globalhub.domain.board.entity.PostTranslation;
-import com.khu.globalhub.global.enums.BoardType;
+import com.khu.globalhub.shared.enums.BoardType;
 
 import java.time.LocalDateTime;
 

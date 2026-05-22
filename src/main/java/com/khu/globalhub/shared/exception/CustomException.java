@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.exception;
+package com.khu.globalhub.shared.exception;
 
 import lombok.Getter;
 

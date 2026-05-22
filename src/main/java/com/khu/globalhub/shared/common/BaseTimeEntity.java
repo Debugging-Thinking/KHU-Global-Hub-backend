@@ -1,4 +1,4 @@
-package com.khu.globalhub.global.common;
+package com.khu.globalhub.shared.common;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

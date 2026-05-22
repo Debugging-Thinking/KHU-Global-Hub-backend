@@ -2,8 +2,8 @@ package com.khu.globalhub.domain.mentoring.controller;
 
 import com.khu.globalhub.domain.mentoring.dto.MentoringMatchResponse;
 import com.khu.globalhub.domain.mentoring.service.MentoringService;
-import com.khu.globalhub.global.common.ApiResponse;
-import com.khu.globalhub.global.util.SecurityUtil;
+import com.khu.globalhub.shared.common.ApiResponse;
+import com.khu.globalhub.shared.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

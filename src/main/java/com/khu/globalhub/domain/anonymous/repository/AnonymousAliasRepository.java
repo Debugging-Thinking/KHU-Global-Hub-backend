@@ -1,7 +1,7 @@
 package com.khu.globalhub.domain.anonymous.repository;
 
 import com.khu.globalhub.domain.anonymous.entity.AnonymousAlias;
-import com.khu.globalhub.global.enums.AliasContextType;
+import com.khu.globalhub.shared.enums.AliasContextType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
