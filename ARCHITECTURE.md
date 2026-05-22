@@ -5,6 +5,13 @@
 > **코드 변경 시 이 문서도 함께 업데이트할 것.**
 >
 > 🛠 로컬 실행 방법은 [`README-local.md`](./README-local.md) 참고.
+>
+> ⚠️ **2026-05 BC 격리 리팩토링으로 구조가 크게 바뀌었습니다.** 새 구조의 정확한 기준은
+> **[`README.md` §10 (BC 협업 가이드)](./README.md)** 와 [`docs/refactor-bc-isolation.md`](./docs/refactor-bc-isolation.md) 입니다.
+> 요약: 톱레벨 BC(`identity`/`profile`/`board`/`qna`/`chat`/`mentoring`/`campusguide`/`shared`) 4계층 ·
+> 크로스-BC는 **ID 참조 / `shared.port` 포트 / `shared.extevent` 이벤트** 로만 ·
+> **게시판 1종(boardType 폐지)** · **댓글은 board 전용(QnA·답변 댓글 폐기)** ·
+> 퀴즈는 `campusguide` 소속. (아래 일부 섹션은 옛 표기가 남아있을 수 있음 — 위 두 문서가 우선.)
 
 ---
 
@@ -67,9 +74,9 @@
 - `Post.commentCount` 컬럼 존재 (성능 목적)
 - 댓글/대댓글 작성 시 `post.incrementCommentCount()`, 삭제 시 `decrementCommentCount()`
 
-### 2-9. 댓글 통합 설계
-- Comment 엔티티가 POST/QNA/ANSWER 모두 처리
-- `targetType` (CommentTargetType enum) + `targetId`로 대상 식별
+### 2-9. 댓글 설계 (D3/D4 — board 전용)
+- Comment는 **게시글(board) 전용**. (구 generic 모델 폐기 — QnA·답변 댓글 삭제)
+- `CommentTargetType` enum 제거. `targetId` = 게시글 ID. board BC가 소유.
 - 삭제·좋아요 공통 엔드포인트: `DELETE /api/comments/{id}`, `POST /api/comments/{id}/like`
 
 ### 2-10. Q&A 비즈니스 규칙
@@ -191,7 +198,7 @@ MAIL_PASSWORD=...
 | Method | Path | 설명 |
 |--------|------|------|
 | POST | / | 게시글 작성 (multipart, 이미지 가능) |
-| GET | /?boardType=FREE&language=KO | 게시판 목록 (페이징) |
+| GET | /?language=KO | 게시글 목록 (페이징, 게시판 1종 — boardType 폐지) |
 | GET | /popular?language=KO | 인기 게시물 (좋아요 10개 이상) |
 | GET | /{postId}?language=KO | 게시글 상세 |
 | DELETE | /{postId} | 게시글 삭제 (작성자만, 댓글+좋아요 cascade) |
@@ -202,12 +209,10 @@ MAIL_PASSWORD=...
 |--------|------|------|
 | POST | /api/posts/{postId}/comments | 게시글 댓글 작성 |
 | GET | /api/posts/{postId}/comments?language=KO | 게시글 댓글 목록 |
-| POST | /api/qnas/{qnaId}/comments | QnA 댓글 작성 |
-| GET | /api/qnas/{qnaId}/comments?language=KO | QnA 댓글 목록 |
-| POST | /api/qnas/{qnaId}/answers/{answerId}/comments | 답변 댓글 작성 |
-| GET | /api/qnas/{qnaId}/answers/{answerId}/comments?language=KO | 답변 댓글 목록 |
-| DELETE | /api/comments/{commentId} | 댓글 삭제 (공통, 대댓글+좋아요 cascade) |
-| POST | /api/comments/{commentId}/like | 댓글 좋아요 토글 (공통) |
+| DELETE | /api/comments/{commentId} | 댓글 삭제 (대댓글+좋아요 cascade) |
+| POST | /api/comments/{commentId}/like | 댓글 좋아요 토글 |
+
+> QnA·답변 댓글 API는 폐기됨 (D3). 댓글은 게시글 전용.
 
 ### Q&A — `/api/qnas`
 | Method | Path | 설명 |
