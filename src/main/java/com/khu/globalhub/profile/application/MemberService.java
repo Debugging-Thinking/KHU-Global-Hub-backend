@@ -1,9 +1,9 @@
 package com.khu.globalhub.profile.application;
 
-import com.khu.globalhub.domain.board.dto.PostSummaryResponse;
-import com.khu.globalhub.domain.board.entity.PostTranslation;
-import com.khu.globalhub.domain.board.repository.PostRepository;
-import com.khu.globalhub.domain.board.repository.PostTranslationRepository;
+import com.khu.globalhub.board.presentation.dto.PostSummaryResponse;
+import com.khu.globalhub.board.domain.PostTranslation;
+import com.khu.globalhub.board.infrastructure.PostRepository;
+import com.khu.globalhub.board.infrastructure.PostTranslationRepository;
 import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
 import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;

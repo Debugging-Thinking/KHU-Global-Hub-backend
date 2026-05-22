@@ -1,0 +1,32 @@
+package com.khu.globalhub.mentoring.presentation.dto;
+
+import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
+import com.khu.globalhub.profile.domain.Profile;
+import com.khu.globalhub.mentoring.domain.MentorMenteeMatch;
+import com.khu.globalhub.shared.enums.MatchStatus;
+
+import java.time.LocalDateTime;
+
+public record MentoringMatchResponse(
+        Long matchId,
+        String semester,
+        MatchStatus status,
+        String myRole,           // "MENTOR" or "MENTEE"
+        LocalDateTime matchedAt,
+        ProfileResponse partner  // 상대방 프로필
+) {
+    public static MentoringMatchResponse of(MentorMenteeMatch match,
+                                            Long myMemberId,
+                                            Profile partnerProfile,
+                                            String partnerEmail) {
+        boolean isMentor = match.getMentorId().equals(myMemberId);
+        return new MentoringMatchResponse(
+                match.getId(),
+                match.getSemester(),
+                match.getStatus(),
+                isMentor ? "MENTOR" : "MENTEE",
+                match.getMatchedAt(),
+                ProfileResponse.from(partnerProfile, partnerEmail)
+        );
+    }
+}

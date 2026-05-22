@@ -1,6 +1,6 @@
 package com.khu.globalhub.profile.presentation;
 
-import com.khu.globalhub.domain.board.dto.PostSummaryResponse;
+import com.khu.globalhub.board.presentation.dto.PostSummaryResponse;
 import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
 import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;

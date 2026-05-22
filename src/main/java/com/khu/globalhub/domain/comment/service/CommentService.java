@@ -1,6 +1,6 @@
 package com.khu.globalhub.domain.comment.service;
 
-import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
+import com.khu.globalhub.shared.anonymous.service.AnonymousAliasService;
 import com.khu.globalhub.domain.comment.dto.CommentResponse;
 import com.khu.globalhub.domain.comment.dto.CreateCommentRequest;
 import com.khu.globalhub.domain.comment.entity.Comment;
@@ -10,11 +10,11 @@ import com.khu.globalhub.domain.comment.repository.CommentLikeRepository;
 import com.khu.globalhub.domain.comment.repository.CommentRepository;
 import com.khu.globalhub.domain.comment.repository.CommentTranslationRepository;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
-import com.khu.globalhub.domain.board.entity.Post;
-import com.khu.globalhub.domain.board.repository.PostRepository;
-import com.khu.globalhub.domain.qna.entity.Answer;
-import com.khu.globalhub.domain.qna.repository.QnARepository;
-import com.khu.globalhub.domain.qna.repository.AnswerRepository;
+import com.khu.globalhub.board.domain.Post;
+import com.khu.globalhub.board.infrastructure.PostRepository;
+import com.khu.globalhub.qna.domain.Answer;
+import com.khu.globalhub.qna.infrastructure.QnARepository;
+import com.khu.globalhub.qna.infrastructure.AnswerRepository;
 import com.khu.globalhub.shared.enums.AliasContextType;
 import com.khu.globalhub.shared.enums.CommentTargetType;
 import com.khu.globalhub.shared.enums.Language;

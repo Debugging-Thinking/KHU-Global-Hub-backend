@@ -1,8 +1,8 @@
 package com.khu.globalhub.shared.infra;
 
-import com.khu.globalhub.domain.board.entity.Post;
-import com.khu.globalhub.domain.board.entity.PostImage;
-import com.khu.globalhub.domain.board.repository.PostImageRepository;
+import com.khu.globalhub.board.domain.Post;
+import com.khu.globalhub.board.domain.PostImage;
+import com.khu.globalhub.board.infrastructure.PostImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

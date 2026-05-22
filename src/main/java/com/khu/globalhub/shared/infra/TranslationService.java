@@ -1,17 +1,17 @@
 package com.khu.globalhub.shared.infra;
 
-import com.khu.globalhub.domain.board.entity.Post;
-import com.khu.globalhub.domain.board.entity.PostTranslation;
-import com.khu.globalhub.domain.board.repository.PostTranslationRepository;
+import com.khu.globalhub.board.domain.Post;
+import com.khu.globalhub.board.domain.PostTranslation;
+import com.khu.globalhub.board.infrastructure.PostTranslationRepository;
 import com.khu.globalhub.domain.comment.entity.Comment;
 import com.khu.globalhub.domain.comment.entity.CommentTranslation;
 import com.khu.globalhub.domain.comment.repository.CommentTranslationRepository;
-import com.khu.globalhub.domain.qna.entity.Answer;
-import com.khu.globalhub.domain.qna.entity.AnswerTranslation;
-import com.khu.globalhub.domain.qna.entity.QnA;
-import com.khu.globalhub.domain.qna.entity.QnATranslation;
-import com.khu.globalhub.domain.qna.repository.AnswerTranslationRepository;
-import com.khu.globalhub.domain.qna.repository.QnATranslationRepository;
+import com.khu.globalhub.qna.domain.Answer;
+import com.khu.globalhub.qna.domain.AnswerTranslation;
+import com.khu.globalhub.qna.domain.QnA;
+import com.khu.globalhub.qna.domain.QnATranslation;
+import com.khu.globalhub.qna.infrastructure.AnswerTranslationRepository;
+import com.khu.globalhub.qna.infrastructure.QnATranslationRepository;
 import com.khu.globalhub.shared.enums.Language;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
