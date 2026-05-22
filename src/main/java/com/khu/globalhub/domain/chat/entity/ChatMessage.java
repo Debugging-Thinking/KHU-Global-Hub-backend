@@ -1,6 +1,5 @@
 package com.khu.globalhub.domain.chat.entity;
 
-import com.khu.globalhub.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,30 +37,27 @@ public class ChatMessage {
     private Long id;
 
     /**
-     * 메시지 발신자.
+     * 메시지 발신자 ID. identity BC를 ID로만 참조 (D7).
      * 시스템 메시지(isSystem=true)인 경우 NULL.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id")
-    private Member sender;
+    @Column(name = "sender_id")
+    private Long senderId;
 
     /**
-     * 메시지 수신자.
+     * 메시지 수신자 ID.
      * 일반 DM: 실제 수신 유저.
-     * 시스템 메시지: 두 유저 중 한 명 (contextPartner와 함께 대화 식별에 사용).
+     * 시스템 메시지: 두 유저 중 한 명 (contextPartnerId와 함께 대화 식별에 사용).
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private Member receiver;
+    @Column(name = "receiver_id", nullable = false)
+    private Long receiverId;
 
     /**
-     * 시스템 메시지 전용 대화 상대 식별용.
+     * 시스템 메시지 전용 대화 상대 식별용 ID.
      * 일반 DM은 NULL.
-     * 시스템 메시지일 때 receiver와 함께 이 메시지가 속한 대화를 특정한다.
+     * 시스템 메시지일 때 receiverId와 함께 이 메시지가 속한 대화를 특정한다.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "context_partner_id")
-    private Member contextPartner;
+    @Column(name = "context_partner_id")
+    private Long contextPartnerId;
 
     /** 메시지 내용. */
     @Column(columnDefinition = "TEXT", nullable = false)

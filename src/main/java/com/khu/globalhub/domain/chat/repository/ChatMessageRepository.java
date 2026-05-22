@@ -19,10 +19,10 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
      */
     @Query("""
         SELECT m FROM ChatMessage m
-        WHERE (m.sender.id = :aId AND m.receiver.id = :bId)
-           OR (m.sender.id = :bId AND m.receiver.id = :aId)
-           OR (m.isSystem = true AND m.receiver.id = :aId AND m.contextPartner.id = :bId)
-           OR (m.isSystem = true AND m.receiver.id = :bId AND m.contextPartner.id = :aId)
+        WHERE (m.senderId = :aId AND m.receiverId = :bId)
+           OR (m.senderId = :bId AND m.receiverId = :aId)
+           OR (m.isSystem = true AND m.receiverId = :aId AND m.contextPartnerId = :bId)
+           OR (m.isSystem = true AND m.receiverId = :bId AND m.contextPartnerId = :aId)
         ORDER BY m.sentAt ASC
         """)
     List<ChatMessage> findConversation(@Param("aId") Long aId, @Param("bId") Long bId);
@@ -40,14 +40,14 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Query("""
         SELECT DISTINCT
             CASE
-                WHEN m.sender.id = :memberId THEN m.receiver.id
-                WHEN m.receiver.id = :memberId AND m.isSystem = false THEN m.sender.id
-                WHEN m.receiver.id = :memberId AND m.isSystem = true THEN m.contextPartner.id
+                WHEN m.senderId = :memberId THEN m.receiverId
+                WHEN m.receiverId = :memberId AND m.isSystem = false THEN m.senderId
+                WHEN m.receiverId = :memberId AND m.isSystem = true THEN m.contextPartnerId
             END
         FROM ChatMessage m
-        WHERE m.sender.id = :memberId
-           OR (m.receiver.id = :memberId AND m.isSystem = false)
-           OR (m.receiver.id = :memberId AND m.isSystem = true)
+        WHERE m.senderId = :memberId
+           OR (m.receiverId = :memberId AND m.isSystem = false)
+           OR (m.receiverId = :memberId AND m.isSystem = true)
         """)
     List<Long> findPartnerIdsByMemberId(@Param("memberId") Long memberId);
 
@@ -56,10 +56,10 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
      */
     @Query("""
         SELECT m FROM ChatMessage m
-        WHERE ((m.sender.id = :aId AND m.receiver.id = :bId)
-            OR (m.sender.id = :bId AND m.receiver.id = :aId)
-            OR (m.isSystem = true AND m.receiver.id = :aId AND m.contextPartner.id = :bId)
-            OR (m.isSystem = true AND m.receiver.id = :bId AND m.contextPartner.id = :aId))
+        WHERE ((m.senderId = :aId AND m.receiverId = :bId)
+            OR (m.senderId = :bId AND m.receiverId = :aId)
+            OR (m.isSystem = true AND m.receiverId = :aId AND m.contextPartnerId = :bId)
+            OR (m.isSystem = true AND m.receiverId = :bId AND m.contextPartnerId = :aId))
         ORDER BY m.sentAt DESC
         LIMIT 1
         """)

@@ -5,7 +5,6 @@ import com.khu.globalhub.domain.chat.dto.ConversationSummaryResponse;
 import com.khu.globalhub.domain.chat.dto.SendMessageRequest;
 import com.khu.globalhub.domain.chat.entity.ChatMessage;
 import com.khu.globalhub.domain.chat.repository.ChatMessageRepository;
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
 import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
@@ -36,14 +35,14 @@ public class ChatService {
             throw new CustomException(ErrorCode.CANNOT_CHAT_WITH_SELF);
         }
 
-        Member sender = memberRepository.findById(senderId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        Member receiver = memberRepository.findById(req.receiverId())
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        // receiverId는 클라이언트 입력값 → 존재 검증 유지 (senderId는 JWT라 항상 유효)
+        if (!memberRepository.existsById(req.receiverId())) {
+            throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
+        }
 
         ChatMessage msg = ChatMessage.builder()
-                .sender(sender)
-                .receiver(receiver)
+                .senderId(senderId)
+                .receiverId(req.receiverId())
                 .content(req.content())
                 .build();
         chatMessageRepository.save(msg);
@@ -61,15 +60,15 @@ public class ChatService {
         // 내가 수신자인 읽지 않은 메시지 일괄 읽음 처리
         messages.stream()
                 .filter(m -> !m.getIsRead()
-                        && m.getReceiver().getId().equals(myId)
+                        && m.getReceiverId().equals(myId)
                         && !m.getIsSystem())
                 .forEach(ChatMessage::markAsRead);
 
         return messages.stream()
                 .map(msg -> {
                     String senderName = null;
-                    if (!msg.getIsSystem() && msg.getSender() != null) {
-                        senderName = profileRepository.findByMemberId(msg.getSender().getId())
+                    if (!msg.getIsSystem() && msg.getSenderId() != null) {
+                        senderName = profileRepository.findByMemberId(msg.getSenderId())
                                 .map(Profile::getName)
                                 .orElse("Unknown");
                     }

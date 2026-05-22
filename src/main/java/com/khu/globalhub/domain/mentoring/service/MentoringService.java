@@ -111,16 +111,16 @@ public class MentoringService {
 
         // 멘토에게 시스템 메시지 삽입
         chatMessageRepository.save(ChatMessage.builder()
-                .receiver(mentorProfile.getMember())
-                .contextPartner(menteeProfile.getMember())
+                .receiverId(mentorProfile.getMember().getId())
+                .contextPartnerId(menteeProfile.getMember().getId())
                 .content(buildSystemMessage(mentorProfile.getName(), menteeProfile.getName()))
                 .isSystem(true)
                 .build());
 
         // 멘티에게도 동일 시스템 메시지 삽입
         chatMessageRepository.save(ChatMessage.builder()
-                .receiver(menteeProfile.getMember())
-                .contextPartner(mentorProfile.getMember())
+                .receiverId(menteeProfile.getMember().getId())
+                .contextPartnerId(mentorProfile.getMember().getId())
                 .content(buildSystemMessage(mentorProfile.getName(), menteeProfile.getName()))
                 .isSystem(true)
                 .build());

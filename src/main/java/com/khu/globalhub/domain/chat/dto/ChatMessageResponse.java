@@ -16,7 +16,7 @@ public record ChatMessageResponse(
     public static ChatMessageResponse of(ChatMessage msg, String senderName) {
         return new ChatMessageResponse(
                 msg.getId(),
-                msg.getSender() != null ? msg.getSender().getId() : null,
+                msg.getSenderId(),
                 senderName,
                 msg.getContent(),
                 msg.getIsSystem(),
