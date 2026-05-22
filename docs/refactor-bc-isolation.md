@@ -10,9 +10,11 @@
 >   - 풀 격리(D7): `@ManyToOne/@OneToOne Member` 참조 12엔티티 전부 `Long ID`로 전환 (Post/PostLike/Comment/CommentLike/QnA/Answer/QnALike/AnswerLike/ChatMessage/MentorMenteeMatch/QuizResult/Profile). 컬럼명 동일 → 스키마 무변경.
 >   - 빌더 전달용 `memberRepository.findById` 존재검사 제거 (JWT+FK 보장). 단 chat `receiverId`(클라 입력)만 `existsById` 유지.
 >   - `Member`+`MemberRepository`+`auth`(컨트롤러/서비스/DTO8) → `com.khu.globalhub.identity` BC 4계층(domain/application/infrastructure/presentation)으로 `git mv`.
->   - ⚠️ **잔여 결합**: `AuthService`가 아직 `Profile`/`ProfileRepository` 직접 참조(`POST /api/auth/profile`, login `hasProfile`). identity→profile 역방향 → profile BC 추출 시 이벤트/포트로 분리.
-> - ⏭️ **다음 재개 지점: profile BC 추출** — `Profile`/`ProfileRepository`/`MemberService`(/api/members)/`ProfileResponse`/member DTO를 `com.khu.globalhub.profile` 4계층으로 이동 + 위 AuthService 잔여 결합 분리(`ProfileQueryPort` 또는 이벤트). 그 다음 board·qna 이전 / extevent 인프라 / 스키마 정리(V2~).
-> - ⏳ 남음: top-level BC 골격(task 7, ArchUnit) / profile(task 9) / board·qna 이전 / 이벤트 / 스키마 정리(V2~)
+> - ✅ **profile BC 추출 완료** (커밋 2개):
+>   - P1: `domain/member`(Profile/ProfileRepository/MemberService/MemberController/DTO3) → `com.khu.globalhub.profile` 4계층으로 `git mv`. 클래스명 유지(순수 이동). 테이블명 불변=스키마 무변경.
+>   - P2: identity→profile 결합 제거 — `AuthService`가 `Profile`/`ProfileRepository` 대신 **`ProfileGateway`(DIP 포트, identity가 정의)** 만 의존. 어댑터(`ProfileGatewayAdapter`)는 profile BC가 구현. 프로필 생성 규칙은 profile로 이전. `POST /api/auth/profile`·login `hasProfile` 동작/경로 불변. → **identity는 profile을 import하지 않음**.
+> - ⏭️ **다음 재개 지점: board BC 정리** — 콘텐츠 BC들(board/qna/comment/chat)이 작성자 이름 조회로 `ProfileRepository`를 직접 import하는 잔여 결합을 **`ProfileQueryPort`(profile 노출, 배치 findNames)** 로 분리. + profile→identity 이메일 조회도 포트화 고려(`MemberQueryPort`). 그 다음 댓글 흡수/extevent/스키마 정리(V2~).
+> - ⏳ 남음: ArchUnit 규칙(task 7) / 콘텐츠 BC 포트 분리 / 댓글 board 흡수 / extevent 인프라 / 스키마 정리(V2~V4)
 > 목적: 바이브코딩으로 결합된 현재 모놀리식을 **BC 단위로 격리**해서 3인 팀이 각자 자기 영역을 온전히 소유하도록 재구성한다.
 > 레퍼런스 아키텍처: `tech-blog-be` (DDD-Lite, 싱글 모듈, 패키지 기반 BC + 통합 이벤트)
 >
