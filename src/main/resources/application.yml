@@ -25,8 +25,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${MAIL_USERNAME:dummy@gmail.com}
+    password: ${MAIL_PASSWORD:dummy}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
@@ -39,13 +39,13 @@ jwt:
 
 azure:
   translator:
-    key: ${AZURE_TRANSLATOR_KEY}
+    key: ${AZURE_TRANSLATOR_KEY:dummy}
     endpoint: https://api.cognitive.microsofttranslator.com
-    region: ${AZURE_REGION}
+    region: ${AZURE_REGION:koreacentral}
 
 aws:
   s3:
-    bucket: ${AWS_S3_BUCKET}
-    region: ${AWS_S3_REGION}
-    access-key: ${AWS_ACCESS_KEY}
-    secret-key: ${AWS_SECRET_KEY}
+    bucket: ${AWS_S3_BUCKET:dummy-bucket}
+    region: ${AWS_S3_REGION:ap-northeast-2}
+    access-key: ${AWS_ACCESS_KEY:dummy}
+    secret-key: ${AWS_SECRET_KEY:dummy}
