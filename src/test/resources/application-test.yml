@@ -1,0 +1,16 @@
+# 통합테스트 전용 설정 (Testcontainers PostgreSQL).
+# datasource는 @ServiceConnection이 컨테이너에서 자동 주입하므로 url 미지정.
+# jwt/aws/azure/mail 더미값은 application.yml 기본값을 그대로 사용.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate   # Flyway가 스키마를 생성/관리, Hibernate는 엔티티-스키마 일치만 검증.
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+
+  # 신선한 컨테이너 DB에 Flyway가 V1(baseline)부터 실행 → 스키마 생성.
+  # validate가 통과하면 V1 baseline이 현재 엔티티와 정확히 일치함이 증명된다.
+  flyway:
+    enabled: true

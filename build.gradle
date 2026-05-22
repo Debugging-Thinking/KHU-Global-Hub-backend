@@ -37,6 +37,10 @@ dependencies {
 	// PostgreSQL 드라이버
 	runtimeOnly 'org.postgresql:postgresql'
 
+	// Flyway (DB 마이그레이션 — ddl-auto 졸업, 로컬/RDS 동일 SQL 적용)
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
+
 	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
@@ -57,6 +61,11 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Testcontainers (실 PostgreSQL 띄워 통합테스트 — characterization test 안전망)
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'org.testcontainers:junit-jupiter'
 }
 
 tasks.named('test') {
