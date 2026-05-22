@@ -1,9 +1,9 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:17
     container_name: globalhub-db
     ports:
-      - "5432:5432"
+      - "5433:5432"   # 호스트 5433 → 컨테이너 5432. 로컬 네이티브 PostgreSQL(5432)과 충돌 방지
     environment:
       POSTGRES_DB: khu_global_hub
       POSTGRES_USER: globalhub

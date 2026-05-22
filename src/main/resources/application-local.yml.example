@@ -7,7 +7,7 @@
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/khu_global_hub
+    url: jdbc:postgresql://localhost:5433/khu_global_hub   # docker-compose 포트(5433)와 일치
     username: globalhub
     password: globalhub1234
 

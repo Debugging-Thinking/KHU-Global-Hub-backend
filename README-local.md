@@ -13,7 +13,8 @@ KHU Global Hub 백엔드를 로컬에서 실행하는 방법입니다. 운영 �
 | **Docker Desktop** | 로컬 PostgreSQL 실행용. [docker.com](https://www.docker.com/products/docker-desktop/) 에서 설치 |
 
 > Docker를 쓰기 싫으면 로컬에 PostgreSQL을 직접 설치해도 됩니다.
-> 그 경우 DB명 `khu_global_hub`, 유저 `globalhub`, 비번 `globalhub1234`, 포트 `5432` 로 맞추세요.
+> 그 경우 DB명 `khu_global_hub`, 유저 `globalhub`, 비번 `globalhub1234` 로 맞추고,
+> `application-local.yml` 의 포트를 본인 PostgreSQL 포트(보통 `5432`)로 변경하세요.
 
 ### 로컬 설정 파일 생성
 `src/main/resources/application-local.yml` 은 git에 올라가지 않으므로 직접 만들어야 합니다.
@@ -30,20 +31,40 @@ Copy-Item src/main/resources/application-local.yml.example src/main/resources/ap
 
 ## 2. 실행 (매번)
 
-### 1) 로컬 DB 띄우기
-Docker Desktop이 실행된 상태에서:
-```powershell
-docker compose up -d
-```
-(끌 때는 `docker compose down`. 데이터까지 지우려면 `docker compose down -v`)
+> 전제: `backend` 와 `frontend` 레포를 **같은 부모 폴더**에 클론해 두세요.
+> (프론트도 최초 1회 `npm install` 필요)
 
-### 2) 백엔드 실행
+### 방법 A) 원클릭 풀스택 실행 (권장) ⚡
+
+DB + 백엔드 + 프론트를 한 번에 띄웁니다. Docker Desktop이 실행된 상태에서 `backend` 폴더에서:
+
 ```powershell
-.\gradlew bootRun
+# Windows
+powershell -ExecutionPolicy Bypass -File dev.ps1
+```
+```bash
+# mac / linux
+bash dev.sh
 ```
 
-→ `http://localhost:8080` 에서 동작합니다.
-→ API 문서(Swagger): `http://localhost:8080/swagger-ui.html`
+- DB(docker) 기동 → 백엔드/프론트를 각각 새 창(또는 백그라운드)에서 실행
+- 프론트 `.env.local`(API 주소 = `http://localhost:8080`)을 자동 생성
+- 프론트 폴더가 다른 위치면: `$env:GLOBALHUB_FRONTEND="C:\path\to\frontend"` 지정 후 실행
+
+### 방법 B) 개별 실행 (수동)
+
+```powershell
+docker compose up -d          # 1) 로컬 DB (끌 때 docker compose down, 데이터까지: -v)
+.\gradlew bootRun             # 2) 백엔드
+# 3) 프론트: 별도 터미널에서 frontend 폴더로 가서  npm run web
+```
+
+→ 백엔드: `http://localhost:8080` · Swagger: `http://localhost:8080/swagger-ui.html`
+→ 프론트(Expo Web): 실행 시 안내되는 브라우저 주소(보통 `http://localhost:8081`)
+
+> 💡 **테스트 계정 자동 시드** — local 첫 실행 시 테스트 계정·샘플 데이터가 자동 생성됩니다 (회원가입/이메일 불필요).
+> `demo` / `alice` / `bob` / `carol` `@khu.ac.kr` — 비밀번호 전부 `password123`. 두 명 동시 테스트는 **시크릿 탭**.
+> 깨끗이 초기화: `docker compose down -v` 후 다시 실행. (`LocalTestDataInitializer`, local 프로필 전용 — 운영 미적용)
 
 ---
 
@@ -79,6 +100,6 @@ $env:AWS_SECRET_KEY="..."
 ## 4. 자주 묻는 것
 
 - **앱 재시작하면 데이터가 사라져요** → `application-local.yml` 의 `ddl-auto: create` 때문입니다. 데이터를 유지하려면 `update` 로 바꾸세요.
-- **포트 5432가 이미 사용 중** → 로컬에 다른 PostgreSQL이 떠 있을 수 있습니다. 끄거나 `docker-compose.yml` 포트를 변경하세요.
+- **DB 연결/인증 실패** → 도커 DB는 호스트 **5433** 포트로 매핑돼 있습니다 (로컬 네이티브 PostgreSQL의 5432와 충돌 방지용). `application-local.yml` 이 `localhost:5433` 을 가리키는지 확인하세요. 그래도 5433이 충돌하면 `docker-compose.yml` 과 `application-local.yml` 양쪽 포트를 비어있는 다른 번호로 바꾸면 됩니다.
 - **`DB_URL` 관련 에러로 시작 실패** → `application-local.yml` 을 안 만들었을 가능성이 큽니다. (1번 마지막 단계 확인)
 - **프론트 연동** → 프론트의 API base URL을 `http://localhost:8080` 으로 변경하면 로컬 백엔드와 통신합니다.
