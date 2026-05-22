@@ -23,7 +23,7 @@ public record AnswerResponse(
                 answer.getId(),
                 translation.getContent(),
                 authorName,   // 익명이면 서비스가 "익명N" 전달
-                answer.getIsAnonymous() ? null : answer.getAuthor().getId(),
+                answer.getIsAnonymous() ? null : answer.getAuthorId(),
                 answer.getIsAnonymous(),
                 answer.getIsAdopted(),
                 answer.getLikeCount(),

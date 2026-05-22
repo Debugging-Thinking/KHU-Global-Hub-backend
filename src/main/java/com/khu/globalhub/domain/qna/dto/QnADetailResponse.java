@@ -30,7 +30,7 @@ public record QnADetailResponse(
                 translation.getTitle(),
                 translation.getContent(),
                 authorName,   // 익명이면 서비스가 "익명N" 전달
-                qna.getIsAnonymous() ? null : qna.getAuthor().getId(),
+                qna.getIsAnonymous() ? null : qna.getAuthorId(),
                 qna.getIsAnonymous(),
                 qna.getIsAdopted(),
                 qna.getLikeCount(),

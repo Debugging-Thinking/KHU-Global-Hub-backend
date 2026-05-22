@@ -1,6 +1,5 @@
 package com.khu.globalhub.domain.qna.entity;
 
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.shared.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,10 +24,9 @@ public class QnA extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 질문 작성자. 익명이라도 DB에는 저장됨. */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
-    private Member author;
+    /** 질문 작성자 ID. 익명이라도 DB에는 저장됨. identity BC를 ID로만 참조 (D7). */
+    @Column(name = "author_id", nullable = false)
+    private Long authorId;
 
     /** 익명 작성 여부. */
     @Column(nullable = false)

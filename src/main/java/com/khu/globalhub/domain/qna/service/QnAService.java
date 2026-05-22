@@ -1,9 +1,7 @@
 package com.khu.globalhub.domain.qna.service;
 
 import com.khu.globalhub.domain.anonymous.service.AnonymousAliasService;
-import com.khu.globalhub.domain.member.entity.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.domain.qna.dto.*;
 import com.khu.globalhub.domain.qna.entity.*;
@@ -32,7 +30,6 @@ public class QnAService {
     private final AnswerRepository answerRepository;
     private final AnswerTranslationRepository answerTranslationRepository;
     private final AnswerLikeRepository answerLikeRepository;
-    private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final TranslationService translationService;
     private final AnonymousAliasService anonymousAliasService;
@@ -41,11 +38,8 @@ public class QnAService {
 
     @Transactional
     public Long createQnA(Long memberId, CreateQnARequest req) {
-        Member author = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         QnA qna = QnA.builder()
-                .author(author)
+                .authorId(memberId)
                 .isAnonymous(req.isAnonymous())
                 .build();
         qnaRepository.save(qna);
@@ -74,7 +68,7 @@ public class QnAService {
                 .map(qna -> {
                     QnATranslation translation = resolveQnATranslation(qna, language);
                     String authorName = resolveAuthorName(qna.getIsAnonymous(),
-                            AliasContextType.QNA, qna.getId(), qna.getAuthor().getId());
+                            AliasContextType.QNA, qna.getId(), qna.getAuthorId());
                     int answerCount = answerRepository.countByQnaId(qna.getId());
                     return QnASummaryResponse.of(qna, translation, authorName, answerCount);
                 });
@@ -86,9 +80,9 @@ public class QnAService {
 
         QnATranslation translation = resolveQnATranslation(qna, language);
         String authorName = resolveAuthorName(qna.getIsAnonymous(),
-                AliasContextType.QNA, qnaId, qna.getAuthor().getId());
+                AliasContextType.QNA, qnaId, qna.getAuthorId());
         boolean isLiked = qnaLikeRepository.existsByMemberIdAndQnaId(memberId, qnaId);
-        boolean isOwner = qna.getAuthor().getId().equals(memberId);
+        boolean isOwner = qna.getAuthorId().equals(memberId);
 
         // 원문 언어: ID가 가장 낮은(가장 먼저 저장된) 번역 행의 language
         Language originalLanguage = qnaTranslationRepository
@@ -108,7 +102,7 @@ public class QnAService {
     public void deleteQnA(Long qnaId, Long memberId) {
         QnA qna = qnaRepository.findById(qnaId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
-        if (!qna.getAuthor().getId().equals(memberId)) {
+        if (!qna.getAuthorId().equals(memberId)) {
             throw new CustomException(ErrorCode.QNA_UNAUTHORIZED);
         }
 
@@ -131,15 +125,13 @@ public class QnAService {
     public boolean toggleQnALike(Long qnaId, Long memberId) {
         QnA qna = qnaRepository.findById(qnaId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (qnaLikeRepository.existsByMemberIdAndQnaId(memberId, qnaId)) {
             qnaLikeRepository.deleteByMemberIdAndQnaId(memberId, qnaId);
             qna.decreaseLikeCount();
             return false;
         } else {
-            qnaLikeRepository.save(QnALike.builder().member(member).qna(qna).build());
+            qnaLikeRepository.save(QnALike.builder().memberId(memberId).qna(qna).build());
             qna.increaseLikeCount();
             return true;
         }
@@ -157,7 +149,7 @@ public class QnAService {
             throw new CustomException(ErrorCode.QNA_ALREADY_ADOPTED);
         }
         // 본인 질문엔 답변 불가
-        if (qna.getAuthor().getId().equals(memberId)) {
+        if (qna.getAuthorId().equals(memberId)) {
             throw new CustomException(ErrorCode.SELF_ANSWER_NOT_ALLOWED);
         }
         // 1인 1답 제한
@@ -165,12 +157,9 @@ public class QnAService {
             throw new CustomException(ErrorCode.ANSWER_ALREADY_EXISTS);
         }
 
-        Member author = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         Answer answer = Answer.builder()
                 .qna(qna)
-                .author(author)
+                .authorId(memberId)
                 .isAnonymous(req.isAnonymous())
                 .build();
         answerRepository.save(answer);
@@ -195,7 +184,7 @@ public class QnAService {
     public void deleteAnswer(Long answerId, Long memberId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
-        if (!answer.getAuthor().getId().equals(memberId)) {
+        if (!answer.getAuthorId().equals(memberId)) {
             throw new CustomException(ErrorCode.ANSWER_UNAUTHORIZED);
         }
 
@@ -217,7 +206,7 @@ public class QnAService {
         QnA qna = qnaRepository.findById(qnaId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
 
-        if (!qna.getAuthor().getId().equals(memberId)) {
+        if (!qna.getAuthorId().equals(memberId)) {
             throw new CustomException(ErrorCode.ADOPT_UNAUTHORIZED);
         }
         if (qna.getIsAdopted()) {
@@ -240,15 +229,13 @@ public class QnAService {
     public boolean toggleAnswerLike(Long answerId, Long memberId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         if (answerLikeRepository.existsByMemberIdAndAnswerId(memberId, answerId)) {
             answerLikeRepository.deleteByMemberIdAndAnswerId(memberId, answerId);
             answer.decreaseLikeCount();
             return false;
         } else {
-            answerLikeRepository.save(AnswerLike.builder().member(member).answer(answer).build());
+            answerLikeRepository.save(AnswerLike.builder().memberId(memberId).answer(answer).build());
             answer.increaseLikeCount();
             return true;
         }
@@ -271,17 +258,11 @@ public class QnAService {
                         .orElseGet(() -> answer.getTranslations().get(0)));
 
         String authorName = resolveAuthorName(answer.getIsAnonymous(),
-                AliasContextType.QNA, qnaId, answer.getAuthor().getId());
+                AliasContextType.QNA, qnaId, answer.getAuthorId());
         boolean isLiked = answerLikeRepository.existsByMemberIdAndAnswerId(memberId, answer.getId());
-        boolean isOwner = answer.getAuthor().getId().equals(memberId);
+        boolean isOwner = answer.getAuthorId().equals(memberId);
 
         return AnswerResponse.of(answer, translation, authorName, isLiked, isOwner);
-    }
-
-    private String getAuthorName(Member author) {
-        return profileRepository.findByMemberId(author.getId())
-                .map(Profile::getName)
-                .orElse("Unknown");
     }
 
     private String resolveAuthorName(boolean isAnonymous, AliasContextType ctx, Long contextId, Long authorId) {
