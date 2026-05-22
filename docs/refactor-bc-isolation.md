@@ -16,8 +16,11 @@
 > - ✅ **ProfileQueryPort 분리 완료** (커밋 1개): 콘텐츠/채팅 BC(board/qna/comment/chat)가 작성자·발신자 이름 조회로 `ProfileRepository`를 직접 import하던 결합을 **`shared.port.ProfileQueryPort`** (findName + findCard) 계약으로 전환. 구현은 `profile/application/ProfileQueryAdapter`. → 4개 BC에서 profile 패키지 import 완전 제거. (배치 `findNames`는 N+1 최적화 단계로 미룸.)
 > - ✅ **(a) 남은 BC 톱레벨 4계층 재배치 완료**: `domain/{board,qna,chat,mentoring}` → 톱레벨, `domain/quiz` → `campusguide`, `domain/anonymous` → `shared.anonymous`. `comment`만 (c) 흡수 대기로 `domain.comment` 잔류.
 > - ✅ **(b) extevent 위반 결합 정리 완료**: `QuizCompletedEvent`(campusguide→profile quizScore), `MatchCreatedEvent`(mentoring→chat 시스템메시지). `@TransactionalEventListener(AFTER_COMMIT)` 동기. campusguide·mentoring이 profile·chat을 import 안 함.
-> - ⏭️ **(c) 댓글 board 흡수(D3/D4) + 스키마 V2~V4 — ⚠️ 사용자 확인 대기**: qna/answer 댓글 데이터 삭제(비가역) / target_type·board_type 컬럼 제거 / boardType·qna댓글 API 폐기(프론트 계약 변경) / characterization 테스트 일부 재작성(세이프티넷 변경). 프론트 조율 + 운영 RDS 스냅샷 후 배포 전제.
-> - ⏳ 남음: (c) / ArchUnit 규칙(task 7) / 잔여 결합(mentoring→profile, profile→identity·board, shared.TranslationService→BC)
+> - ✅ **(c) 댓글 board 흡수 — 코드 한정**: `domain/comment` → `board` 4계층(D4 소유권). `domain/` 패키지 완전 소멸. targetType/boardType·전체 API·데이터 불변(동작/계약 그대로). ⚠️ D3 파괴적 부분(qna댓글 삭제·컬럼 제거·API 폐기·스키마 V2~V4)은 **보류**(프론트 조율+RDS 스냅샷 필요).
+> - ✅ **잔여 결합 추가 정리**: `MemberQueryPort`(identity 노출, exists+findEmail)로 profile·mentoring·chat의 MemberRepository 직접의존 제거 / `GET /api/members/{id}/posts`를 board로 이전(profile→board 제거) / `ProfileGateway`도 `shared.port`로 이동(profile→identity 제거). → **세 크로스-BC 포트(ProfileQueryPort·MemberQueryPort·ProfileGateway) 모두 shared.port에 통일.**
+> - ✅ **ArchUnit 경계 규칙 도입**(task 7): `BoundedContextRulesTest` 8규칙 — identity/profile/qna/chat/campusguide는 타 BC 의존 0, board는 qna만(D3대기), mentoring은 profile만, domain 계층 최내곽. 의존 회귀 방지.
+> - ⏭️ **남은 일(전부 비차단·후속)**: D3 파괴적 스키마(V2~V4, 프론트 조율 후) / mentoring→profile 매칭조회 포트화 / shared.TranslationService→BC 엔티티 결합 분리(번역 client/port) / board→qna(D3로 소멸) / lecturecatalog·coursereview 신규.
+> - 현재 BC 의존 그래프: identity·profile·qna·chat·campusguide = 타BC 0 / board→qna(잔여) / mentoring→profile(잔여) / shared.TranslationService→board·qna(부채).
 > 목적: 바이브코딩으로 결합된 현재 모놀리식을 **BC 단위로 격리**해서 3인 팀이 각자 자기 영역을 온전히 소유하도록 재구성한다.
 > 레퍼런스 아키텍처: `tech-blog-be` (DDD-Lite, 싱글 모듈, 패키지 기반 BC + 통합 이벤트)
 >
