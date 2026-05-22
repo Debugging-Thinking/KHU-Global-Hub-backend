@@ -106,6 +106,11 @@ docker compose up -d
 ./gradlew bootRun
 ```
 
+> 💡 **로컬 테스트 계정 자동 시드** — `local` 프로필 첫 실행 시 테스트 계정·샘플 데이터가 자동 생성됩니다 (회원가입/이메일 인증 불필요).
+> 계정: `demo` / `alice` / `bob` / `carol` `@khu.ac.kr` — **비밀번호 전부 `password123`**.
+> 서로의 글에 댓글, demo↔alice 채팅, bob↔demo 멘토링 매칭 등 멀티유저 시나리오가 미리 들어있습니다.
+> (`LocalTestDataInitializer`, `@Profile("local")` — 멱등·운영 미적용. 깨끗이 다시 시드하려면 `docker compose down -v && up -d` 후 재실행.)
+
 ### 4. Swagger UI (로컬)
 
 ```
