@@ -1,19 +1,13 @@
 package com.khu.globalhub.profile.presentation;
 
-import com.khu.globalhub.board.presentation.dto.PostSummaryResponse;
 import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
 import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;
 import com.khu.globalhub.profile.application.MemberService;
 import com.khu.globalhub.shared.common.ApiResponse;
-import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,20 +63,5 @@ public class MemberController {
         Long myId = SecurityUtil.getCurrentMemberId();
         String url = memberService.updateProfileImage(myId, image.getBytes(), image.getContentType());
         return ResponseEntity.ok(ApiResponse.ok("프로필 이미지가 업데이트되었습니다.", url));
-    }
-
-    /**
-     * 특정 멤버의 게시글 목록.
-     * 본인이면 익명 포함, 타인이면 익명 제외.
-     */
-    @GetMapping("/{memberId}/posts")
-    public ResponseEntity<ApiResponse<Page<PostSummaryResponse>>> getMemberPosts(
-            @PathVariable Long memberId,
-            @RequestParam(defaultValue = "KO") Language language,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        Long myId = SecurityUtil.getCurrentMemberId();
-        Page<PostSummaryResponse> result = memberService.getMemberPosts(myId, memberId, language, pageable);
-        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 }

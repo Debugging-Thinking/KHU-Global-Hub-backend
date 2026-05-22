@@ -1,9 +1,5 @@
 package com.khu.globalhub.profile.application;
 
-import com.khu.globalhub.board.presentation.dto.PostSummaryResponse;
-import com.khu.globalhub.board.domain.PostTranslation;
-import com.khu.globalhub.board.infrastructure.PostRepository;
-import com.khu.globalhub.board.infrastructure.PostTranslationRepository;
 import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
 import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;
@@ -16,8 +12,6 @@ import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
 import com.khu.globalhub.shared.infra.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +24,6 @@ public class MemberService {
 
     private final ProfileRepository profileRepository;
     private final MemberQueryPort memberQueryPort;
-    private final PostRepository postRepository;
-    private final PostTranslationRepository postTranslationRepository;
     private final S3Service s3Service;
 
     /** 프로필 응답 조립용 이메일 조회 (identity BC를 ID로만 참조). */
@@ -130,33 +122,5 @@ public class MemberService {
 
         profile.updateMentoringRole(req.mentoringRole());
         return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
-    }
-
-    /**
-     * 특정 멤버의 게시글 목록.
-     * - 본인(myId == targetMemberId): 익명 게시글 포함
-     * - 타인: 익명 게시글 제외
-     */
-    public Page<PostSummaryResponse> getMemberPosts(Long myId, Long targetMemberId,
-                                                    Language language, Pageable pageable) {
-        boolean isOwner = myId.equals(targetMemberId);
-
-        var posts = isOwner
-                ? postRepository.findByAuthorIdOrderByCreatedAtDesc(targetMemberId, pageable)
-                : postRepository.findByAuthorIdAndIsAnonymousFalseOrderByCreatedAtDesc(targetMemberId, pageable);
-
-        return posts.map(post -> {
-            PostTranslation translation = postTranslationRepository
-                    .findByPostIdAndLanguage(post.getId(), language)
-                    .orElseGet(() -> postTranslationRepository
-                            .findByPostIdAndLanguage(post.getId(), Language.EN)
-                            .orElseGet(() -> post.getTranslations().get(0)));
-
-            Profile authorProfile = profileRepository.findByMemberId(post.getAuthorId())
-                    .orElse(null);
-            String authorName = authorProfile != null ? authorProfile.getName() : "Unknown";
-
-            return PostSummaryResponse.of(post, translation, authorName);
-        });
     }
 }

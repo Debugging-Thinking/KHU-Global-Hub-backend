@@ -206,6 +206,31 @@ public class PostService {
         }
     }
 
+    /**
+     * 특정 멤버가 쓴 게시글 목록 (board 소유 데이터).
+     * - 본인(myId == targetMemberId): 익명 게시글 포함
+     * - 타인: 익명 게시글 제외
+     * 작성자 이름은 ProfileQueryPort로 조회.
+     */
+    public Page<PostSummaryResponse> getMemberPosts(Long myId, Long targetMemberId,
+                                                    Language language, Pageable pageable) {
+        boolean isOwner = myId.equals(targetMemberId);
+
+        var posts = isOwner
+                ? postRepository.findByAuthorIdOrderByCreatedAtDesc(targetMemberId, pageable)
+                : postRepository.findByAuthorIdAndIsAnonymousFalseOrderByCreatedAtDesc(targetMemberId, pageable);
+
+        return posts.map(post -> {
+            PostTranslation translation = postTranslationRepository
+                    .findByPostIdAndLanguage(post.getId(), language)
+                    .orElseGet(() -> postTranslationRepository
+                            .findByPostIdAndLanguage(post.getId(), Language.EN)
+                            .orElseGet(() -> post.getTranslations().get(0)));
+            String authorName = profileQueryPort.findName(post.getAuthorId()).orElse("Unknown");
+            return PostSummaryResponse.of(post, translation, authorName);
+        });
+    }
+
     private String resolveAuthorName(boolean isAnonymous, AliasContextType ctx, Long contextId, Long authorId) {
         if (isAnonymous) {
             return anonymousAliasService.lookup(ctx, contextId, authorId);
