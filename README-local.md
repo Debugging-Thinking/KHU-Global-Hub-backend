@@ -16,16 +16,18 @@ KHU Global Hub 백엔드를 로컬에서 실행하는 방법입니다. 운영 �
 > 그 경우 DB명 `khu_global_hub`, 유저 `globalhub`, 비번 `globalhub1234` 로 맞추고,
 > `application-local.yml` 의 포트를 본인 PostgreSQL 포트(보통 `5432`)로 변경하세요.
 
-### 로컬 설정 파일 생성
-`src/main/resources/application-local.yml` 은 git에 올라가지 않으므로 직접 만들어야 합니다.
-같은 폴더의 `application-local.yml.example` 을 복사하세요.
+### 로컬 설정 파일 (`application-local.yml`)
+`src/main/resources/application-local.yml` 은 git에 올라가지 않습니다 — 각자 환경·비밀키를 넣는 개인 파일이라 유출 방지 목적으로 gitignore 처리.
+
+> ✅ **아래 §2 "방법 A" `dev.ps1`/`dev.sh` 를 쓰면 이 파일을 `.example` 에서 자동 생성**하므로 **직접 만들 필요 없습니다.**
+> 수동 실행(방법 B)이나 IDE에서 직접 띄울 때만 아래처럼 복사:
 
 ```powershell
-# 프로젝트 루트(backend)에서
 Copy-Item src/main/resources/application-local.yml.example src/main/resources/application-local.yml
 ```
 
-> 이 파일 안의 DB 접속 정보는 로컬 더미 값이라 민감하지 않습니다. 그대로 쓰면 됩니다.
+> DB 접속 정보는 로컬 더미 값(localhost:5433)이라 민감하지 않습니다. 그대로 쓰면 됩니다.
+> (테스트 계정 demo/alice/bob/carol 은 이 설정과 별개로, 앱이 켜질 때 자동 시드됩니다 — §2 끝 참고)
 
 ---
 
