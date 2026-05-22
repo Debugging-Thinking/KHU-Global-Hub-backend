@@ -41,6 +41,37 @@ public class MemberService {
                 .orElse(null);
     }
 
+    /**
+     * 최초 프로필 생성 (POST /api/auth/profile). identity의 ProfileGateway가 위임.
+     * - 신입생(입학년도==현재년도): MENTEE만 가능
+     * - 재학생: MENTOR/MENTEE 선택 (NONE은 프로필 수정에서만)
+     */
+    @Transactional
+    public void createProfile(Long memberId, String name, String department, String nationality,
+                              Integer admissionYear, Language language, MentoringRole mentoringRole) {
+        if (profileRepository.existsByMemberId(memberId)) {
+            throw new CustomException(ErrorCode.PROFILE_ALREADY_EXISTS);
+        }
+        if (mentoringRole == MentoringRole.NONE) {
+            throw new CustomException(ErrorCode.CANNOT_SET_NONE_ON_INIT);
+        }
+        boolean isNewStudent = admissionYear == LocalDate.now().getYear();
+        if (isNewStudent && mentoringRole == MentoringRole.MENTOR) {
+            throw new CustomException(ErrorCode.INVALID_MENTORING_ROLE);
+        }
+
+        Profile profile = Profile.builder()
+                .memberId(memberId)
+                .name(name)
+                .department(department)
+                .nationality(nationality)
+                .admissionYear(admissionYear)
+                .language(language)
+                .mentoringRole(mentoringRole)
+                .build();
+        profileRepository.save(profile);
+    }
+
     /** 프로필 조회 (본인 또는 타인). */
     public ProfileResponse getProfile(Long targetMemberId) {
         Profile profile = profileRepository.findByMemberId(targetMemberId)

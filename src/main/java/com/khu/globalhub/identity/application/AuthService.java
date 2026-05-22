@@ -2,10 +2,7 @@ package com.khu.globalhub.identity.application;
 
 import com.khu.globalhub.identity.presentation.dto.*;
 import com.khu.globalhub.identity.domain.Member;
-import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.identity.infrastructure.MemberRepository;
-import com.khu.globalhub.profile.infrastructure.ProfileRepository;
-import com.khu.globalhub.shared.enums.MentoringRole;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
 import com.khu.globalhub.shared.jwt.JwtTokenProvider;
@@ -14,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
 
@@ -24,7 +20,7 @@ import java.util.Random;
 public class AuthService {
 
     private final MemberRepository memberRepository;
-    private final ProfileRepository profileRepository;
+    private final ProfileGateway profileGateway;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final EmailService emailService;
@@ -72,31 +68,14 @@ public class AuthService {
      * - 재학생: MENTOR/MENTEE 선택 (NONE은 프로필 수정에서만)
      */
     public void createProfile(Long memberId, CreateProfileRequest request) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-        if (profileRepository.existsByMemberId(member.getId())) {
-            throw new CustomException(ErrorCode.PROFILE_ALREADY_EXISTS);
-        }
-        if (request.getMentoringRole() == MentoringRole.NONE) {
-            throw new CustomException(ErrorCode.CANNOT_SET_NONE_ON_INIT);
-        }
-
-        boolean isNewStudent = request.getAdmissionYear() == LocalDate.now().getYear();
-        if (isNewStudent && request.getMentoringRole() == MentoringRole.MENTOR) {
-            throw new CustomException(ErrorCode.INVALID_MENTORING_ROLE);
-        }
-
-        Profile profile = Profile.builder()
-                .memberId(member.getId())
-                .name(request.getName())
-                .department(request.getDepartment())
-                .nationality(request.getNationality())
-                .admissionYear(request.getAdmissionYear())
-                .language(request.getLanguage())
-                .mentoringRole(request.getMentoringRole())
-                .build();
-        profileRepository.save(profile);
+        profileGateway.create(new ProfileGateway.ProfileCreationCommand(
+                memberId,
+                request.getName(),
+                request.getDepartment(),
+                request.getNationality(),
+                request.getAdmissionYear(),
+                request.getLanguage(),
+                request.getMentoringRole()));
     }
 
     /** 로그인: 이메일 인증 + 비밀번호 검증 → JWT 발급 */
@@ -182,7 +161,7 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(member.getId());
         member.updateRefreshToken(refreshToken, LocalDateTime.now().plusDays(7));
 
-        boolean hasProfile = profileRepository.existsByMemberId(member.getId());
+        boolean hasProfile = profileGateway.exists(member.getId());
         return LoginResponse.of(accessToken, refreshToken, hasProfile);
     }
 
