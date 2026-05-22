@@ -1,9 +1,9 @@
-package com.khu.globalhub.domain.auth.service;
+package com.khu.globalhub.identity.application;
 
-import com.khu.globalhub.domain.auth.dto.*;
-import com.khu.globalhub.domain.member.entity.Member;
+import com.khu.globalhub.identity.presentation.dto.*;
+import com.khu.globalhub.identity.domain.Member;
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.MemberRepository;
+import com.khu.globalhub.identity.infrastructure.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.shared.enums.MentoringRole;
 import com.khu.globalhub.shared.exception.CustomException;

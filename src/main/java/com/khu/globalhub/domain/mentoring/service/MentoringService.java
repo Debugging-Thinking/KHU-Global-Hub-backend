@@ -3,7 +3,7 @@ package com.khu.globalhub.domain.mentoring.service;
 import com.khu.globalhub.domain.chat.entity.ChatMessage;
 import com.khu.globalhub.domain.chat.repository.ChatMessageRepository;
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.MemberRepository;
+import com.khu.globalhub.identity.infrastructure.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.domain.mentoring.dto.MentoringMatchResponse;
 import com.khu.globalhub.domain.mentoring.entity.MentorMenteeMatch;

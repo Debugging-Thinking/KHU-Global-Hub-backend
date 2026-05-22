@@ -1,4 +1,4 @@
-package com.khu.globalhub.domain.auth.service;
+package com.khu.globalhub.identity.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

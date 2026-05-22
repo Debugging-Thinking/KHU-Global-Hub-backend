@@ -1,6 +1,6 @@
-package com.khu.globalhub.domain.member.repository;
+package com.khu.globalhub.identity.infrastructure;
 
-import com.khu.globalhub.domain.member.entity.Member;
+import com.khu.globalhub.identity.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

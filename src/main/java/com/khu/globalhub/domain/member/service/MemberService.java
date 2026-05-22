@@ -8,7 +8,7 @@ import com.khu.globalhub.domain.member.dto.ProfileResponse;
 import com.khu.globalhub.domain.member.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.domain.member.dto.UpdateProfileRequest;
 import com.khu.globalhub.domain.member.entity.Profile;
-import com.khu.globalhub.domain.member.repository.MemberRepository;
+import com.khu.globalhub.identity.infrastructure.MemberRepository;
 import com.khu.globalhub.domain.member.repository.ProfileRepository;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.enums.MentoringRole;

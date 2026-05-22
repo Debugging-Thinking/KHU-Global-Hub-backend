@@ -1,7 +1,7 @@
-package com.khu.globalhub.domain.auth.controller;
+package com.khu.globalhub.identity.presentation;
 
-import com.khu.globalhub.domain.auth.dto.*;
-import com.khu.globalhub.domain.auth.service.AuthService;
+import com.khu.globalhub.identity.presentation.dto.*;
+import com.khu.globalhub.identity.application.AuthService;
 import com.khu.globalhub.shared.common.ApiResponse;
 import com.khu.globalhub.shared.util.SecurityUtil;
 import jakarta.validation.Valid;

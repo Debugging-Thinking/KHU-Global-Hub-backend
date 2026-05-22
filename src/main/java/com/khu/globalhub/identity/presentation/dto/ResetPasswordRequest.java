@@ -1,4 +1,4 @@
-package com.khu.globalhub.domain.auth.dto;
+package com.khu.globalhub.identity.presentation.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -2,7 +2,7 @@ package com.khu.globalhub;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.khu.globalhub.domain.auth.service.EmailService;
+import com.khu.globalhub.identity.application.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
