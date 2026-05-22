@@ -167,23 +167,22 @@ design_thinking/
 
 backend/src/main/java/com/khu/globalhub/
 ├── KhuGlobalHubApplication.java
-├── global/
-│   ├── common/       ApiResponse, BaseTimeEntity
-│   ├── config/       AsyncConfig, SecurityConfig, S3Config, JpaConfig
-│   ├── enums/        Language, BoardType, CommentTargetType, AliasContextType, ...
-│   ├── exception/    ErrorCode, CustomException, GlobalExceptionHandler
-│   ├── infra/        TranslationService, S3Service
-│   ├── jwt/          JwtTokenProvider, JwtAuthenticationFilter
-│   └── util/         SecurityUtil
-└── domain/
-    ├── anonymous/    AnonymousAlias 엔티티 + 익명 번호 서비스
-    ├── auth/         회원가입, 이메일 인증, 로그인
-    ├── member/       프로필 관리, 멘토링 역할
-    ├── board/        게시판 (FRESHMAN/FREE/GRADUATE)
-    ├── comment/      댓글·대댓글 (POST/QNA/ANSWER 통합)
-    ├── qna/          Q&A + 답변 채택
-    ├── mentoring/    멘토-멘티 매칭 + 스케줄러
-    └── chat/         1:1 DM
+├── identity/        # 계정·인증·JWT (Member, auth)            [소유: 본인]
+├── profile/         # 프로필 (Profile, /api/members)          [소유: 본인]
+├── board/           # 게시판(자유 1종) + 댓글(흡수) + 좋아요/이미지  [소유: 본인]
+├── qna/             # 질문 + 답변(채택) + 좋아요                [소유: 본인]
+├── chat/            # 1:1 DM                                  [소유: 현우]
+├── mentoring/       # 멘토-멘티 매칭 + 스케줄러                 [소유: 현우]
+├── campusguide/     # 퀴즈 (+ 학사 가이드 예정)               [소유: 태경]
+└── shared/          # 전역 공통 — 어떤 BC도 import 하지 않음
+    ├── port/        # 크로스-BC 계약(인터페이스): ProfileQueryPort, MemberQueryPort, ProfileGateway
+    ├── extevent/    # 통합 이벤트: QuizCompletedEvent(campusguide→profile), MatchCreatedEvent(mentoring→chat)
+    ├── anonymous/   # 익명 번호 (supporting)
+    ├── config/ exception/ jwt/ infra/ common/ enums/ util/
+
+# 각 BC 내부는 4계층: domain(엔티티·규칙) / application(서비스·리스너) /
+#                      infrastructure(리포지토리·어댑터) / presentation(컨트롤러·DTO)
+# 자세한 협업 규칙은 아래 "10. BC 협업 가이드" 및 docs/refactor-bc-isolation.md 참고.
 ```
 
 ---
@@ -216,8 +215,8 @@ backend/src/main/java/com/khu/globalhub/
 
 | Method | Path | 설명 |
 |--------|------|------|
-| POST | `/` | 게시글 작성 (multipart/form-data, 이미지 가능) |
-| GET | `/?boardType=FREE&language=KO` | 게시판 목록 (페이징) |
+| POST | `/` | 게시글 작성 (multipart/form-data, 이미지 가능) — boardType 없음(게시판 1종) |
+| GET | `/?language=KO` | 게시글 목록 (페이징, 게시판 1종) |
 | GET | `/popular?language=KO` | 인기 게시물 (좋아요 10개 이상) |
 | GET | `/{postId}?language=KO` | 게시글 상세 (isLiked, isOwner 포함) |
 | DELETE | `/{postId}` | 게시글 삭제 (작성자만) |
@@ -229,12 +228,10 @@ backend/src/main/java/com/khu/globalhub/
 |--------|------|------|
 | POST | `/api/posts/{postId}/comments` | 게시글 댓글 작성 (parentId 있으면 대댓글) |
 | GET | `/api/posts/{postId}/comments?language=KO` | 댓글 목록 (대댓글 포함) |
-| POST | `/api/qnas/{qnaId}/comments` | QnA 댓글 작성 |
-| GET | `/api/qnas/{qnaId}/comments?language=KO` | QnA 댓글 목록 |
-| POST | `/api/qnas/{qnaId}/answers/{answerId}/comments` | 답변 댓글 작성 |
-| GET | `/api/qnas/{qnaId}/answers/{answerId}/comments?language=KO` | 답변 댓글 목록 |
-| DELETE | `/api/comments/{commentId}` | 댓글 삭제 (공통) |
-| POST | `/api/comments/{commentId}/like` | 댓글 좋아요 토글 (공통) |
+| DELETE | `/api/comments/{commentId}` | 댓글 삭제 |
+| POST | `/api/comments/{commentId}/like` | 댓글 좋아요 토글 |
+
+> 댓글은 **게시글 전용**입니다. (D3: QnA·답변 댓글 API는 폐기됨)
 
 ### Q&A — `/api/qnas`
 
@@ -397,6 +394,80 @@ DB_USERNAME
 DB_PASSWORD
 DDL_AUTO
 ```
+
+---
+
+## 10. BC 협업 가이드 (Bounded Context 격리 후)
+
+> 백엔드는 **BC(Bounded Context) 단위로 격리**되어 있어, 각자 자기 영역만 수정하면 충돌이 거의 없습니다.
+> 설계 배경·결정 로그는 [`docs/refactor-bc-isolation.md`](docs/refactor-bc-isolation.md), 아키텍처 전반은 [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+### 10-1. 소유권 (누가 뭘 만지나)
+
+| BC | 소유자 | 패키지 | 핵심 |
+|----|--------|--------|------|
+| identity | 본인 | `identity` | Member, 회원가입/로그인/JWT/비번재설정 |
+| profile | 본인 | `profile` | Profile, `/api/members` |
+| board | 본인 | `board` | 게시글(자유 1종)·댓글·좋아요·이미지 |
+| qna | 본인 | `qna` | 질문·답변·채택·좋아요 |
+| **chat** | **현우** | `chat` | 1:1 DM |
+| **mentoring** | **현우** | `mentoring` | 매칭·스케줄러 |
+| **campusguide** | **태경** | `campusguide` | 퀴즈 (+ 학사 가이드 예정) |
+| shared | 공용 | `shared` | 설정·예외·JWT·포트·이벤트·익명번호 등 |
+
+### 10-2. 황금 규칙
+
+1. **자기 BC 패키지 안에서만 작업** — `com.khu.globalhub.<내BC>` 안에서 4계층(domain/application/infrastructure/presentation)으로.
+2. **다른 BC 패키지를 절대 import 하지 않는다** (`shared` 제외). 다른 BC의 엔티티·리포지토리를 직접 쓰면 ❌.
+3. **다른 BC가 필요하면 셋 중 하나**:
+   - **ID 참조** — 남의 엔티티를 `@ManyToOne` 하지 말고 `Long xxxId` 컬럼으로만 가진다.
+   - **shared 포트** — 읽기/호출이 필요하면 `shared.port`의 인터페이스로 (구현은 소유 BC가 제공).
+   - **통합 이벤트** — 다른 BC에 부수효과를 일으켜야 하면 `shared.extevent` 이벤트 발행(`@TransactionalEventListener(AFTER_COMMIT)`으로 소비).
+4. 이 규칙은 **ArchUnit으로 강제**됩니다(`BoundedContextRulesTest`). 어기면 빌드 실패 → 바로 알 수 있음.
+
+### 10-3. 이미 만들어진 크로스-BC 계약 (그대로 쓰세요)
+
+`shared.port` (인터페이스 — 호출만, 구현은 신경 X):
+```java
+ProfileQueryPort   findName(memberId) / findCard(memberId)   // 표시 이름·프로필이미지 (profile이 구현)
+MemberQueryPort    exists(memberId) / findEmail(memberId)     // 계정 존재·이메일 (identity가 구현)
+ProfileGateway     exists(memberId) / create(command)         // 프로필 존재·생성 (profile이 구현)
+```
+`shared.extevent` (통합 이벤트):
+```java
+QuizCompletedEvent(memberId, score)   // campusguide 발행 → profile이 quizScore 갱신
+MatchCreatedEvent(mentorId, menteeId) // mentoring 발행 → chat이 시스템 메시지 삽입
+```
+예) 현우님이 매칭 만들 때 채팅에 직접 INSERT ❌ → `eventPublisher.publishEvent(new MatchCreatedEvent(...))` 만 하면 chat이 알아서 처리.
+예) 태경님이 퀴즈 점수를 프로필에 반영 ❌ 직접 UPDATE → `QuizCompletedEvent` 발행만.
+
+### 10-4. "다른 BC 데이터가 필요해요" 패턴
+
+- **표시 이름/이메일 같은 단순 읽기** → 위 포트(`ProfileQueryPort`/`MemberQueryPort`) 사용. 없는 메서드가 필요하면 `shared.port`의 인터페이스에 추가하고 소유 BC에 구현(`@Component implements ...Port`)을 넣으면 됨.
+- **남의 상태를 바꿔야 함** → 이벤트 발행. payload엔 **ID(+단순 값)만** 담는다(엔티티 금지).
+- 절대 남의 `Repository`를 주입하지 말 것.
+
+### 10-5. 새 기능 추가 절차 (예: campusguide에 가이드 화면)
+
+1. `campusguide/domain`에 엔티티, `infrastructure`에 리포지토리, `application`에 서비스, `presentation`에 컨트롤러·DTO.
+2. 회원 정보가 필요하면 `MemberQueryPort`/`ProfileQueryPort` 주입.
+3. 스키마 변경은 **Flyway 마이그레이션**으로만 (`src/main/resources/db/migration/V{n}__설명.sql`). `ddl-auto`는 운영=validate.
+4. `./gradlew test` — characterization + ArchUnit 그린 확인 후 PR.
+
+### 10-6. 안전망 / 검증
+
+```bash
+./gradlew test     # characterization(동작 박제) + ArchUnit(경계) — 약 2분
+```
+- Testcontainers로 실제 PostgreSQL 17 + Flyway(V1~)로 스키마 생성 → 운영과 동일 환경 검증.
+- 리팩토링·기능 추가 후 이 테스트가 그린이면 "기존 동작 안 깨짐 + 경계 안 무너짐"이 보장됨.
+
+### 10-7. 알아둘 잔여 결합 (점진 개선 중, 새로 만들 땐 따라하지 말 것)
+
+- `mentoring → profile` (매칭 알고리즘이 Profile 직접 조회) — 추후 포트화 예정.
+- `shared.infra`(TranslationService/S3Service) `→ board/qna 엔티티` — 번역·이미지 영속화 결합, 추후 분리 예정.
+
+> ⚠️ **계약 변경 이력(프론트 영향)**: 게시판은 1종(자유)으로 통합되어 `boardType` 파라미터·필드가 사라졌고, QnA·답변 댓글 API는 폐기되었습니다. 댓글은 게시글 전용입니다.
 
 ---
 
