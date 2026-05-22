@@ -1,6 +1,5 @@
 package com.khu.globalhub.campusguide.application;
 
-import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.campusguide.presentation.dto.MyQuizResultResponse;
 import com.khu.globalhub.campusguide.presentation.dto.QuizQuestionResponse;
 import com.khu.globalhub.campusguide.presentation.dto.QuizSubmitRequest;
@@ -9,7 +8,9 @@ import com.khu.globalhub.campusguide.domain.QuizQuestion;
 import com.khu.globalhub.campusguide.domain.QuizResult;
 import com.khu.globalhub.campusguide.infrastructure.QuizQuestionRepository;
 import com.khu.globalhub.campusguide.infrastructure.QuizResultRepository;
+import com.khu.globalhub.shared.extevent.campusguide.QuizCompletedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ public class QuizService {
 
     private final QuizQuestionRepository questionRepository;
     private final QuizResultRepository resultRepository;
-    private final ProfileRepository profileRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 전체 문제 조회 (정답 미포함). 카테고리 필터 선택 가능. */
     public List<QuizQuestionResponse> getQuestions(String category) {
@@ -67,12 +68,8 @@ public class QuizService {
                 .score(score)
                 .build());
 
-        // 최고 점수를 프로필에 반영
-        profileRepository.findByMemberId(memberId).ifPresent(profile -> {
-            if (score > profile.getQuizScore()) {
-                profile.updateQuizScore(score);
-            }
-        });
+        // 최고 점수 반영은 profile BC가 담당 — 이벤트 발행으로 위임 (campusguide는 profile을 모름)
+        eventPublisher.publishEvent(new QuizCompletedEvent(memberId, score));
 
         return new QuizSubmitResponse(correctCount, total, score, results);
     }

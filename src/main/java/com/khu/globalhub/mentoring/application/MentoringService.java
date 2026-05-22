@@ -1,19 +1,19 @@
 package com.khu.globalhub.mentoring.application;
 
-import com.khu.globalhub.chat.domain.ChatMessage;
-import com.khu.globalhub.chat.infrastructure.ChatMessageRepository;
 import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.identity.infrastructure.MemberRepository;
 import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.mentoring.presentation.dto.MentoringMatchResponse;
 import com.khu.globalhub.mentoring.domain.MentorMenteeMatch;
 import com.khu.globalhub.mentoring.infrastructure.MentorMenteeMatchRepository;
+import com.khu.globalhub.shared.extevent.mentoring.MatchCreatedEvent;
 import com.khu.globalhub.shared.enums.MatchStatus;
 import com.khu.globalhub.shared.enums.MentoringRole;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +28,7 @@ public class MentoringService {
     private final ProfileRepository profileRepository;
     private final MemberRepository memberRepository;
     private final MentorMenteeMatchRepository matchRepository;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 내 현재 ACTIVE 매칭 단건 조회.
@@ -114,26 +114,8 @@ public class MentoringService {
                 .build();
         matchRepository.save(match);
 
-        // 멘토에게 시스템 메시지 삽입
-        chatMessageRepository.save(ChatMessage.builder()
-                .receiverId(mentorProfile.getMemberId())
-                .contextPartnerId(menteeProfile.getMemberId())
-                .content(buildSystemMessage(mentorProfile.getName(), menteeProfile.getName()))
-                .isSystem(true)
-                .build());
-
-        // 멘티에게도 동일 시스템 메시지 삽입
-        chatMessageRepository.save(ChatMessage.builder()
-                .receiverId(menteeProfile.getMemberId())
-                .contextPartnerId(mentorProfile.getMemberId())
-                .content(buildSystemMessage(mentorProfile.getName(), menteeProfile.getName()))
-                .isSystem(true)
-                .build());
-    }
-
-    private String buildSystemMessage(String mentorName, String menteeName) {
-        return String.format(
-                "멘토-멘티 매칭이 완료되었습니다!\n멘토: %s / 멘티: %s\n자유롭게 대화를 시작해보세요.",
-                mentorName, menteeName);
+        // 시스템 메시지 삽입은 chat BC가 담당 — 이벤트 발행으로 위임 (mentoring은 chat을 모름)
+        eventPublisher.publishEvent(new MatchCreatedEvent(
+                mentorProfile.getMemberId(), menteeProfile.getMemberId()));
     }
 }
