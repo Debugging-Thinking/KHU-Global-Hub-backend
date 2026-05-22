@@ -60,4 +60,12 @@ public class Member extends BaseTimeEntity {
         this.refreshToken = null;
         this.refreshTokenExpiredAt = null;
     }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+        this.emailVerificationCode = null;
+        this.codeExpiredAt = null;
+        this.refreshToken = null;
+        this.refreshTokenExpiredAt = null;
+    }
 }

@@ -140,6 +140,43 @@ public class AuthService {
         member.logout();
     }
 
+    /**
+     * 비밀번호 재설정 코드 발송.
+     * 이메일 인증을 마친 계정에만 발송 (회원가입 미완료 계정은 어차피 로그인 불가).
+     * 인증 코드 필드(emailVerificationCode)를 재활용한다.
+     */
+    public void forgotPassword(ForgotPasswordRequest request) {
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (!member.getIsEmailVerified()) {
+            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
+        String code = generateVerificationCode();
+        member.saveEmailVerificationCode(code, LocalDateTime.now().plusMinutes(10));
+
+        emailService.sendPasswordResetEmail(request.getEmail(), code);
+    }
+
+    /**
+     * 비밀번호 재설정 실행.
+     * 성공 시 기존 Refresh Token도 무효화하여 모든 기기 강제 로그아웃.
+     */
+    public void resetPassword(ResetPasswordRequest request) {
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (member.getCodeExpiredAt() == null || member.getCodeExpiredAt().isBefore(LocalDateTime.now())) {
+            throw new CustomException(ErrorCode.VERIFICATION_CODE_EXPIRED);
+        }
+        if (!request.getCode().equals(member.getEmailVerificationCode())) {
+            throw new CustomException(ErrorCode.INVALID_VERIFICATION_CODE);
+        }
+
+        member.updatePassword(passwordEncoder.encode(request.getNewPassword()));
+    }
+
     private LoginResponse issueTokens(Member member) {
         String accessToken = jwtTokenProvider.generateAccessToken(member.getId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(member.getId());

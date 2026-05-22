@@ -56,4 +56,18 @@ public class AuthController {
         authService.logout(memberId);
         return ResponseEntity.ok(ApiResponse.ok("로그아웃 되었습니다."));
     }
+
+    /** 비밀번호 재설정 요청 — 등록된 이메일로 인증 코드 발송 */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponse.ok("비밀번호 재설정 코드를 이메일로 발송했습니다."));
+    }
+
+    /** 비밀번호 재설정 실행 — 코드 검증 후 새 비밀번호로 변경 */
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.ok("비밀번호가 변경되었습니다."));
+    }
 }
