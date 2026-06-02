@@ -43,7 +43,7 @@ application-prod.yml
 *.pem
 
 # AI 에이전트 인수인계 (내부용, GitHub 비공개)
-CLAUDE.md
+# CLAUDE.md  ← 팀 공유 파일이므로 추적 허용
 
 # Claude Code 로컬 설정 (개인별, 공유 금지 — 서버 IP 등 포함 가능)
 .claude/settings.local.json
