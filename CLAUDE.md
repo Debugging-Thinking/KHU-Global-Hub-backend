@@ -5,16 +5,6 @@
 - 프론트엔드: https://github.com/Debugging-Thinking/KHU-Global-Hub-frontend
 - 작업 브랜치: **beta** (main은 원본 유지)
 
-## 서버
-- EC2 주소: 13.125.205.177
-- 백엔드 포트: 8080
-- DB: PostgreSQL, 포트 5432 (외부 접근 차단됨 — SSH 터널 필요)
-- PEM 키: 이 컴퓨터에 없음, 서버 권한 있는 팀원에게 요청 필요
-
-## 로컬 경로
-- 백엔드: C:\design_thinking\KHU-Global-Hub-backend
-- 프론트엔드: C:\design_thinking\KHU-Global-Hub-frontend
-
 ## 기술 스택
 - 백엔드: Spring Boot, JPA, PostgreSQL, JWT
 - 프론트엔드: React Native (Expo Router), TypeScript
