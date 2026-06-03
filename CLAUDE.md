@@ -15,10 +15,6 @@
 - 백엔드: C:\design_thinking\KHU-Global-Hub-backend
 - 프론트엔드: C:\design_thinking\KHU-Global-Hub-frontend
 
-## 계정
-- 앱 테스트 계정: xoox1109@khu.ac.kr / xoox1109!
-- 비밀번호 리셋 SQL: reset_password.sql (서버에 아직 미적용 — 팀원에게 실행 요청 필요)
-
 ## 기술 스택
 - 백엔드: Spring Boot, JPA, PostgreSQL, JWT
 - 프론트엔드: React Native (Expo Router), TypeScript
