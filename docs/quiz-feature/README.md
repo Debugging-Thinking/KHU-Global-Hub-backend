@@ -1,35 +1,68 @@
-# KHU Global Hub — 퀴즈 기능 개발 문서
+# KHU Global Hub — 가이드 & 뱃지 시스템 개발 문서
 
-> 최초 작성: 2026-05-17 / 최종 수정: 2026-05-18  
-> 작성자: 태 (tae)  
+> 최초 작성: 2026-05-17 / 최종 수정: 2026-06-02
+> 작성자: 태 (tae)
 > 브랜치: beta
 
 ---
 
 ## 개요
 
-경희대 국제캠퍼스 신입생 대상 **꿀팁 퀴즈 기능**을 백엔드 + 프론트엔드에 구현했습니다.  
-노션으로 정리된 학교 생활 가이드 자료를 바탕으로 **14개 객관식 문제**를 만들고,  
-가이드(노션) → 퀴즈 → 결과 흐름으로 학습할 수 있습니다.
+경희대 국제캠퍼스 신입 유학생을 위한 **가이드 + 카테고리 퀴즈 + 뱃지 시스템**입니다.
 
-퀴즈 점수는 DB에 저장되며, 추후 **경희 온도** (당근마켓 온도 형태의 종합 점수)에 연동할 예정입니다.
+### 핵심 아이디어
+
+> "가이드에서 퀴즈를 풀어 뱃지를 얻고, 그 뱃지가 커뮤니티에서 신뢰 지표가 된다"
+
+```
+가이드(학습) → 퀴즈(검증) → 뱃지(증명) → 커뮤니티(활용)
+```
+
+- **가이드**: 노션 자료 기반, 5개 카테고리 꿀팁 모음 (한/영 이중언어)
+- **퀴즈**: 카테고리별 독립 퀴즈, 70% 이상 통과 시 뱃지 획득
+- **뱃지**: 프로필 도감 + 커뮤니티 게시글/답변 옆 표시
+
+**교수님 피드백 대응** (가이드 vs 커뮤니티 구분 모호 문제):
+- 가이드 = 커뮤니티 신뢰도 시스템의 기반. 가이드 없이 뱃지 없고, 뱃지 없이 커뮤니티 신뢰도 없음.
+- "수강신청 박사" 뱃지를 단 유저의 QnA 답변은 신뢰도가 다르다.
+
+---
+
+## 변경 이력 (2026-06-02)
+
+| 항목 | 이전 | 변경 후 |
+|------|------|---------|
+| 퀴즈 탭 | 독립 탭 | 가이드 탭 내 카테고리별 버튼으로 통합 |
+| 문제 수 | 14문제 (4개 카테고리 통합) | 23문제 (5개 카테고리 분리) |
+| 재도전 제한 | 3회 제한 | 제한 없음 |
+| 경희 온도 | 프로필에 `--°` 구조 | **완전 제거** → 뱃지로 대체 |
+| 뱃지 시스템 | 없음 | **신규 추가** (DB + API + 프론트) |
+
+---
+
+## 뱃지 종류
+
+| BadgeId | 뱃지 이름 | 획득 조건 |
+|---------|----------|----------|
+| `COURSE_REG` | 📚 수강신청 박사 | 수강신청 퀴즈 70% 이상 |
+| `TRANSPORT` | 🚌 교통 박사 | 교통수단 퀴즈 70% 이상 |
+| `FOOD` | 🍽️ 맛집 박사 | 맛집 퀴즈 70% 이상 |
+| `CAMPUS_SITE` | 🔗 사이트 박사 | 학교 사이트 퀴즈 70% 이상 |
+| `HUMANITIES` | 🎓 교양 박사 | 후마니타스 교양 퀴즈 70% 이상 |
 
 ---
 
 ## 퀴즈 문제 구성
 
-총 **14문제**, 4개 카테고리, 전부 4지선다 객관식  
-(초기 18문제에서 지엽적인 맛집 카테고리 4문제 제거)
+총 **23문제**, 5개 카테고리, 전부 4지선다 객관식, 무제한 재도전
 
-| 카테고리 | 문제 수 | 내용 요약 |
-|---|---|---|
-| 수강신청 | 6 | PC 신청, 네이비즘, F5 금지, 취소지연제, 학점세이브제 등 |
-| 교통수단 | 4 | 교내 무료 버스, 1550-1 방향, G5100 2층버스, 영통역 도보 |
-| 후마니타스 교양 | 2 | 필수이수학점, 성찰과표현 선수과목 |
-| 학교 사이트 | 2 | 인포21, 스터디룸 예약(libcal) |
-
-원본 문제 데이터: [`KHU_quiz.json`](./KHU_quiz.json)  
-(서버 최초 실행 시 `QuizDataInitializer`가 자동으로 DB에 시드합니다)
+| 카테고리 | BadgeId | 문제 수 | 내용 |
+|---------|---------|--------|------|
+| 수강신청 | `COURSE_REG` | 6 | PC 신청, 네이비즘, F5 금지, 취소지연제, 학점세이브제 |
+| 교통수단 | `TRANSPORT` | 5 | 교내 무료버스, 1550-1 방향, G5100, 영통역 도보, 지각 대처 |
+| 맛집 | `FOOD` | 4 | 점심특선, 마라탕, 무한리필, 텐동 |
+| 학교 사이트 | `CAMPUS_SITE` | 4 | 인포21, 스터디룸, 생협, 학사지원과 |
+| 후마니타스 교양 | `HUMANITIES` | 4 | 필수이수학점, 선수과목, 배분이수, 국제캠 최대학점 |
 
 ---
 
@@ -38,166 +71,217 @@
 ### Backend (`KHU-Global-Hub-backend`)
 
 ```
-src/main/java/com/khu/globalhub/domain/quiz/
-├── entity/
-│   ├── QuizQuestion.java           # 퀴즈 문제 엔티티 (카테고리, 보기, 정답, 해설)
-│   └── QuizResult.java             # 퀴즈 결과 엔티티 (멤버별 점수 기록)
-├── dto/
-│   ├── QuizQuestionResponse.java   # 문제 응답 DTO (정답 제외 — 클라이언트에 노출 안 함)
-│   ├── QuizSubmitRequest.java      # 답안 제출 요청 DTO
-│   ├── QuizSubmitResponse.java     # 채점 결과 응답 DTO
-│   └── MyQuizResultResponse.java   # 내 결과 히스토리 DTO
-├── repository/
-│   ├── QuizQuestionRepository.java # findByCategory, existsByQuestion
-│   └── QuizResultRepository.java   # 멤버별 결과 조회, 최고 점수 조회
-├── service/
-│   └── QuizService.java            # 문제 조회, 채점, 결과 저장 로직
-├── controller/
-│   └── QuizController.java         # REST API 엔드포인트
-└── init/
-    └── QuizDataInitializer.java    # 서버 시작 시 문제 자동 시드 (ApplicationRunner)
+src/main/java/com/khu/globalhub/campusguide/
+├── domain/
+│   ├── QuizQuestion.java         # 퀴즈 문제 엔티티
+│   ├── QuizResult.java           # 퀴즈 결과 엔티티 (히스토리)
+│   ├── BadgeId.java              # ★ NEW — 뱃지 종류 Enum (5개)
+│   └── MemberBadge.java          # ★ NEW — 뱃지 획득 엔티티
+├── infrastructure/
+│   ├── QuizQuestionRepository.java
+│   ├── QuizResultRepository.java
+│   ├── QuizDataInitializer.java  # 서버 시작 시 문제 자동 시드
+│   └── MemberBadgeRepository.java  # ★ NEW
+├── application/
+│   ├── QuizService.java
+│   └── BadgeService.java         # ★ NEW — 뱃지 획득/조회 로직
+└── presentation/
+    ├── QuizController.java       # /api/quiz
+    ├── BadgeController.java      # ★ NEW — /api/badges, /api/members/{id}/badges
+    └── dto/
+        ├── QuizQuestionResponse.java
+        ├── QuizSubmitRequest.java
+        ├── QuizSubmitResponse.java
+        ├── MyQuizResultResponse.java
+        └── BadgeResponse.java    # ★ NEW
+
+src/main/resources/db/migration/
+├── V1__baseline.sql
+├── V2__delete_qna_answer_comments.sql
+├── V3__drop_comment_target_type.sql
+├── V4__drop_post_board_type.sql
+└── V5__add_member_badges.sql     # ★ NEW — member_badges 테이블
 ```
-
-**수정된 기존 파일:**
-
-| 파일 | 변경 내용 |
-|---|---|
-| `domain/member/entity/Profile.java` | `quizScore` 필드 추가, `updateQuizScore()` 메서드 추가 |
-| `domain/member/dto/ProfileResponse.java` | `quizScore` 필드 추가 |
-| `global/exception/ErrorCode.java` | `QUIZ_QUESTION_NOT_FOUND` 에러코드 추가 |
-
----
 
 ### Frontend (`KHU-Global-Hub-frontend`)
 
 ```
 src/
 ├── types/
-│   └── quiz.ts                 # 퀴즈 관련 타입 정의
+│   ├── quiz.ts
+│   └── badge.ts                  # ★ NEW — BadgeId, BadgeInfo, BADGE_META
 ├── api/
-│   └── quiz.ts                 # 퀴즈 API 호출 함수
+│   ├── quiz.ts
+│   └── badge.ts                  # ★ NEW — badgeApi (earn, getMyBadges, getMemberBadges)
 └── data/
-    ├── khuGuide.ts             # 가이드 콘텐츠 데이터 (카테고리별 꿀팁)
-    └── quizQuestions.ts        # 로컬 퀴즈 데이터 + gradeLocally() 함수
-                                #   - 백엔드 미연결 시 fallback 데이터로 사용
-                                #   - 정답 포함 (결과 화면 해설 표시용)
+    ├── khuGuide.ts               # ★ UPDATED — 노션 콘텐츠로 전면 교체 (5개 카테고리)
+    └── quizQuestions.ts          # ★ UPDATED — 23문제, 카테고리별 분리, getQuestionsByCategory()
 
 app/(main)/
-└── quiz.tsx                    # 퀴즈 화면 (홈/퀴즈/결과 흐름)
+├── guide.tsx                     # ★ UPDATED — 카테고리별 퀴즈 버튼 + 뱃지 획득 표시
+├── quiz.tsx                      # ★ UPDATED — category URL 파라미터, 통과 시 뱃지 획득
+└── profile.tsx                   # ★ UPDATED — 경희온도 제거, 뱃지 컬렉션 추가
 ```
 
-**수정된 기존 파일:**
+---
 
-| 파일 | 변경 내용 |
-|---|---|
-| `app/(main)/_layout.tsx` | 탭바에 '퀴즈' 탭 추가 (`school-outline` 아이콘) |
-| `app/(main)/profile.tsx` | '경희 온도' 카드 추가 (현재 `--°` 표시, 추후 점수 반영 예정) |
-| `app/(auth)/login.tsx` | 웹 레이아웃 버그 수정 (`keyboardAvoiding` → `scrollable`) |
+## DB 스키마
+
+```sql
+-- V5__add_member_badges.sql
+CREATE TABLE member_badges (
+    id        BIGSERIAL PRIMARY KEY,
+    member_id BIGINT      NOT NULL,
+    badge_id  VARCHAR(50) NOT NULL,   -- BadgeId enum 값 (ex: 'COURSE_REG')
+    earned_at TIMESTAMP   NOT NULL DEFAULT NOW(),
+    CONSTRAINT uq_member_badge UNIQUE (member_id, badge_id)
+);
+```
+
+- `UNIQUE (member_id, badge_id)` — 같은 뱃지를 중복 획득해도 무시됨
+- `badge_id`는 `BadgeId` enum의 `.name()` 값 그대로 저장
 
 ---
 
 ## API 명세
 
-**Base URL:** `http://13.125.205.177:8080/api/quiz`  
-**인증:** JWT Bearer Token 필요 (submit, results/me, score/me)
+### 퀴즈 API — `/api/quiz`
 
-| Method | Endpoint | 설명 |
-|---|---|---|
-| GET | `/questions` | 전체 문제 목록 조회 |
-| GET | `/questions?category=수강신청` | 카테고리 필터 조회 |
-| POST | `/submit` | 답안 제출 → 채점 결과 반환 |
-| GET | `/results/me` | 내 퀴즈 히스토리 조회 (도전 횟수 확인에도 사용) |
-| GET | `/score/me` | 내 최고 점수 조회 |
+| Method | Endpoint | 인증 | 설명 |
+|--------|----------|------|------|
+| GET | `/questions` | 불필요 | 전체 문제 목록 |
+| GET | `/questions?category=수강신청` | 불필요 | 카테고리 필터 조회 |
+| POST | `/submit` | 필요 | 답안 제출 → 채점 결과 반환 |
+| GET | `/results/me` | 필요 | 내 퀴즈 히스토리 |
+| GET | `/score/me` | 필요 | 내 최고 점수 |
 
-**POST /submit 요청 예시:**
-```json
-{
-  "answers": [
-    { "questionId": 1, "selectedOption": 1 },
-    { "questionId": 2, "selectedOption": 2 }
-  ]
-}
+### 뱃지 API — `/api/badges`
+
+| Method | Endpoint | 인증 | 설명 |
+|--------|----------|------|------|
+| POST | `/api/badges/{badgeId}` | 필요 | 뱃지 획득 (퀴즈 통과 시 호출) |
+| GET | `/api/badges/me` | 필요 | 내 뱃지 목록 |
+| **GET** | **`/api/members/{memberId}/badges`** | **불필요** | **특정 유저 뱃지 목록 (공개)** |
+
+---
+
+## 🔔 커뮤니티 개발자를 위한 뱃지 연동 가이드
+
+> 커뮤니티(게시판/QnA) 화면에서 게시글 작성자 옆에 뱃지를 표시하려면 아래만 보세요.
+
+### 1. 사용할 API
+
+```
+GET /api/members/{memberId}/badges
 ```
 
-**POST /submit 응답 예시:**
+- **인증 불필요** (공개 API)
+- `memberId`: 게시글/답변 작성자의 memberId
+
+### 2. 응답 형식
+
 ```json
 {
-  "correctCount": 1,
-  "totalCount": 2,
-  "score": 50.0,
-  "results": [
+  "success": true,
+  "message": "ok",
+  "data": [
     {
-      "questionId": 1,
-      "correct": true,
-      "correctAnswer": 1,
-      "explanation": "신입생은 사전 희망과목 담기..."
+      "badgeId": "COURSE_REG",
+      "badgeNameKO": "수강신청 박사",
+      "badgeNameEN": "Course Reg Expert",
+      "emoji": "📚",
+      "earnedAt": "2026-06-02T15:30:00"
+    },
+    {
+      "badgeId": "TRANSPORT",
+      "badgeNameKO": "교통 박사",
+      "badgeNameEN": "Transport Expert",
+      "emoji": "🚌",
+      "earnedAt": "2026-06-02T16:00:00"
     }
   ]
 }
 ```
 
----
+- 뱃지가 없으면 `data: []` 빈 배열 반환
 
-## 데이터 시드 방식
+### 3. 프론트엔드 연동 예시 (TypeScript)
 
-`QuizDataInitializer.java` (ApplicationRunner)가 서버 시작 시 아래 조건으로 실행됩니다:
+이미 만들어진 `badgeApi`를 그대로 쓰면 됩니다:
+
+```typescript
+import { badgeApi } from '@/src/api/badge';
+
+// 게시글 작성자(memberId: 123)의 뱃지 가져오기
+const badges = await badgeApi.getMemberBadges(123);
+// → BadgeInfo[] 반환
+
+// 대표 뱃지 1개 표시 (가장 최근 획득)
+const latestBadge = badges[badges.length - 1];
+if (latestBadge) {
+  // latestBadge.emoji + latestBadge.badgeNameKO 표시
+  console.log(`${latestBadge.emoji} ${latestBadge.badgeNameKO}`);
+}
+```
+
+타입은 `src/types/badge.ts`에 이미 정의되어 있습니다:
+
+```typescript
+import type { BadgeInfo } from '@/src/types/badge';
+```
+
+### 4. 표시 권장 방식
+
+게시글/답변 작성자 이름 옆에 **대표 뱃지 1개** (가장 최근 획득)를 이모지로 표시하는 것을 권장합니다.
 
 ```
-if (quizQuestionRepository.count() == 0) → DB에 14개 문제 자동 삽입
+[익명1] 📚  →  수강신청 관련 답변 신뢰도 ↑
+[홍길동] 🎓  →  교양 관련 답변 신뢰도 ↑
 ```
 
-문제가 이미 있으면 실행하지 않으므로 중복 삽입 없음.
+뱃지 여러 개를 모두 표시하면 UI가 복잡해지므로 대표 1개를 권장합니다.
 
 ---
 
 ## 프론트엔드 화면 흐름
 
 ```
-퀴즈 탭 진입
-    ↓
-[홈 화면]
-  ├─ 가이드 읽기 → 노션 페이지 새 탭으로 열기
-  │    (https://www.notion.so/KHU-GUIDE-33e9ce2546d28061af04cae28b742b21)
-  └─ 퀴즈 시작하기 (남은 도전 횟수 표시)
-         ↓ 도전 횟수 소진 시 잠금 UI 표시
-[퀴즈 화면]
-  - 문제당 답 자유롭게 변경 가능 (다음 문제 넘기기 전까지)
-  - 중간 정답/해설 표시 없음 (점수 조작 방지)
-  - 애니메이션 프로그레스 바
-         ↓
-[결과 화면]
-  - 최종 점수 + 문제별 정오 + 해설 전체 표시
-  - 홈으로 돌아가기만 가능 (재시작 불가)
+[가이드 탭]
+  ├─ 카테고리 카드 (수강신청 / 교통 / 맛집 / 사이트 / 교양)
+  │    ├─ 카드 탭 → 꿀팁 상세 보기
+  │    ├─ 뱃지 미획득 → [퀴즈] 버튼 표시
+  │    └─ 뱃지 획득 → 🏅 획득! 표시
+  └─ 한/영 토글
+
+[퀴즈 화면] (/(main)/quiz?category=COURSE_REG)
+  ├─ 해당 카테고리 문제만 출제
+  ├─ 4지선다, 무제한 재도전
+  ├─ 70% 이상 → 뱃지 획득 API 자동 호출
+  └─ 결과 화면에 뱃지 획득 메시지 표시
+
+[프로필 탭]
+  └─ 내 뱃지 컬렉션 (획득=컬러, 미획득=🔒 잠금)
 ```
 
 ---
 
-## 도전 횟수 제한 (3회)
+## 백엔드 BC 규칙 준수 사항
 
-점수 조작 방지를 위해 퀴즈 도전은 **최대 3회**로 제한됩니다.
-
-| 우선순위 | 방식 | 설명 |
-|---|---|---|
-| 1순위 | 백엔드 API | `GET /results/me` 결과 수로 실제 도전 횟수 확인 |
-| 2순위 | AsyncStorage | 백엔드 미연결 시 로컬 저장값 사용 (`khu_quiz_attempts`) |
-
-- 퀴즈 완료 시 AsyncStorage 카운트 즉시 +1 (오프라인 환경 대비)
-- 3회 소진 후 홈 화면에 잠금 UI 표시, 퀴즈 시작 불가
-- **최고 점수**가 프로필 경희 온도에 반영 예정
+- 뱃지 기능은 `campusguide` BC 내부에 완전히 격리되어 있습니다
+- `member_id`는 Long 타입으로만 참조 (identity BC의 Member 엔티티 import 없음)
+- 커뮤니티 팀원이 뱃지 데이터를 읽을 때는 REST API를 통해서만 접근 (리포지토리 직접 주입 금지)
 
 ---
 
 ## 추후 구현 예정
 
-- [ ] **경희 온도** 점수 계산 로직 구현
-  - 퀴즈 최고점수 + 멘토링 참여도 + 커뮤니티 활동 등 종합 반영
-  - 현재 프로필에 `--°` 형태로 자리만 만들어 둔 상태
-- [ ] 퀴즈 문제 추가 (학과별 정보, 장학금, 교내 시설 등 실용적인 주제)
+- [ ] 학과 카테고리 추가 (태경님이 학부 학과 정보 별도 제공 예정)
 - [ ] 퀴즈 문제 관리자 추가/수정 API
-- [ ] 카테고리별 랭킹 기능
+- [ ] 뱃지 획득 시 푸시 알림
 
 ---
 
 ## 관련 파일
 
-- [`KHU_quiz.json`](./KHU_quiz.json) — 14개 퀴즈 문제 원본 데이터 (JSON)
+- [`docs/superpowers/specs/2026-06-02-guide-badge-system-design.md`](../superpowers/specs/2026-06-02-guide-badge-system-design.md) — 설계 스펙 문서 (프론트 레포)
+- [`KHU_quiz.json`](./KHU_quiz.json) — 초기 퀴즈 문제 원본 (참고용, 현재는 quizQuestions.ts 기준)
