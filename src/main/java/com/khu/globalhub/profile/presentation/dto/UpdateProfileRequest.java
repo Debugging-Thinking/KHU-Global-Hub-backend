@@ -22,9 +22,9 @@ public record UpdateProfileRequest(
         @NotNull
         Language language,
 
-        // Nullable: freshmen fixed to MENTEE, verified in service layer
+        // 선택값: 미입력(null) 시 기존 역할 유지. 신입생은 서비스 계층에서 MENTEE로 강제.
         MentoringRole mentoringRole,
 
-        // Nullable: optional self-introduction
+        // 선택값: 자기소개 (최대 500자)
         String bio
 ) {}

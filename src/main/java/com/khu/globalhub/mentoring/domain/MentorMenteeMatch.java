@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 
 /**
  * 멘토-멘티 매칭 엔티티.
- * 매 학기 개강 첫 주 월요일에 스케줄러가 자동으로 매칭을 생성한다.
+ * 매년 3/1(1학기)·9/1(2학기) 자정에 스케줄러(MentoringScheduler)가 자동으로 매칭을 생성한다.
  *
- * 매칭 기준 (우선순위):
- *   1. 같은 학과
- *   2. 같은 국적
- *   3. 학번 차이 1~2년 선배 우선
+ * 매칭 기준 (점수제 — MentoringService#runMatching):
+ *   같은 국적          : +3
+ *   같은 사용 언어      : +2
+ *   멘토가 1~2년 선배   : +1
+ *   → 점수 내림차순 그리디 1:1 매칭 후, 남는 인원은 라운드로빈으로 균등 배정.
  *
- * 학기 종료 시 스케줄러가 ACTIVE → COMPLETED 처리하고,
- * 멘티였던 유저의 menteeSemesterCount를 +1 하여 2 이상이면 자동 MENTOR 전환.
+ * 3월 스케줄러는 매칭 전 전년도 입학 멘티를 MENTOR로 자동 승격한다(promoteOldMenteesToMentor).
  */
 @Entity
 @Table(name = "mentor_mentee_matches")

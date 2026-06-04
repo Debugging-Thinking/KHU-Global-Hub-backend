@@ -100,7 +100,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 
 ### 3-1. Member / Profile 분리 (identity ↔ profile)
 - `members`(identity): 인증 전용 (email, password, refreshToken, isEmailVerified)
-- `profiles`(profile): 프로필 데이터 (name, department, nationality, admissionYear, language, mentoringRole, quizScore). `member_id`로 identity 참조(ID only).
+- `profiles`(profile): 프로필 데이터 (name, department, nationality, admissionYear, language, mentoringRole, quizScore, bio). `member_id`로 identity 참조(ID only).
 - Profile row 존재 여부 = 프로필 완성. 로그인 응답 `hasProfile` 플래그로 프론트가 프로필 생성 화면 라우팅.
 - 프로필 생성(`POST /api/auth/profile`)은 identity가 `ProfileGateway`로 profile에 위임.
 
@@ -143,8 +143,10 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 - 읽음 처리: 대화 조회 시 자동 일괄. 현재 폴링 방식.
 
 ### 3-10. 멘토링 (mentoring) — 스케줄러
-- `@Scheduled` 매년 3/1, 9/1 자정(UTC). 매칭 알고리즘: max(멘토수,멘티수)번 순환 배정.
+- `@Scheduled` 매년 3/1, 9/1 자정(UTC). 매칭 알고리즘: **점수제 그리디** — 같은 국적 +3 / 같은 언어 +2 / 멘토가 1~2년 선배 +1 → 점수 내림차순 1:1 매칭 후 남는 인원은 라운드로빈 배정. (학과는 점수에서 제외) 3월엔 매칭 전 전년도 입학 멘티를 MENTOR로 자동 승격.
 - 매칭 생성 시 `MatchCreatedEvent` 발행(chat이 시스템 메시지 삽입). 매칭은 `mentor_id`/`mentee_id`(Long ID).
+- 수동 매칭 트리거 `POST /api/mentoring/run`은 **로컬 전용**(`@Profile("local")` · `MentoringDevController`) — 운영 미노출. 운영 매칭은 스케줄러만 수행.
+- **멘토링 활동 기록**: 매칭 당사자(멘토/멘티)만 작성·조회. `mentoring_activities`(match_id·author_id·title·content, V6).
 
 ### 3-11. 퀴즈 (campusguide)
 - 응시 채점 후 `QuizResult` 저장 + `QuizCompletedEvent(memberId, score)` 발행 → profile이 최고점수(quizScore) 갱신. (campusguide는 profile을 모름)
@@ -218,7 +220,12 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 | POST | /{qnaId}/answers/{answerId}/adopt · /like | 채택(질문자만,1회) / 좋아요 |
 
 ### Mentoring — `/api/mentoring`
+| Method | Path | 설명 |
+|--------|------|------|
 | GET | /me | 내 현재 ACTIVE 매칭 (상대 프로필 포함) |
+| GET | /me/history | 내 전체 매칭 이력 |
+| GET·POST | /{matchId}/activities | 멘토링 활동 기록 조회/작성 (매칭 당사자만) |
+| POST | /run | 수동 매칭 트리거 — **로컬 전용**(`@Profile("local")`) |
 
 ### Chat — `/api/chat`
 | POST / · GET / · GET /{partnerId} | 메시지 전송 / DM 목록 / 대화 내용+읽음 처리 |

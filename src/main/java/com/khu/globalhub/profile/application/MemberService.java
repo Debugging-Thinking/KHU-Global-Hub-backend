@@ -26,15 +26,15 @@ public class MemberService {
     private final MemberQueryPort memberQueryPort;
     private final S3Service s3Service;
 
-    /** ?꾨줈???묐떟 議곕┰???대찓??議고쉶 (identity BC瑜?ID濡쒕쭔 李몄“). */
+    /** 프로필 응답 조립용 이메일 조회 (identity BC를 ID로만 참조). */
     private String resolveEmail(Long memberId) {
         return memberQueryPort.findEmail(memberId).orElse(null);
     }
 
     /**
-     * 理쒖큹 ?꾨줈???앹꽦 (POST /api/auth/profile). identity??ProfileGateway媛 ?꾩엫.
-     * - ?좎엯???낇븰?꾨룄==?꾩옱?꾨룄): MENTEE留?媛??
-     * - ?ы븰?? MENTOR/MENTEE ?좏깮 (NONE? ?꾨줈???섏젙?먯꽌留?
+     * 최초 프로필 생성 (POST /api/auth/profile). identity의 ProfileGateway가 위임.
+     * - 신입생(입학년도==현재년도): MENTEE만 가능
+     * - 재학생: MENTOR/MENTEE 선택 (NONE은 프로필 수정에서만)
      */
     @Transactional
     public void createProfile(Long memberId, String name, String department, String nationality,
@@ -62,24 +62,27 @@ public class MemberService {
         profileRepository.save(profile);
     }
 
-    /** ?꾨줈??議고쉶 (蹂몄씤 ?먮뒗 ???. */
+    /** 프로필 조회 (본인 또는 타인). */
     public ProfileResponse getProfile(Long targetMemberId) {
         Profile profile = profileRepository.findByMemberId(targetMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
         return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
     }
 
-    /** ?꾨줈???섏젙 (蹂몄씤留?. */
+    /** 프로필 수정 (본인만). */
     @Transactional
     public ProfileResponse updateProfile(Long memberId, UpdateProfileRequest req) {
         Profile profile = profileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
-        // ?좎엯???낇븰?꾨룄 == ?꾩옱?꾨룄)? MENTEE 怨좎젙 ??PATCH /me/mentoring-role 怨??숈씪 洹쒖튃 (?고쉶 諛⑹?)
-        int currentYear = LocalDate.now().getYear();
-        boolean isNewStudent = req.admissionYear() == currentYear;
-        if (isNewStudent && req.mentoringRole() != MentoringRole.MENTEE) {
-            throw new CustomException(ErrorCode.INVALID_MENTORING_ROLE);
+        // mentoringRole은 선택값 — null이면 기존 역할 유지. 값이 오면 PATCH /me/mentoring-role 과 동일 규칙 적용(우회 방지).
+        if (req.mentoringRole() != null) {
+            int currentYear = LocalDate.now().getYear();
+            boolean isNewStudent = req.admissionYear() == currentYear;
+            if (isNewStudent && req.mentoringRole() != MentoringRole.MENTEE) {
+                throw new CustomException(ErrorCode.INVALID_MENTORING_ROLE);
+            }
+            profile.updateMentoringRole(req.mentoringRole());
         }
 
         profile.updateProfile(
@@ -90,11 +93,10 @@ public class MemberService {
                 req.language(),
                 req.bio()
         );
-        profile.updateMentoringRole(req.mentoringRole());
         return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
     }
 
-    /** ?꾨줈???대?吏 ?낅줈??諛?URL ??? */
+    /** 프로필 이미지 업로드 및 URL 저장. */
     @Transactional
     public String updateProfileImage(Long memberId, byte[] imageBytes, String contentType) {
         Profile profile = profileRepository.findByMemberId(memberId)
@@ -106,8 +108,8 @@ public class MemberService {
     }
 
     /**
-     * 硫섑넗留???븷 蹂寃?(蹂몄씤留?.
-     * ?좎엯???낇븰?꾨룄 == ?꾩옱?꾨룄)? MENTEE 怨좎젙 ??蹂寃?遺덇?.
+     * 멘토링 역할 변경 (본인만).
+     * 신입생(입학년도 == 현재년도)은 MENTEE 고정 — 변경 불가.
      */
     @Transactional
     public ProfileResponse updateMentoringRole(Long memberId, UpdateMentoringRoleRequest req) {
