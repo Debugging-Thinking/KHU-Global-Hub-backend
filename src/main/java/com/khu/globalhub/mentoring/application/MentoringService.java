@@ -18,7 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,10 +34,6 @@ public class MentoringService {
     private final MentorMenteeMatchRepository matchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    /**
-     * 내 현재 ACTIVE 매칭 단건 조회.
-     * 매칭 없으면 MATCH_NOT_FOUND 예외 발생 → 404 반환.
-     */
     @Transactional(readOnly = true)
     public MentoringMatchResponse getMyMatch(Long memberId) {
         MentorMenteeMatch match = matchRepository.findActiveMatchesByMemberId(memberId, MatchStatus.ACTIVE)
@@ -49,16 +49,24 @@ public class MentoringService {
         return MentoringMatchResponse.of(match, memberId, partnerProfile, partnerEmail);
     }
 
-    /**
-     * 매년 3월 1일: 작년 입학한 멘티를 자동으로 MENTOR 승격.
-     * 스케줄러에서 호출된다.
-     */
+    @Transactional(readOnly = true)
+    public List<MentoringMatchResponse> getMyMatchHistory(Long memberId) {
+        List<MentorMenteeMatch> matches = matchRepository.findAllMatchesByMemberId(memberId);
+        return matches.stream().map(match -> {
+            boolean isMentor = match.getMentorId().equals(memberId);
+            Long partnerId = isMentor ? match.getMenteeId() : match.getMentorId();
+            Profile partnerProfile = profileRepository.findByMemberId(partnerId).orElse(null);
+            if (partnerProfile == null) return null;
+            String partnerEmail = memberQueryPort.findEmail(partnerId).orElse(null);
+            return MentoringMatchResponse.of(match, memberId, partnerProfile, partnerEmail);
+        }).filter(java.util.Objects::nonNull).toList();
+    }
+
     @Transactional
     public void promoteOldMenteesToMentor() {
         int currentYear = LocalDate.now().getYear();
         List<Profile> targets = profileRepository
                 .findByAdmissionYearLessThanAndMentoringRole(currentYear, MentoringRole.MENTEE);
-
         for (Profile profile : targets) {
             profile.updateMentoringRole(MentoringRole.MENTOR);
         }
@@ -66,42 +74,93 @@ public class MentoringService {
     }
 
     /**
-     * 멘토-멘티 자동 매칭.
-     * 스케줄러에서 호출된다.
+     * Score-based greedy matching + round-robin for remaining members.
      *
-     * 알고리즘 (순환 배정):
-     * - max(멘토수, 멘티수)번 반복
-     * - 작은 쪽을 % 나머지로 순환 → 빈 매칭 없이 균등 분배
+     * Scoring:
+     *   Same nationality : +3
+     *   Same language    : +2
+     *   1~2 year senior  : +1
      *
-     * 예) 멘토 5명, 멘티 3명:
-     *   i=0: 멘토0 ↔ 멘티0
-     *   i=1: 멘토1 ↔ 멘티1
-     *   i=2: 멘토2 ↔ 멘티2
-     *   i=3: 멘토3 ↔ 멘티0 (순환)
-     *   i=4: 멘토4 ↔ 멘티1 (순환)
+     * Step 1: Calculate scores for all mentor-mentee pairs, sort descending.
+     * Step 2: Greedy 1:1 matching by highest score.
+     * Step 3: Round-robin assignment for remaining unmatched members.
      */
     @Transactional
     public void runMatching(String semester) {
-        List<Profile> allMentees = profileRepository.findByMentoringRole(MentoringRole.MENTEE);
-        List<Profile> unmatchedMentees = allMentees.stream()
+        List<Profile> unmatchedMentees = profileRepository.findByMentoringRole(MentoringRole.MENTEE)
+                .stream()
                 .filter(p -> !matchRepository.existsByMenteeIdAndSemester(p.getMemberId(), semester))
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        List<Profile> mentors = profileRepository.findByMentoringRole(MentoringRole.MENTOR);
+        List<Profile> unmatchedMentors = profileRepository.findByMentoringRole(MentoringRole.MENTOR)
+                .stream()
+                .filter(p -> !matchRepository.existsByMentorIdAndSemester(p.getMemberId(), semester))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        if (mentors.isEmpty() || unmatchedMentees.isEmpty()) {
-            log.info("[Mentoring] Matching skipped: mentors={}, mentees={}", mentors.size(), unmatchedMentees.size());
+        if (unmatchedMentors.isEmpty() || unmatchedMentees.isEmpty()) {
+            log.info("[Mentoring] Matching skipped: mentors={}, mentees={}", unmatchedMentors.size(), unmatchedMentees.size());
             return;
         }
 
-        int total = Math.max(mentors.size(), unmatchedMentees.size());
-        for (int i = 0; i < total; i++) {
-            Profile mentor = mentors.get(i % mentors.size());
-            Profile mentee = unmatchedMentees.get(i % unmatchedMentees.size());
-            createMatch(mentor, mentee, semester);
+        record Candidate(Profile mentor, Profile mentee, int score) {}
+        List<Candidate> candidates = new ArrayList<>();
+        for (Profile mentor : unmatchedMentors) {
+            for (Profile mentee : unmatchedMentees) {
+                candidates.add(new Candidate(mentor, mentee, calcScore(mentor, mentee)));
+            }
+        }
+        candidates.sort((a, b) -> b.score() - a.score());
+
+        Set<Long> matchedMentorIds = new HashSet<>();
+        Set<Long> matchedMenteeIds = new HashSet<>();
+        List<Profile> pairedMentors = new ArrayList<>();
+        List<Profile> pairedMentees = new ArrayList<>();
+        int pairCount = 0;
+
+        for (Candidate c : candidates) {
+            Long mentorId = c.mentor().getMemberId();
+            Long menteeId = c.mentee().getMemberId();
+            if (matchedMentorIds.contains(mentorId) || matchedMenteeIds.contains(menteeId)) continue;
+            createMatch(c.mentor(), c.mentee(), semester);
+            matchedMentorIds.add(mentorId);
+            matchedMenteeIds.add(menteeId);
+            pairedMentors.add(c.mentor());
+            pairedMentees.add(c.mentee());
+            pairCount++;
         }
 
-        log.info("[Mentoring] Matching complete for semester {}: {} pairs created", semester, total);
+        List<Profile> remainingMentees = unmatchedMentees.stream()
+                .filter(p -> !matchedMenteeIds.contains(p.getMemberId()))
+                .toList();
+        for (int i = 0; i < remainingMentees.size(); i++) {
+            createMatch(pairedMentors.get(i % pairedMentors.size()), remainingMentees.get(i), semester);
+            pairCount++;
+        }
+
+        List<Profile> remainingMentors = unmatchedMentors.stream()
+                .filter(p -> !matchedMentorIds.contains(p.getMemberId()))
+                .toList();
+        for (int i = 0; i < remainingMentors.size(); i++) {
+            createMatch(remainingMentors.get(i), pairedMentees.get(i % pairedMentees.size()), semester);
+            pairCount++;
+        }
+
+        log.info("[Mentoring] Matching complete for semester {}: {} pairs created", semester, pairCount);
+    }
+
+    private int calcScore(Profile mentor, Profile mentee) {
+        int score = 0;
+        if (mentor.getNationality() != null && mentor.getNationality().equalsIgnoreCase(mentee.getNationality())) {
+            score += 3;
+        }
+        if (mentor.getLanguage() != null && mentor.getLanguage() == mentee.getLanguage()) {
+            score += 2;
+        }
+        int yearDiff = mentor.getAdmissionYear() - mentee.getAdmissionYear();
+        if (yearDiff >= -2 && yearDiff <= -1) {
+            score += 1;
+        }
+        return score;
     }
 
     private void createMatch(Profile mentorProfile, Profile menteeProfile, String semester) {
@@ -111,8 +170,6 @@ public class MentoringService {
                 .semester(semester)
                 .build();
         matchRepository.save(match);
-
-        // 시스템 메시지 삽입은 chat BC가 담당 — 이벤트 발행으로 위임 (mentoring은 chat을 모름)
         eventPublisher.publishEvent(new MatchCreatedEvent(
                 mentorProfile.getMemberId(), menteeProfile.getMemberId()));
     }

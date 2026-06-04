@@ -22,7 +22,9 @@ public record UpdateProfileRequest(
         @NotNull
         Language language,
 
-        // 멘토링 역할: MENTOR(멘토) / MENTEE(멘티) / NONE(미참여)
-        @NotNull
-        MentoringRole mentoringRole
+        // Nullable: freshmen fixed to MENTEE, verified in service layer
+        MentoringRole mentoringRole,
+
+        // Nullable: optional self-introduction
+        String bio
 ) {}
