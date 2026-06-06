@@ -32,7 +32,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-@Profile("local")
+@Profile({"local", "prod"})
 @RequiredArgsConstructor
 public class LocalTestDataInitializer implements ApplicationRunner {
 
@@ -49,17 +49,23 @@ public class LocalTestDataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        // 안전장치: 로컬 DB(localhost)가 아니면 절대 초기화/시드하지 않는다.
-        if (datasourceUrl == null
-                || !(datasourceUrl.contains("localhost") || datasourceUrl.contains("127.0.0.1"))) {
-            log.warn("[LocalSeed] datasource가 localhost가 아니라 시드를 건너뜁니다: {}", datasourceUrl);
-            return;
+        boolean localDb = datasourceUrl != null
+                && (datasourceUrl.contains("localhost") || datasourceUrl.contains("127.0.0.1"));
+
+        if (localDb) {
+            // 로컬: 매 실행마다 동일 셋 보장 — 초기화 후 재시드 (quiz/Flyway/강의 보존).
+            resetTestData();
+            log.info("[Seed] 로컬 테스트 데이터 초기화 후 재시드…");
+        } else {
+            // 운영(prod): truncate 절대 금지. 데모 데이터가 없을 때(빈 DB)만 1회 시드해 기존 데이터를 보존.
+            Integer members = jdbc.queryForObject("SELECT count(*) FROM members", Integer.class);
+            if (members != null && members > 0) {
+                log.info("[Seed] 기존 데이터({}명) 존재 → 운영 데모 시드 건너뜀(데이터 보존)", members);
+                return;
+            }
+            log.info("[Seed] 운영 DB 비어있음 → 데모 데이터 1회 시드(truncate 없음)…");
         }
 
-        // 매 실행마다 동일한 셋 보장 — 기존 데이터 초기화 후 재시드 (quiz 문항/Flyway 이력 보존).
-        resetTestData();
-
-        log.info("[LocalSeed] 로컬 테스트 데이터 초기화 후 재시드…");
         String pw = passwordEncoder.encode("password123");
 
         // department/nationality는 프론트 드롭다운과 동일하게 "코드"로 저장 (CSE=컴퓨터공학과, KR=대한민국 …) → 보는 사람 언어로 현지화됨
