@@ -2,11 +2,13 @@ package com.khu.globalhub.shared.exception;
 
 import com.khu.globalhub.shared.common.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Slf4j
 @RestControllerAdvice
@@ -39,6 +41,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.INVALID_INPUT.getHttpStatus())
                 .body(ApiResponse.fail(message));
+    }
+
+    /**
+     * 첨부 파일 용량 초과. 500 대신 명확한 안내 메시지(413).
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMaxUploadSize(MaxUploadSizeExceededException e) {
+        log.warn("Upload too large: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(ApiResponse.fail("첨부 파일이 너무 큽니다. (파일당 최대 20MB)"));
     }
 
     /**

@@ -27,8 +27,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 15MB
+      max-file-size: 20MB       # 첨부 파일/사진 1개 최대 (대부분의 사진·PDF 커버)
+      max-request-size: 30MB    # 다중 첨부 합계
 
   mail:
     host: smtp.gmail.com
