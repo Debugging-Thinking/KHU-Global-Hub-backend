@@ -77,7 +77,8 @@ public class AuthService {
                 request.getAdmissionYear(),
                 request.getLanguage(),
                 request.getPreferredLanguage(),
-                request.getMentoringRole()));
+                request.getMentoringRole(),
+                request.getBio()));
     }
 
     /** 로그인: 이메일 인증 + 비밀번호 검증 → JWT 발급 */

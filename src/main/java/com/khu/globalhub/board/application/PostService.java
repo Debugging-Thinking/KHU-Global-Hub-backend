@@ -98,6 +98,45 @@ public class PostService {
     }
 
     /**
+     * 게시글 수정 (작성자 본인만). 제목/내용 갱신 + 나머지 언어 재번역. 새 이미지는 추가.
+     */
+    @Transactional
+    public void updatePost(Long postId, Long memberId, CreatePostRequest req, List<MultipartFile> images) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        if (!post.getAuthorId().equals(memberId)) {
+            throw new CustomException(ErrorCode.POST_UNAUTHORIZED);
+        }
+
+        // 작성자 언어 원문 행 upsert
+        postTranslationRepository.findByPostIdAndLanguage(postId, req.language())
+                .ifPresentOrElse(
+                        t -> { t.updateContent(req.title(), req.content()); postTranslationRepository.save(t); },
+                        () -> postTranslationRepository.save(PostTranslation.builder()
+                                .post(post).language(req.language())
+                                .title(req.title()).content(req.content()).build()));
+
+        // 나머지 언어 재번역(upsert)
+        translationService.translatePost(post, req.title(), req.content(), req.language());
+
+        // 새로 첨부한 이미지가 있으면 추가 업로드(기존 이미지 유지)
+        if (images != null && !images.isEmpty()) {
+            List<S3Service.ImageData> imageDataList = new ArrayList<>();
+            for (MultipartFile file : images) {
+                try {
+                    imageDataList.add(new S3Service.ImageData(
+                            file.getBytes(), file.getContentType(), file.getOriginalFilename()));
+                } catch (IOException e) {
+                    // 파일 읽기 실패 시 해당 이미지만 스킵
+                }
+            }
+            if (!imageDataList.isEmpty()) {
+                s3Service.uploadPostImages(post, imageDataList);
+            }
+        }
+    }
+
+    /**
      * 게시글 목록 조회 (게시판 1종).
      * original=false: 요청자 언어 번역본(폴백 요청언어→EN→첫행).
      * original=true: 원문(소스) 행 — 6개 외 언어 사용자가 "번역하기" 전 원문을 볼 때 사용.

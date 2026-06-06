@@ -24,6 +24,6 @@ public class ProfileGatewayAdapter implements ProfileGateway {
     @Override
     public void create(ProfileCreationCommand c) {
         memberService.createProfile(c.memberId(), c.name(), c.department(),
-                c.nationality(), c.admissionYear(), c.language(), c.preferredLanguage(), c.mentoringRole());
+                c.nationality(), c.admissionYear(), c.language(), c.preferredLanguage(), c.mentoringRole(), c.bio());
     }
 }

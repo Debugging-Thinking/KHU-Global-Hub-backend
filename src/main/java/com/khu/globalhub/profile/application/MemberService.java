@@ -39,7 +39,7 @@ public class MemberService {
     @Transactional
     public void createProfile(Long memberId, String name, String department, String nationality,
                               Integer admissionYear, Language language, String preferredLanguage,
-                              MentoringRole mentoringRole) {
+                              MentoringRole mentoringRole, String bio) {
         if (profileRepository.existsByMemberId(memberId)) {
             throw new CustomException(ErrorCode.PROFILE_ALREADY_EXISTS);
         }
@@ -63,6 +63,7 @@ public class MemberService {
                 .language(bucket)
                 .preferredLanguage(pref)
                 .mentoringRole(mentoringRole)
+                .bio(bio)
                 .build();
         profileRepository.save(profile);
     }

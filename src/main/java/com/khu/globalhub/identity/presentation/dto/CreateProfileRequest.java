@@ -32,4 +32,7 @@ public class CreateProfileRequest {
 
     @NotNull(message = "멘토링 역할을 선택해주세요.")
     private MentoringRole mentoringRole;
+
+    /** 자기소개 (선택, 최대 500자). */
+    private String bio;
 }

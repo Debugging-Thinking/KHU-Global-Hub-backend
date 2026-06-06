@@ -50,6 +50,14 @@ public class CommentService {
      */
     @Transactional
     public Long createComment(Long postId, Long memberId, CreateCommentRequest req) {
+        // 내용/첨부 중 하나는 있어야 함 (이미지만으로도 작성 허용)
+        boolean hasContent = req.content() != null && !req.content().isBlank();
+        boolean hasImage = req.imageUrl() != null && !req.imageUrl().isBlank();
+        if (!hasContent && !hasImage) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+        String content = req.content() == null ? "" : req.content();
+
         postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
@@ -68,15 +76,17 @@ public class CommentService {
                 .build();
         commentRepository.save(comment);
 
-        // 원문 번역 행 동기 저장
+        // 원문 번역 행 동기 저장 (내용 없으면 빈 문자열)
         commentTranslationRepository.save(CommentTranslation.builder()
                 .comment(comment)
                 .language(req.language())
-                .content(req.content())
+                .content(content)
                 .build());
 
-        // 나머지 5개 언어 비동기 번역
-        translationService.translateComment(comment, req.content(), req.language());
+        // 내용이 있을 때만 나머지 5개 언어 비동기 번역 (이미지만 있으면 번역 불필요)
+        if (hasContent) {
+            translationService.translateComment(comment, content, req.language());
+        }
 
         // 게시글 commentCount 증가 (대댓글도 카운트)
         postRepository.findById(postId).ifPresent(Post::incrementCommentCount);

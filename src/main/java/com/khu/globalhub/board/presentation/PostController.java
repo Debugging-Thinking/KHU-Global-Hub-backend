@@ -90,6 +90,21 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
+    /** 게시글 수정 (작성자 본인만). 제목/내용 갱신 + 새 이미지 추가. */
+    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Void>> updatePost(
+            @PathVariable Long postId,
+            @RequestParam @NotBlank String title,
+            @RequestParam @NotBlank String content,
+            @RequestParam(defaultValue = "KO") Language language,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images
+    ) {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        CreatePostRequest request = new CreatePostRequest(false, language, title, content);
+        postService.updatePost(postId, memberId, request, images);
+        return ResponseEntity.ok(ApiResponse.ok("게시글이 수정되었습니다.", null));
+    }
+
     /** 게시글 삭제. */
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(@PathVariable Long postId) {
