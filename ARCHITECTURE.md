@@ -167,7 +167,9 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 ### 3-13. 강의평 (coursereview)
 - `Lecture`(강의 카탈로그: code/name/professor/college/type/credits/semester) + `CourseReview`(별점 1~5 + 본문). **리뷰는 익명 노출**(작성자 이름 미표시), 단 `author_id`는 저장(본인 삭제·중복/신고용 — 응답 `isMine`으로 삭제버튼 제어).
 - **수업지표(에타식, 리뷰별 응답 → 강의 단위 집계)**: 수업방식 `AttendanceType`(대면/비대면/혼합) + 발표·조모임·과제·한국어사용 `FrequencyLevel`(적음/보통/많음). **모두 선택 입력**(null 허용). 상세 조회 시 `IndicatorSummary`로 옵션별 카운트 집계(0 버킷 포함, null 제외 → 합이 reviewCount보다 작을 수 있음). 한국어 사용 "적음" = 유학생 친화 신호.
-- 강의 검색: `name/professor/code` LIKE(학기 필터, 기본 `2026-1`). 다른 BC 의존 없음(완전 격리).
+- 강의 검색: `name/professor/code` LIKE(학기 필터, 기본 `2026-1`). 다른 BC 의존 없음(완전 격리). 프론트는 입력 즉시(디바운스 300ms) 검색.
+- **번역**: 강의평 본문도 게시판과 동일한 사전번역(6개) + on-demand 토글 — `course_review_translations`(V13), `CourseReviewTranslationWriter @Async`. 읽기 `?language=`/`&original=true` 지원.
+- **실제 강의 데이터**: 경희대 국제캠 2026-1 **2141건** 임포트(`KhuSugangClient`가 sugang.khu.ac.kr `lectListJson` loginYn=N 공개 엔드포인트 스크랩 → `GLOBAL_COLLEGE_CODES` 필터). `POST /api/lectures/import`로 적재(로컬·운영 모두 완료).
 
 ---
 
@@ -187,6 +189,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
   | `V10__add_image_url.sql` | 댓글/Q&A/답변/채팅에 `image_url` 추가 (media BC 이미지 업로드) |
   | `V11__create_course_review.sql` | `lectures` + `course_reviews` 테이블 생성 (강의평) |
   | `V12__add_course_review_indicators.sql` | `course_reviews`에 수업지표 5종 컬럼 추가 (attendance_type/presentation_freq/group_work_freq/assignment_freq/korean_usage, 모두 nullable) |
+  | `V13__create_course_review_translation.sql` | `course_review_translations` 생성 (강의평 6개 언어 사전번역 — 게시판식 번역 시스템) |
 - 스키마 변경은 **반드시 새 Flyway 마이그레이션**으로. 운영 적용 전 **RDS 스냅샷** 필수.
 - `@ManyToOne Member` → `Long memberId`는 매핑 컬럼(`*_id`) 동일 → 스키마 무변경(기존 데이터 그대로). DB FK 제약 유지.
 
@@ -221,6 +224,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 | GET | /?language=KO | 게시글 목록 (페이징, 게시판 1종) |
 | GET | /popular?language=KO | 인기 게시물 (좋아요 10+) |
 | GET | /{postId}?language=KO | 게시글 상세 |
+| PUT | /{postId} | 게시글 수정 (multipart, 작성자만 — 본문/언어 upsert + 재번역, 이미지 추가) |
 | DELETE | /{postId} · POST /{postId}/like | 삭제(작성자만, cascade) / 좋아요 토글 |
 
 ### Comment (board 소유, 게시글 전용)
@@ -249,7 +253,11 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 | POST | /run | 수동 매칭 트리거 — **로컬 전용**(`@Profile("local")`) |
 
 ### Chat — `/api/chat`
-| POST / · GET / · GET /{partnerId} | 메시지 전송 / DM 목록 / 대화 내용+읽음 처리 |
+| Method | Path | 설명 |
+|--------|------|------|
+| POST / · GET / · GET /{partnerId} | 메시지 전송(텍스트/이미지/파일) / DM 목록 / 대화 내용+읽음 처리 |
+| DELETE | /{messageId} | 메시지 삭제 — **본인이 보낸 메시지만**(프론트는 길게누르기) |
+> DM 목록의 마지막 메시지가 이미지/파일 전용(content 없음)이면 `📎`로 미리보기. 채팅방은 상대 프로필(헤더 이름·아바타 + 받은 메시지 아바타)을 `GET /members/{partnerId}`로 표시.
 
 ### Quiz(campusguide) — `/api/quiz`
 | GET /questions · POST /submit · GET /results/me · GET /score/me | 문항/제출/내 기록/최고점수 |
@@ -263,7 +271,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 ### Media — `/api/images`
 | Method | Path | 설명 |
 |--------|------|------|
-| POST | / | 이미지 업로드(multipart `image`) → S3 → `{url}` (댓글/Q&A/답변/채팅이 `imageUrl`로 참조) |
+| POST | / | 파일 업로드(multipart `image`, **이미지 외 일반 파일도 허용**) → S3 → `{url}` (댓글/Q&A/답변/채팅이 `imageUrl`로 참조, 프론트 `Attachment`가 이미지=확대·파일=클립칩 렌더) |
 
 ### Course Review(coursereview) — `/api/lectures`
 | Method | Path | 설명 |
@@ -272,6 +280,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 | GET | /{lectureId} | 강의 상세 + 지표 집계(`indicators`) + 강의평 목록(익명) |
 | POST | /{lectureId}/reviews | 강의평 작성 (별점·본문 필수, 지표 5종 선택) |
 | DELETE | /reviews/{reviewId} | 강의평 삭제 (작성자 본인만) |
+| POST | /import | 경희대 수강신청 시스템에서 강의 카탈로그 적재 (KhuSugangClient 스크랩) |
 
 ---
 
@@ -296,19 +305,21 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 
 ### 백엔드 재배포
 ```bash
-./gradlew bootJar
+./gradlew bootJar -x test
 scp -i "{KEY}.pem" build/libs/globalhub-0.0.1-SNAPSHOT.jar ubuntu@{EC2_IP}:~/app.jar
-ssh -i "{KEY}.pem" ubuntu@{EC2_IP} "nohup bash ~/deploy.sh > /tmp/deploy.log 2>&1 &"
-# deploy.sh: pkill -f app.jar; sleep 2; source ~/.env; nohup java -jar ~/app.jar > ~/app.log 2>&1 &
+# 재기동: ~/.env export 후 setsid java -jar --ddl-auto=update (CLI로 최우선 강제)
 ```
-> ⚠️ 이번 배포(D2/D3)에는 비가역 마이그레이션(V2~V4: qna댓글 삭제·컬럼 제거)이 포함 — **RDS 스냅샷 먼저, 프론트와 동시 배포**.
+> ⚠️ **운영 기동 함정**: ① 운영 스키마가 baseline 드리프트로 `validate` 실패 → CLI `--spring.jpa.hibernate.ddl-auto=update`로 강제(컬럼 추가만, 삭제 X = 데이터 안전). ② `pkill -f app.jar`는 ssh 셸 cmdline에도 'app.jar'가 있어 자기 자신을 죽임 → self-excluding 패턴(`pkill -f 'active=pro[d]'`) 사용. ③ 비가역 마이그레이션 포함 배포 전 **RDS 스냅샷** 필수.
 
 ### 프론트 웹 재배포
 ```bash
-cd frontend && npx expo export --platform web      # dist/ 생성
+cd frontend
+# ⚠️ 반드시 운영 IP 주입 + 캐시 클리어! (아래 함정 참고)
+EXPO_PUBLIC_API_URL=http://{EC2_IP} npx expo export --platform web --clear   # dist/ 생성
 scp -i "{KEY}.pem" -r dist/* ubuntu@{EC2_IP}:~/web/
-ssh -i "{KEY}.pem" ubuntu@{EC2_IP} "sudo cp -r ~/web/* /var/www/html/globalhub/"
+ssh -i "{KEY}.pem" ubuntu@{EC2_IP} "sudo rm -rf /var/www/html/globalhub/* && sudo cp -r ~/web/* /var/www/html/globalhub/"
 ```
+> 🚨 **함정(로그인 전체 장애 유발함)**: `src/api/client.ts`의 `BASE_URL`은 `EXPO_PUBLIC_API_URL` 미주입 시 **localhost:8080** 폴백. 미주입 배포본은 개발자 PC 로컬 백엔드에 붙어 "되는 척"하다가 로컬을 내리면 전원 로그인 실패. 빌드 시 **운영 IP를 포트 없이**(`http://{EC2_IP}` — 80포트 Nginx가 `/api/` 프록시, 8080 직접 X) 주입하고, Metro가 변환결과를 캐시하므로 **`--clear` 필수**. 검증: `grep -rl '{EC2_IP}' dist/_expo` ≥1 & `grep -rl 'localhost:8080' dist/_expo` =0. (gitignore되는 `frontend/.env.production.local`에 `EXPO_PUBLIC_API_URL`을 넣어두면 자동 적용)
 
 ### Nginx (EC2 /etc/nginx/sites-available/globalhub)
 ```nginx
