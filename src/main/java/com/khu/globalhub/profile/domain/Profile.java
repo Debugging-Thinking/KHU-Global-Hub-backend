@@ -46,6 +46,16 @@ public class Profile extends BaseTimeEntity {
     private Language language;
 
     /**
+     * 실제 선택한 선호 언어의 Azure 코드 (6개 외 언어 포함, 예: "fr", "ja", "ko").
+     * {@link #language}(6개 enum)는 이 값에서 파생된 "버킷"이다:
+     * 6개 중 하나면 그 언어, 그 외면 EN. 정적 UI/사전번역 콘텐츠 선택에 language를 쓰고,
+     * on-demand 번역(콘텐츠/채팅)의 목표 언어에는 preferredLanguage를 쓴다.
+     * (레거시 행은 null일 수 있어 응답 조립 시 language 코드로 폴백)
+     */
+    @Column(name = "preferred_language")
+    private String preferredLanguage;
+
+    /**
      * 멘토링 역할.
      * - 신입생(입학년도 == 현재년도): MENTEE 고정
      * - 재학생: MENTOR / MENTEE 선택 가능 (NONE은 프로필 수정에서만)
@@ -81,12 +91,13 @@ public class Profile extends BaseTimeEntity {
     }
 
     public void updateProfile(String name, String department, String nationality,
-                              Integer admissionYear, Language language, String bio) {
+                              Integer admissionYear, Language language, String preferredLanguage, String bio) {
         this.name = name;
         this.department = department;
         this.nationality = nationality;
         this.admissionYear = admissionYear;
         this.language = language;
+        this.preferredLanguage = preferredLanguage;
         this.bio = bio;
     }
 }

@@ -39,10 +39,18 @@ public class ChatService {
             throw new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         }
 
+        // 텍스트 또는 이미지 중 하나는 반드시 있어야 한다(이미지만 보내기 허용).
+        boolean hasContent = req.content() != null && !req.content().isBlank();
+        boolean hasImage = req.imageUrl() != null && !req.imageUrl().isBlank();
+        if (!hasContent && !hasImage) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+
         ChatMessage msg = ChatMessage.builder()
                 .senderId(senderId)
                 .receiverId(req.receiverId())
-                .content(req.content())
+                .content(hasContent ? req.content() : "")
+                .imageUrl(hasImage ? req.imageUrl() : null)
                 .build();
         chatMessageRepository.save(msg);
 

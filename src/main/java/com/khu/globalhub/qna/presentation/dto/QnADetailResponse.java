@@ -11,6 +11,9 @@ public record QnADetailResponse(
         Long qnaId,
         String title,
         String content,
+        String originalTitle,
+        String originalContent,
+        String imageUrl,
         String authorName,
         Long authorId,
         boolean isAnonymous,
@@ -23,12 +26,16 @@ public record QnADetailResponse(
         Language originalLanguage  // Q&A 원문 언어
 ) {
     public static QnADetailResponse of(QnA qna, QnATranslation translation,
+                                       QnATranslation original,
                                        String authorName, boolean isLiked, boolean isOwner,
-                                       List<AnswerResponse> answers, Language originalLanguage) {
+                                       List<AnswerResponse> answers) {
         return new QnADetailResponse(
                 qna.getId(),
                 translation.getTitle(),
                 translation.getContent(),
+                original.getTitle(),
+                original.getContent(),
+                qna.getImageUrl(),
                 authorName,   // 익명이면 서비스가 "익명N" 전달
                 qna.getIsAnonymous() ? null : qna.getAuthorId(),
                 qna.getIsAnonymous(),
@@ -38,7 +45,7 @@ public record QnADetailResponse(
                 isOwner,
                 answers,
                 qna.getCreatedAt(),
-                originalLanguage
+                original.getLanguage()
         );
     }
 }

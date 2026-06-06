@@ -13,11 +13,16 @@ public record ProfileResponse(
         String nationality,
         int admissionYear,
         Language language,
+        String preferredLanguage,
         MentoringRole mentoringRole,
         double quizScore,
         String bio
 ) {
     public static ProfileResponse from(Profile profile, String email) {
+        // 레거시 행(preferredLanguage=null)은 language enum의 Azure 코드로 폴백.
+        String preferred = profile.getPreferredLanguage() != null
+                ? profile.getPreferredLanguage()
+                : profile.getLanguage().toAzureCode();
         return new ProfileResponse(
                 profile.getMemberId(),
                 email,
@@ -27,6 +32,7 @@ public record ProfileResponse(
                 profile.getNationality(),
                 profile.getAdmissionYear(),
                 profile.getLanguage(),
+                preferred,
                 profile.getMentoringRole(),
                 profile.getQuizScore(),
                 profile.getBio()

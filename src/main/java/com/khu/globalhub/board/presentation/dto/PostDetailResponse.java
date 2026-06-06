@@ -15,6 +15,8 @@ public record PostDetailResponse(
         Long postId,
         String title,
         String content,
+        String originalTitle,
+        String originalContent,
         String authorName,     // isAnonymous=true면 null
         Long authorId,         // isAnonymous=true면 null (프로필 이동용)
         boolean isAnonymous,
@@ -27,8 +29,8 @@ public record PostDetailResponse(
         Language originalLanguage  // 게시글 원문 언어 (작성자의 언어 설정)
 ) {
     public static PostDetailResponse of(Post post, PostTranslation translation,
-                                        String authorName, boolean isLiked, boolean isOwner,
-                                        Language originalLanguage) {
+                                        PostTranslation original,
+                                        String authorName, boolean isLiked, boolean isOwner) {
         List<String> imageUrls = post.getImages().stream()
                 .map(img -> img.getImageUrl())
                 .toList();
@@ -37,6 +39,8 @@ public record PostDetailResponse(
                 post.getId(),
                 translation.getTitle(),
                 translation.getContent(),
+                original.getTitle(),
+                original.getContent(),
                 authorName,   // 익명이면 서비스가 "익명N" 전달
                 post.getIsAnonymous() ? null : post.getAuthorId(),
                 post.getIsAnonymous(),
@@ -46,7 +50,7 @@ public record PostDetailResponse(
                 isOwner,
                 imageUrls,
                 post.getCreatedAt(),
-                originalLanguage
+                original.getLanguage()
         );
     }
 }

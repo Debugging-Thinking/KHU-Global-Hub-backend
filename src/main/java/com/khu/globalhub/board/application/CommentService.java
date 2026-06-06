@@ -64,6 +64,7 @@ public class CommentService {
                 .parent(parent)
                 .authorId(memberId)
                 .isAnonymous(req.isAnonymous())
+                .imageUrl(req.imageUrl())
                 .build();
         commentRepository.save(comment);
 
@@ -88,13 +89,16 @@ public class CommentService {
         return comment.getId();
     }
 
-    /** 게시글 댓글 목록 조회 (요청자 언어 적용). */
-    public List<CommentResponse> getComments(Long postId, Long memberId, Language language) {
+    /**
+     * 게시글 댓글 목록 조회.
+     * original=false: 요청자 언어 번역본. original=true: 원문(소스) 행 (6개 외 언어 사용자용).
+     */
+    public List<CommentResponse> getComments(Long postId, Long memberId, Language language, boolean original) {
         List<Comment> topLevel = commentRepository
                 .findByTargetIdAndParentIsNullOrderByCreatedAtAsc(postId);
 
         return topLevel.stream()
-                .map(comment -> buildCommentResponse(comment, memberId, language))
+                .map(comment -> buildCommentResponse(comment, memberId, language, original))
                 .toList();
     }
 
@@ -139,12 +143,18 @@ public class CommentService {
         }
     }
 
-    private CommentResponse buildCommentResponse(Comment comment, Long memberId, Language language) {
-        CommentTranslation translation = commentTranslationRepository
-                .findByCommentIdAndLanguage(comment.getId(), language)
-                .orElseGet(() -> commentTranslationRepository
-                        .findByCommentIdAndLanguage(comment.getId(), Language.EN)
-                        .orElseGet(() -> comment.getTranslations().get(0)));
+    private CommentResponse buildCommentResponse(Comment comment, Long memberId, Language language, boolean original) {
+        CommentTranslation translation = original
+                ? commentTranslationRepository.findFirstByCommentIdOrderByIdAsc(comment.getId())
+                        .orElseGet(() -> comment.getTranslations().get(0))
+                : commentTranslationRepository
+                        .findByCommentIdAndLanguage(comment.getId(), language)
+                        .orElseGet(() -> commentTranslationRepository
+                                .findByCommentIdAndLanguage(comment.getId(), Language.EN)
+                                .orElseGet(() -> comment.getTranslations().get(0)));
+        // 항목별 원문(소스) 행 — 댓글마다 원문 언어가 다를 수 있어 함께 내려준다.
+        CommentTranslation source = commentTranslationRepository.findFirstByCommentIdOrderByIdAsc(comment.getId())
+                .orElse(translation);
 
         // 익명 번호는 게시글(POST) 컨텍스트 공유 — targetId = postId
         String authorName = comment.getIsAnonymous()
@@ -155,9 +165,9 @@ public class CommentService {
 
         // 대댓글 재귀 변환
         List<CommentResponse> children = comment.getChildren().stream()
-                .map(child -> buildCommentResponse(child, memberId, language))
+                .map(child -> buildCommentResponse(child, memberId, language, original))
                 .toList();
 
-        return CommentResponse.of(comment, translation, authorName, isLiked, isOwner, children);
+        return CommentResponse.of(comment, translation, source, authorName, isLiked, isOwner, children);
     }
 }

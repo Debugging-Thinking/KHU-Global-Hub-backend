@@ -84,7 +84,7 @@ public class PostService {
             for (MultipartFile file : images) {
                 try {
                     imageDataList.add(new S3Service.ImageData(
-                            file.getBytes(), file.getContentType()));
+                            file.getBytes(), file.getContentType(), file.getOriginalFilename()));
                 } catch (IOException e) {
                     // 파일 읽기 실패 시 해당 이미지만 스킵
                 }
@@ -97,15 +97,15 @@ public class PostService {
         return post.getId();
     }
 
-    /** 게시글 목록 조회 (게시판 1종). 요청자의 언어 설정에 맞는 번역본 반환. */
-    public Page<PostSummaryResponse> getPostList(Language language, Pageable pageable) {
+    /**
+     * 게시글 목록 조회 (게시판 1종).
+     * original=false: 요청자 언어 번역본(폴백 요청언어→EN→첫행).
+     * original=true: 원문(소스) 행 — 6개 외 언어 사용자가 "번역하기" 전 원문을 볼 때 사용.
+     */
+    public Page<PostSummaryResponse> getPostList(Language language, boolean original, Pageable pageable) {
         return postRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(post -> {
-                    PostTranslation translation = postTranslationRepository
-                            .findByPostIdAndLanguage(post.getId(), language)
-                            .orElseGet(() -> postTranslationRepository
-                                    .findByPostIdAndLanguage(post.getId(), Language.EN)
-                                    .orElseGet(() -> post.getTranslations().get(0)));
+                    PostTranslation translation = resolvePostTranslation(post, language, original);
                     String authorName = resolveAuthorName(post.getIsAnonymous(),
                             AliasContextType.POST, post.getId(), post.getAuthorId());
                     return PostSummaryResponse.of(post, translation, authorName);
@@ -113,14 +113,10 @@ public class PostService {
     }
 
     /** 인기 게시물 목록 조회 (좋아요 10개 이상, 좋아요 많은 순). */
-    public Page<PostSummaryResponse> getPopularPosts(Language language, Pageable pageable) {
+    public Page<PostSummaryResponse> getPopularPosts(Language language, boolean original, Pageable pageable) {
         return postRepository.findByLikeCountGreaterThanEqualOrderByLikeCountDesc(10, pageable)
                 .map(post -> {
-                    PostTranslation translation = postTranslationRepository
-                            .findByPostIdAndLanguage(post.getId(), language)
-                            .orElseGet(() -> postTranslationRepository
-                                    .findByPostIdAndLanguage(post.getId(), Language.EN)
-                                    .orElseGet(() -> post.getTranslations().get(0)));
+                    PostTranslation translation = resolvePostTranslation(post, language, original);
                     String authorName = resolveAuthorName(post.getIsAnonymous(),
                             AliasContextType.POST, post.getId(), post.getAuthorId());
                     return PostSummaryResponse.of(post, translation, authorName);
@@ -128,28 +124,21 @@ public class PostService {
     }
 
     /** 게시글 상세 조회. */
-    public PostDetailResponse getPost(Long postId, Long memberId, Language language) {
+    public PostDetailResponse getPost(Long postId, Long memberId, Language language, boolean original) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        PostTranslation translation = postTranslationRepository
-                .findByPostIdAndLanguage(postId, language)
-                .orElseGet(() -> postTranslationRepository
-                        .findByPostIdAndLanguage(postId, Language.EN)
-                        .orElseGet(() -> post.getTranslations().get(0)));
-
-        // 원문 언어: ID가 가장 낮은(가장 먼저 저장된) 번역 행의 language
-        Language originalLanguage = postTranslationRepository
-                .findFirstByPostIdOrderByIdAsc(postId)
-                .map(PostTranslation::getLanguage)
-                .orElse(Language.KO);
+        PostTranslation translation = resolvePostTranslation(post, language, original);
+        // 항목별 원문(소스) 행 — 제목/본문/언어를 함께 내려 클라가 항목별 원문/번역 토글.
+        PostTranslation source = postTranslationRepository.findFirstByPostIdOrderByIdAsc(postId)
+                .orElse(translation);
 
         String authorName = resolveAuthorName(post.getIsAnonymous(),
                 AliasContextType.POST, postId, post.getAuthorId());
         boolean isLiked = postLikeRepository.existsByMemberIdAndPostId(memberId, postId);
         boolean isOwner = post.getAuthorId().equals(memberId);
 
-        return PostDetailResponse.of(post, translation, authorName, isLiked, isOwner, originalLanguage);
+        return PostDetailResponse.of(post, translation, source, authorName, isLiked, isOwner);
     }
 
     /** 게시글 삭제 (작성자 본인만 가능). 댓글·좋아요 모두 cascade 삭제. */
@@ -210,7 +199,7 @@ public class PostService {
      * 작성자 이름은 ProfileQueryPort로 조회.
      */
     public Page<PostSummaryResponse> getMemberPosts(Long myId, Long targetMemberId,
-                                                    Language language, Pageable pageable) {
+                                                    Language language, boolean original, Pageable pageable) {
         boolean isOwner = myId.equals(targetMemberId);
 
         var posts = isOwner
@@ -218,14 +207,27 @@ public class PostService {
                 : postRepository.findByAuthorIdAndIsAnonymousFalseOrderByCreatedAtDesc(targetMemberId, pageable);
 
         return posts.map(post -> {
-            PostTranslation translation = postTranslationRepository
-                    .findByPostIdAndLanguage(post.getId(), language)
-                    .orElseGet(() -> postTranslationRepository
-                            .findByPostIdAndLanguage(post.getId(), Language.EN)
-                            .orElseGet(() -> post.getTranslations().get(0)));
+            PostTranslation translation = resolvePostTranslation(post, language, original);
             String authorName = profileQueryPort.findName(post.getAuthorId()).orElse("Unknown");
             return PostSummaryResponse.of(post, translation, authorName);
         });
+    }
+
+    /**
+     * 게시글 번역본 선택.
+     * original=true → 원문(소스) 행(가장 먼저 저장된 행, 자동감지로 라벨 보정됨).
+     * original=false → 요청언어 → EN → 첫 행 폴백.
+     */
+    private PostTranslation resolvePostTranslation(Post post, Language language, boolean original) {
+        if (original) {
+            return postTranslationRepository.findFirstByPostIdOrderByIdAsc(post.getId())
+                    .orElseGet(() -> post.getTranslations().get(0));
+        }
+        return postTranslationRepository
+                .findByPostIdAndLanguage(post.getId(), language)
+                .orElseGet(() -> postTranslationRepository
+                        .findByPostIdAndLanguage(post.getId(), Language.EN)
+                        .orElseGet(() -> post.getTranslations().get(0)));
     }
 
     private String resolveAuthorName(boolean isAnonymous, AliasContextType ctx, Long contextId, Long authorId) {

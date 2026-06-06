@@ -62,6 +62,14 @@ public enum ErrorCode {
     // ── Quiz ──────────────────────────────────────────
     QUIZ_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 퀴즈 문항입니다."),
 
+    // ── Translation ───────────────────────────────────
+    TRANSLATION_FAILED(HttpStatus.BAD_GATEWAY, "번역 서비스 호출에 실패했습니다."),
+
+    // ── Course Review ─────────────────────────────────
+    LECTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 강의입니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 강의평입니다."),
+    REVIEW_UNAUTHORIZED(HttpStatus.FORBIDDEN, "강의평을 삭제할 권한이 없습니다."),
+
     // ── Common ────────────────────────────────────────
     INVALID_INPUT(HttpStatus.BAD_REQUEST, "잘못된 입력값입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");

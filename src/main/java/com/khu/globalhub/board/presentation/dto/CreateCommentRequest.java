@@ -17,5 +17,8 @@ public record CreateCommentRequest(
         Language language,
 
         @NotBlank
-        String content
+        String content,
+
+        /** 첨부 이미지 URL (선택). POST /api/images로 먼저 업로드 후 URL 전달. */
+        String imageUrl
 ) {}

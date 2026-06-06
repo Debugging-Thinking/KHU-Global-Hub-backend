@@ -59,9 +59,13 @@ public class ChatMessage {
     @Column(name = "context_partner_id")
     private Long contextPartnerId;
 
-    /** 메시지 내용. */
+    /** 메시지 내용. (이미지만 보낼 경우 빈 문자열) */
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
+
+    /** 첨부 이미지 URL (선택). */
+    @Column(name = "image_url")
+    private String imageUrl;
 
     /**
      * 시스템 자동 생성 메시지 여부.

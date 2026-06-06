@@ -55,13 +55,13 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.ok("멘토링 역할이 변경되었습니다.", memberService.updateMentoringRole(myId, request)));
     }
 
-    /** 프로필 이미지 업로드. */
+    /** 프로필 이미지 업로드. 갱신된 전체 프로필 반환. */
     @PatchMapping(value = "/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<String>> updateProfileImage(
+    public ResponseEntity<ApiResponse<ProfileResponse>> updateProfileImage(
             @RequestPart("image") MultipartFile image
     ) throws IOException {
         Long myId = SecurityUtil.getCurrentMemberId();
-        String url = memberService.updateProfileImage(myId, image.getBytes(), image.getContentType());
-        return ResponseEntity.ok(ApiResponse.ok("프로필 이미지가 업데이트되었습니다.", url));
+        ProfileResponse updated = memberService.updateProfileImage(myId, image.getBytes(), image.getContentType());
+        return ResponseEntity.ok(ApiResponse.ok("프로필 이미지가 업데이트되었습니다.", updated));
     }
 }

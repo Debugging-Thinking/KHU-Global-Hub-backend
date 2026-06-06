@@ -38,7 +38,8 @@ public class MemberService {
      */
     @Transactional
     public void createProfile(Long memberId, String name, String department, String nationality,
-                              Integer admissionYear, Language language, MentoringRole mentoringRole) {
+                              Integer admissionYear, Language language, String preferredLanguage,
+                              MentoringRole mentoringRole) {
         if (profileRepository.existsByMemberId(memberId)) {
             throw new CustomException(ErrorCode.PROFILE_ALREADY_EXISTS);
         }
@@ -50,16 +51,42 @@ public class MemberService {
             throw new CustomException(ErrorCode.INVALID_MENTORING_ROLE);
         }
 
+        String pref = resolvePreferred(preferredLanguage, language);
+        Language bucket = toBucket(pref);
+
         Profile profile = Profile.builder()
                 .memberId(memberId)
                 .name(name)
                 .department(department)
                 .nationality(nationality)
                 .admissionYear(admissionYear)
-                .language(language)
+                .language(bucket)
+                .preferredLanguage(pref)
                 .mentoringRole(mentoringRole)
                 .build();
         profileRepository.save(profile);
+    }
+
+    /**
+     * 선호 언어 코드 결정: 제공되면 그 값, 아니면(레거시/하위호환) language enum의 Azure 코드.
+     */
+    private String resolvePreferred(String preferredLanguage, Language language) {
+        return (preferredLanguage != null && !preferredLanguage.isBlank())
+                ? preferredLanguage
+                : language.toAzureCode();
+    }
+
+    /**
+     * Azure 코드 → 6개 언어 버킷. 지원 6개 코드(ko/en/zh-Hans/vi/uz/mn-Cyrl)와 정확히 일치하면 그 언어,
+     * 그 외(예: fr, ja, zh-Hant, mni)는 EN — 정적 UI=영어 + 콘텐츠=원문+on-demand 번역 대상.
+     * (source 감지용 {@code fromAzureCode}의 접두사 매칭과 달리 버킷은 엄격 매칭한다.)
+     */
+    private Language toBucket(String preferredCode) {
+        if (preferredCode == null) return Language.EN;
+        for (Language l : Language.values()) {
+            if (l.toAzureCode().equalsIgnoreCase(preferredCode)) return l;
+        }
+        return Language.EN;
     }
 
     /** 프로필 조회 (본인 또는 타인). */
@@ -85,26 +112,29 @@ public class MemberService {
             profile.updateMentoringRole(req.mentoringRole());
         }
 
+        String pref = resolvePreferred(req.preferredLanguage(), req.language());
+        Language bucket = toBucket(pref);
         profile.updateProfile(
                 req.name(),
                 req.department(),
                 req.nationality(),
                 req.admissionYear(),
-                req.language(),
+                bucket,
+                pref,
                 req.bio()
         );
         return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
     }
 
-    /** 프로필 이미지 업로드 및 URL 저장. */
+    /** 프로필 이미지 업로드 및 URL 저장. 갱신된 전체 프로필을 반환(프론트 setProfile용). */
     @Transactional
-    public String updateProfileImage(Long memberId, byte[] imageBytes, String contentType) {
+    public ProfileResponse updateProfileImage(Long memberId, byte[] imageBytes, String contentType) {
         Profile profile = profileRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
 
         String url = s3Service.uploadProfileImage(memberId, imageBytes, contentType);
         profile.updateProfileImage(url);
-        return url;
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()));
     }
 
     /**

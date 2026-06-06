@@ -24,6 +24,12 @@ public class CreateProfileRequest {
     @NotNull(message = "언어를 선택해주세요.")
     private Language language;
 
+    /**
+     * 실제 선호 언어 Azure 코드 (6개 외 포함, 예: "fr"). 선택값 — 미입력 시 language로 폴백(하위호환).
+     * 서버가 이 값에서 language(버킷)를 파생한다.
+     */
+    private String preferredLanguage;
+
     @NotNull(message = "멘토링 역할을 선택해주세요.")
     private MentoringRole mentoringRole;
 }

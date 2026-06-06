@@ -23,6 +23,7 @@ public interface ProfileGateway {
             String nationality,
             Integer admissionYear,
             Language language,
+            String preferredLanguage,
             MentoringRole mentoringRole
     ) {}
 }

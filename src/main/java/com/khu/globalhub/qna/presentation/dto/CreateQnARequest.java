@@ -16,5 +16,8 @@ public record CreateQnARequest(
         String title,
 
         @NotBlank
-        String content
+        String content,
+
+        /** 첨부 이미지 URL (선택). */
+        String imageUrl
 ) {}

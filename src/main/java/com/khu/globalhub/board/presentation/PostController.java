@@ -56,9 +56,10 @@ public class PostController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PostSummaryResponse>>> getPostList(
             @RequestParam(defaultValue = "KO") Language language,
+            @RequestParam(defaultValue = "false") boolean original,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<PostSummaryResponse> result = postService.getPostList(language, pageable);
+        Page<PostSummaryResponse> result = postService.getPostList(language, original, pageable);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
@@ -70,9 +71,10 @@ public class PostController {
     @GetMapping("/popular")
     public ResponseEntity<ApiResponse<Page<PostSummaryResponse>>> getPopularPosts(
             @RequestParam(defaultValue = "KO") Language language,
+            @RequestParam(defaultValue = "false") boolean original,
             @PageableDefault(size = 20) Pageable pageable
     ) {
-        Page<PostSummaryResponse> result = postService.getPopularPosts(language, pageable);
+        Page<PostSummaryResponse> result = postService.getPopularPosts(language, original, pageable);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
@@ -80,10 +82,11 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostDetailResponse>> getPost(
             @PathVariable Long postId,
-            @RequestParam(defaultValue = "KO") Language language
+            @RequestParam(defaultValue = "KO") Language language,
+            @RequestParam(defaultValue = "false") boolean original
     ) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        PostDetailResponse result = postService.getPost(postId, memberId, language);
+        PostDetailResponse result = postService.getPost(postId, memberId, language, original);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

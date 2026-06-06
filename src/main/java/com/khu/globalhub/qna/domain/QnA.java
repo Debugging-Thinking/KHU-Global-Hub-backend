@@ -46,6 +46,10 @@ public class QnA extends BaseTimeEntity {
     @Builder.Default
     private Integer likeCount = 0;
 
+    /** 첨부 이미지 URL (선택). */
+    @Column(name = "image_url")
+    private String imageUrl;
+
     /** 6개 언어 번역 버전. */
     @OneToMany(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

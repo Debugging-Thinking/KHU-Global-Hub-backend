@@ -39,4 +39,9 @@ public class CommentTranslation {
     public void updateContent(String content) {
         this.content = content;
     }
+
+    /** 원문 행을 자동 감지된 언어로 재라벨 (작성 시 claimed 언어와 다를 때). */
+    public void updateLanguage(Language language) {
+        this.language = language;
+    }
 }

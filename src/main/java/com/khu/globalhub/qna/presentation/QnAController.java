@@ -35,19 +35,21 @@ public class QnAController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<QnASummaryResponse>>> getQnAList(
             @RequestParam(defaultValue = "KO") Language language,
+            @RequestParam(defaultValue = "false") boolean original,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<QnASummaryResponse> result = qnaService.getQnAList(language, pageable);
+        Page<QnASummaryResponse> result = qnaService.getQnAList(language, original, pageable);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 
     @GetMapping("/{qnaId}")
     public ResponseEntity<ApiResponse<QnADetailResponse>> getQnA(
             @PathVariable Long qnaId,
-            @RequestParam(defaultValue = "KO") Language language
+            @RequestParam(defaultValue = "KO") Language language,
+            @RequestParam(defaultValue = "false") boolean original
     ) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        QnADetailResponse result = qnaService.getQnA(qnaId, memberId, language);
+        QnADetailResponse result = qnaService.getQnA(qnaId, memberId, language, original);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

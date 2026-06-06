@@ -1,5 +1,6 @@
 package com.khu.globalhub.devsupport;
 
+import com.khu.globalhub.shared.infra.AzureTranslateClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,9 +38,14 @@ public class LocalTestDataInitializer implements ApplicationRunner {
 
     private final JdbcTemplate jdbc;
     private final PasswordEncoder passwordEncoder;
+    private final AzureTranslateClient azureClient;
 
     @Value("${spring.datasource.url:}")
     private String datasourceUrl;
+
+    /** 시드 원문은 KO. 나머지 5개 언어로 번역해 함께 저장한다(키 없으면 KO만). */
+    private static final List<String> OTHER_LANGS = List.of("EN", "ZH", "VI", "UZ", "MN");
+    private static final List<String> OTHER_CODES = List.of("en", "zh-Hans", "vi", "uz", "mn-Cyrl");
 
     @Override
     public void run(ApplicationArguments args) {
@@ -56,10 +62,11 @@ public class LocalTestDataInitializer implements ApplicationRunner {
         log.info("[LocalSeed] 로컬 테스트 데이터 초기화 후 재시드…");
         String pw = passwordEncoder.encode("password123");
 
-        long demo = member("demo@khu.ac.kr", pw);   profile(demo, "데모", "컴퓨터공학과", "대한민국", 2020, "MENTEE");
-        long alice = member("alice@khu.ac.kr", pw);  profile(alice, "앨리스", "경영학과", "미국", 2024, "MENTEE");
-        long bob = member("bob@khu.ac.kr", pw);      profile(bob, "밥", "전자공학과", "캐나다", 2021, "MENTOR");
-        long carol = member("carol@khu.ac.kr", pw);  profile(carol, "캐롤", "국제학과", "베트남", 2023, "MENTEE");
+        // department/nationality는 프론트 드롭다운과 동일하게 "코드"로 저장 (CSE=컴퓨터공학과, KR=대한민국 …) → 보는 사람 언어로 현지화됨
+        long demo = member("demo@khu.ac.kr", pw);   profile(demo, "데모", "CSE", "KR", 2020, "MENTEE");
+        long alice = member("alice@khu.ac.kr", pw);  profile(alice, "앨리스", "GBA", "US", 2024, "MENTEE");
+        long bob = member("bob@khu.ac.kr", pw);      profile(bob, "밥", "EE", "CA", 2021, "MENTOR");
+        long carol = member("carol@khu.ac.kr", pw);  profile(carol, "캐롤", "IS", "VN", 2023, "MENTEE");
 
         // 게시글 (서로 다른 작성자 → 남의 글에 댓글 테스트 가능)
         long pAlice = post(alice, "기숙사 룸메 구해요 🛏", "이번 학기 같이 지낼 룸메 구합니다. 깔끔하신 분!", 3);
@@ -84,14 +91,21 @@ public class LocalTestDataInitializer implements ApplicationRunner {
         // 멘토링 매칭 (bob 멘토 ↔ demo 멘티 — /api/mentoring/me 테스트)
         match(bob, demo, "2026-1");
 
+        // 강의(lectures)/강의평은 데모 시드가 아님 — KHU 종합시간표 스크래퍼가 채우는 영속 참조 데이터.
+        // resetTestData()에서 제외되어 재시작에도 보존된다. (가짜 강의 시드 제거됨)
+
         log.info("[LocalSeed] 완료 ✅  로그인 계정: demo / alice / bob / carol @khu.ac.kr  (비밀번호: password123)");
     }
 
-    /** quiz 문항 시드와 Flyway 이력을 제외한 모든 테이블을 비우고 ID 시퀀스를 초기화한다. */
+    /**
+     * 데모 시드 테이블만 비우고 ID 시퀀스를 초기화한다.
+     * 제외: Flyway 이력, quiz 문항(고정), 그리고 **강의(lectures)/강의평** — 실데이터(스크래퍼)라 보존.
+     */
     private void resetTestData() {
         List<String> tables = jdbc.queryForList(
                 "SELECT tablename FROM pg_tables WHERE schemaname = 'public' " +
-                        "AND tablename NOT IN ('flyway_schema_history', 'quiz_questions', 'quiz_options')",
+                        "AND tablename NOT IN ('flyway_schema_history', 'quiz_questions', 'quiz_options', " +
+                        "'lectures', 'course_reviews', 'course_review_translations')",
                 String.class);
         if (!tables.isEmpty()) {
             jdbc.execute("TRUNCATE TABLE " + String.join(", ", tables) + " RESTART IDENTITY CASCADE");
@@ -118,9 +132,7 @@ public class LocalTestDataInitializer implements ApplicationRunner {
                 "INSERT INTO posts(author_id, is_anonymous, like_count, comment_count, created_at, updated_at) " +
                         "VALUES (?, false, ?, 0, now(), now()) RETURNING id",
                 Long.class, authorId, likes);
-        jdbc.update(
-                "INSERT INTO post_translations(post_id, language, title, content) VALUES (?, 'KO', ?, ?)",
-                id, title, content);
+        seedTranslations("post_translations", "post_id", id, title, content);
         return id;
     }
 
@@ -133,9 +145,7 @@ public class LocalTestDataInitializer implements ApplicationRunner {
                 "INSERT INTO comments(target_id, parent_id, author_id, is_anonymous, like_count, created_at, updated_at) " +
                         "VALUES (?, NULL, ?, false, 0, now(), now()) RETURNING id",
                 Long.class, postId, authorId);
-        jdbc.update(
-                "INSERT INTO comment_translations(comment_id, language, content) VALUES (?, 'KO', ?)",
-                id, content);
+        seedTranslations("comment_translations", "comment_id", id, null, content);
     }
 
     private long qna(long authorId, String title, String content) {
@@ -143,9 +153,7 @@ public class LocalTestDataInitializer implements ApplicationRunner {
                 "INSERT INTO qnas(author_id, is_anonymous, is_adopted, like_count, created_at, updated_at) " +
                         "VALUES (?, false, false, 0, now(), now()) RETURNING id",
                 Long.class, authorId);
-        jdbc.update(
-                "INSERT INTO qna_translations(qna_id, language, title, content) VALUES (?, 'KO', ?, ?)",
-                id, title, content);
+        seedTranslations("qna_translations", "qna_id", id, title, content);
         return id;
     }
 
@@ -154,9 +162,49 @@ public class LocalTestDataInitializer implements ApplicationRunner {
                 "INSERT INTO answers(qna_id, author_id, is_anonymous, is_adopted, like_count, created_at, updated_at) " +
                         "VALUES (?, ?, false, false, 0, now(), now()) RETURNING id",
                 Long.class, qnaId, authorId);
-        jdbc.update(
-                "INSERT INTO answer_translations(answer_id, language, content) VALUES (?, 'KO', ?)",
-                id, content);
+        seedTranslations("answer_translations", "answer_id", id, null, content);
+    }
+
+    /**
+     * KO 원문 행 + (Azure 키가 있으면) 나머지 5개 언어 번역 행을 함께 insert한다.
+     * 키가 없거나 호출 실패 시 KO 원문 1행만 저장(앱은 원문 폴백으로 정상 동작).
+     * title이 null이면 content만 있는 테이블(comment/answer 번역).
+     */
+    private void seedTranslations(String table, String fkCol, long id, String title, String content) {
+        boolean hasTitle = title != null;
+        if (hasTitle) {
+            jdbc.update("INSERT INTO " + table + "(" + fkCol + ", language, title, content) VALUES (?, 'KO', ?, ?)",
+                    id, title, content);
+        } else {
+            jdbc.update("INSERT INTO " + table + "(" + fkCol + ", language, content) VALUES (?, 'KO', ?)",
+                    id, content);
+        }
+
+        try {
+            List<String> texts = hasTitle ? List.of(title, content) : List.of(content);
+            List<AzureTranslateClient.TranslatedText> results = azureClient.translate(texts, OTHER_CODES, "ko");
+            if (results.isEmpty()) return; // 키 없음/응답 없음 → KO만 유지
+
+            for (int i = 0; i < OTHER_LANGS.size(); i++) {
+                String lang = OTHER_LANGS.get(i);
+                if (hasTitle) {
+                    String tTitle = results.get(0).translations().get(i);
+                    String tContent = results.get(1).translations().get(i);
+                    if (tTitle != null && tContent != null) {
+                        jdbc.update("INSERT INTO " + table + "(" + fkCol + ", language, title, content) VALUES (?, ?, ?, ?)",
+                                id, lang, tTitle, tContent);
+                    }
+                } else {
+                    String tContent = results.get(0).translations().get(i);
+                    if (tContent != null) {
+                        jdbc.update("INSERT INTO " + table + "(" + fkCol + ", language, content) VALUES (?, ?, ?)",
+                                id, lang, tContent);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("[LocalSeed] 번역 생략(키 없음/실패) {}#{}: {}", table, id, e.getMessage());
+        }
     }
 
     private void chat(long senderId, long receiverId, String content, boolean read) {
@@ -172,4 +220,5 @@ public class LocalTestDataInitializer implements ApplicationRunner {
                         "VALUES (?, ?, ?, 'ACTIVE', now())",
                 mentorId, menteeId, semester);
     }
+
 }

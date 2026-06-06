@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface AnswerTranslationRepository extends JpaRepository<AnswerTranslation, Long> {
 
     Optional<AnswerTranslation> findByAnswerIdAndLanguage(Long answerId, Language language);
+
+    /** 원문(소스) 행 — 가장 먼저 저장된 번역 행. original=true 조회에 사용. */
+    Optional<AnswerTranslation> findFirstByAnswerIdOrderByIdAsc(Long answerId);
 }

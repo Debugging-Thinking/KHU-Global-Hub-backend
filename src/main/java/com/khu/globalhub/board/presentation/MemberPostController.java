@@ -29,10 +29,11 @@ public class MemberPostController {
     public ResponseEntity<ApiResponse<Page<PostSummaryResponse>>> getMemberPosts(
             @PathVariable Long memberId,
             @RequestParam(defaultValue = "KO") Language language,
+            @RequestParam(defaultValue = "false") boolean original,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Long myId = SecurityUtil.getCurrentMemberId();
-        Page<PostSummaryResponse> result = postService.getMemberPosts(myId, memberId, language, pageable);
+        Page<PostSummaryResponse> result = postService.getMemberPosts(myId, memberId, language, original, pageable);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 }

@@ -92,6 +92,24 @@ class BoundedContextRulesTest {
     }
 
     @Test
+    @DisplayName("translation은 어떤 BC도 의존하지 않는다 (shared.infra Azure 클라이언트만)")
+    void translationIsIsolated() {
+        bcMustNotDependOn("translation", "identity", "profile", "board", "qna", "chat", "mentoring", "campusguide");
+    }
+
+    @Test
+    @DisplayName("media는 어떤 BC도 의존하지 않는다 (shared.infra S3Service만)")
+    void mediaIsIsolated() {
+        bcMustNotDependOn("media", "identity", "profile", "board", "qna", "chat", "mentoring", "campusguide");
+    }
+
+    @Test
+    @DisplayName("coursereview는 어떤 BC도 의존하지 않는다")
+    void courseReviewIsIsolated() {
+        bcMustNotDependOn("coursereview", "identity", "profile", "board", "qna", "chat", "mentoring", "campusguide");
+    }
+
+    @Test
     @DisplayName("BC domain 계층은 application/infrastructure/presentation을 의존하지 않는다")
     void domainIsInnermostLayer() {
         ArchRule rule = noClasses().that().resideInAPackage(ROOT + "..domain..")

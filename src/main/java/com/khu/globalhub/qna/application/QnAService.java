@@ -40,6 +40,7 @@ public class QnAService {
         QnA qna = QnA.builder()
                 .authorId(memberId)
                 .isAnonymous(req.isAnonymous())
+                .imageUrl(req.imageUrl())
                 .build();
         qnaRepository.save(qna);
 
@@ -62,10 +63,10 @@ public class QnAService {
         return qna.getId();
     }
 
-    public Page<QnASummaryResponse> getQnAList(Language language, Pageable pageable) {
+    public Page<QnASummaryResponse> getQnAList(Language language, boolean original, Pageable pageable) {
         return qnaRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(qna -> {
-                    QnATranslation translation = resolveQnATranslation(qna, language);
+                    QnATranslation translation = resolveQnATranslation(qna, language, original);
                     String authorName = resolveAuthorName(qna.getIsAnonymous(),
                             AliasContextType.QNA, qna.getId(), qna.getAuthorId());
                     int answerCount = answerRepository.countByQnaId(qna.getId());
@@ -73,28 +74,25 @@ public class QnAService {
                 });
     }
 
-    public QnADetailResponse getQnA(Long qnaId, Long memberId, Language language) {
+    public QnADetailResponse getQnA(Long qnaId, Long memberId, Language language, boolean original) {
         QnA qna = qnaRepository.findById(qnaId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
 
-        QnATranslation translation = resolveQnATranslation(qna, language);
+        QnATranslation translation = resolveQnATranslation(qna, language, original);
+        // 질문 원문(소스) 행 — 항목별 원문/번역 토글용.
+        QnATranslation source = qnaTranslationRepository.findFirstByQnaIdOrderByIdAsc(qnaId)
+                .orElse(translation);
         String authorName = resolveAuthorName(qna.getIsAnonymous(),
                 AliasContextType.QNA, qnaId, qna.getAuthorId());
         boolean isLiked = qnaLikeRepository.existsByMemberIdAndQnaId(memberId, qnaId);
         boolean isOwner = qna.getAuthorId().equals(memberId);
 
-        // 원문 언어: ID가 가장 낮은(가장 먼저 저장된) 번역 행의 language
-        Language originalLanguage = qnaTranslationRepository
-                .findFirstByQnaIdOrderByIdAsc(qnaId)
-                .map(QnATranslation::getLanguage)
-                .orElse(Language.KO);
-
         List<AnswerResponse> answers = answerRepository.findByQnaIdOrderByCreatedAtAsc(qnaId)
                 .stream()
-                .map(answer -> buildAnswerResponse(answer, qnaId, memberId, language))
+                .map(answer -> buildAnswerResponse(answer, qnaId, memberId, language, original))
                 .toList();
 
-        return QnADetailResponse.of(qna, translation, authorName, isLiked, isOwner, answers, originalLanguage);
+        return QnADetailResponse.of(qna, translation, source, authorName, isLiked, isOwner, answers);
     }
 
     @Transactional
@@ -160,6 +158,7 @@ public class QnAService {
                 .qna(qna)
                 .authorId(memberId)
                 .isAnonymous(req.isAnonymous())
+                .imageUrl(req.imageUrl())
                 .build();
         answerRepository.save(answer);
 
@@ -242,26 +241,36 @@ public class QnAService {
 
     // ───────── helpers ─────────
 
-    private QnATranslation resolveQnATranslation(QnA qna, Language language) {
+    private QnATranslation resolveQnATranslation(QnA qna, Language language, boolean original) {
+        if (original) {
+            return qnaTranslationRepository.findFirstByQnaIdOrderByIdAsc(qna.getId())
+                    .orElseGet(() -> qna.getTranslations().get(0));
+        }
         return qnaTranslationRepository.findByQnaIdAndLanguage(qna.getId(), language)
                 .orElseGet(() -> qnaTranslationRepository
                         .findByQnaIdAndLanguage(qna.getId(), Language.EN)
                         .orElseGet(() -> qna.getTranslations().get(0)));
     }
 
-    private AnswerResponse buildAnswerResponse(Answer answer, Long qnaId, Long memberId, Language language) {
-        AnswerTranslation translation = answerTranslationRepository
-                .findByAnswerIdAndLanguage(answer.getId(), language)
-                .orElseGet(() -> answerTranslationRepository
-                        .findByAnswerIdAndLanguage(answer.getId(), Language.EN)
-                        .orElseGet(() -> answer.getTranslations().get(0)));
+    private AnswerResponse buildAnswerResponse(Answer answer, Long qnaId, Long memberId, Language language, boolean original) {
+        AnswerTranslation translation = original
+                ? answerTranslationRepository.findFirstByAnswerIdOrderByIdAsc(answer.getId())
+                        .orElseGet(() -> answer.getTranslations().get(0))
+                : answerTranslationRepository
+                        .findByAnswerIdAndLanguage(answer.getId(), language)
+                        .orElseGet(() -> answerTranslationRepository
+                                .findByAnswerIdAndLanguage(answer.getId(), Language.EN)
+                                .orElseGet(() -> answer.getTranslations().get(0)));
+        // 답변 원문(소스) 행 — 답변마다 원문 언어가 다를 수 있어 함께 내려준다.
+        AnswerTranslation source = answerTranslationRepository.findFirstByAnswerIdOrderByIdAsc(answer.getId())
+                .orElse(translation);
 
         String authorName = resolveAuthorName(answer.getIsAnonymous(),
                 AliasContextType.QNA, qnaId, answer.getAuthorId());
         boolean isLiked = answerLikeRepository.existsByMemberIdAndAnswerId(memberId, answer.getId());
         boolean isOwner = answer.getAuthorId().equals(memberId);
 
-        return AnswerResponse.of(answer, translation, authorName, isLiked, isOwner);
+        return AnswerResponse.of(answer, translation, source, authorName, isLiked, isOwner);
     }
 
     private String resolveAuthorName(boolean isAnonymous, AliasContextType ctx, Long contextId, Long authorId) {

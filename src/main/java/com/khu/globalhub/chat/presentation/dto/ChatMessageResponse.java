@@ -9,6 +9,7 @@ public record ChatMessageResponse(
         Long senderId,       // isSystem=true면 null
         String senderName,   // isSystem=true면 null
         String content,
+        String imageUrl,
         boolean isSystem,
         boolean isRead,
         LocalDateTime createdAt
@@ -19,6 +20,7 @@ public record ChatMessageResponse(
                 msg.getSenderId(),
                 senderName,
                 msg.getContent(),
+                msg.getImageUrl(),
                 msg.getIsSystem(),
                 msg.getIsRead(),
                 msg.getSentAt()

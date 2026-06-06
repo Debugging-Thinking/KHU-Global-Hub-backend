@@ -32,6 +32,9 @@ com.khu.globalhub/
 ├── chat/          # 1:1 DM
 ├── mentoring/     # 멘토-멘티 매칭 + 스케줄러
 ├── campusguide/   # 퀴즈 (+ 학사 가이드 예정)
+├── translation/   # on-demand 텍스트 번역 (POST /api/translate) — 6개 외 언어/채팅용
+├── media/         # 이미지 업로드 (POST /api/images → S3) — 댓글/Q&A/답변/채팅 공용
+├── coursereview/  # 강의평 (강의 목록 + 익명 리뷰 + 수업지표 집계)
 ├── devsupport/    # 로컬 테스트 데이터 시드 (@Profile("local") 전용)
 └── shared/        # 전역 공통 — 어떤 BC도 import 하지 않음
     ├── port/      # 크로스-BC 계약 인터페이스: ProfileQueryPort, MemberQueryPort, ProfileGateway
@@ -63,6 +66,9 @@ infrastructure┘
 | chat | 현우 | ChatMessage |
 | mentoring | 현우 | MentorMenteeMatch |
 | campusguide | 태경 | QuizQuestion, QuizResult |
+| translation | 본인 | (무상태 — `shared.infra.AzureTranslateClient` 위임) |
+| media | 본인 | (무상태 — `shared.infra.S3Service.uploadImage` 위임) |
+| coursereview | 본인 | Lecture, CourseReview (+ AttendanceType/FrequencyLevel 지표) |
 
 ### 2-4. 크로스-BC 규칙 (ArchUnit으로 강제)
 
@@ -70,7 +76,7 @@ infrastructure┘
 - ❌ `shared`가 BC 패키지를 import 금지
 - ❌ `domain` 계층이 상위 계층(application/infra/presentation) import 금지
 - ✅ 통신은 **① ID 참조**(엔티티 직접참조 금지, `@ManyToOne Member` → `Long memberId`) **② `shared.port` 포트** **③ `shared.extevent` 통합 이벤트** 로만
-- 규칙은 `src/test/.../architecture/BoundedContextRulesTest.java`(ArchUnit 8규칙)가 검증 → 어기면 빌드 실패
+- 규칙은 `src/test/.../architecture/BoundedContextRulesTest.java`(ArchUnit 9규칙)가 검증 → 어기면 빌드 실패
 - **DB 외래키(FK)는 유지** — 코드에서 `@ManyToOne`을 빼는 것과 DB FK 삭제는 별개. 단일 DB 모놀리식에서는 FK가 참조 무결성 보장.
 
 ### 2-5. 현재 노출된 포트 / 이벤트
@@ -100,7 +106,8 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 
 ### 3-1. Member / Profile 분리 (identity ↔ profile)
 - `members`(identity): 인증 전용 (email, password, refreshToken, isEmailVerified)
-- `profiles`(profile): 프로필 데이터 (name, department, nationality, admissionYear, language, mentoringRole, quizScore, bio). `member_id`로 identity 참조(ID only).
+- `profiles`(profile): 프로필 데이터 (name, department, nationality, admissionYear, language, **preferred_language**, mentoringRole, quizScore, bio). `member_id`로 identity 참조(ID only).
+- **선호 언어 모델(V9)**: `preferred_language`(Azure 코드, 예 `fr`·`ja`·`ko`)가 실제 선택값. `language`(6개 enum)는 여기서 파생한 **버킷** — 6개 코드(ko/en/zh-Hans/vi/uz/mn-Cyrl)와 정확히 일치하면 그 언어, 그 외는 **EN**. 정적 UI/사전번역 콘텐츠 선택엔 `language`, on-demand 번역 목표 언어엔 `preferred_language`를 쓴다. (`department`·`nationality`는 프론트가 코드로 저장하나 DB는 String 그대로 — 마이그레이션 불필요, 레거시 자유텍스트는 표시 폴백)
 - Profile row 존재 여부 = 프로필 완성. 로그인 응답 `hasProfile` 플래그로 프론트가 프로필 생성 화면 라우팅.
 - 프로필 생성(`POST /api/auth/profile`)은 identity가 `ProfileGateway`로 profile에 위임.
 
@@ -108,9 +115,12 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 - AccessToken 24시간(stateless, DB 미저장) / RefreshToken 7일(`members.refresh_token` 저장)
 - SecurityContext principal = `Long memberId` · `SecurityUtil.getCurrentMemberId()`로 조회
 
-### 3-3. 번역 비동기 처리
-- 작성 시 원문 Translation 행 **동기** 저장 → 나머지 5개 언어 `@Async("translationExecutor")` 번역
-- 번역 실패/미존재 → 조회 시 EN 폴백 → 그것도 없으면 첫 번째 번역본. 스레드풀 core=4/max=8.
+### 3-3. 번역 — 사전번역(6개) + on-demand(그 외/채팅)
+- **공통 클라이언트**: `shared.infra.AzureTranslateClient`(엔티티 비결합 — texts·toCodes·from? → 번역+detectedLanguage)를 ① 사전번역 ② on-demand 둘 다 재사용.
+- **① 사전번역(6개 언어 사용자)**: 작성 시 원문 Translation 행 **동기** 저장 → `@Async("translationExecutor")`(core=4/max=8)로 나머지 6개 언어 저장. 조회는 `?language=`(요청언어→EN→첫행 폴백). 게시글/Q&A 상세엔 원문/번역 토글.
+- **원문 언어 자동 감지**: Azure translate 호출 시 `from` 미지정 → 원문 언어 자동 감지(예: 한국인이 영어로 작성 → EN 인식). 감지는 translate 응답(`detectedLanguage`)에 포함 → 별도 detect 호출 없음. 감지 언어로 원문 행 라벨 보정 후 나머지 번역 저장. (`Language.fromAzureCode` 역매핑, 미지원이면 claimed 폴백)
+- **② on-demand(6개 외 언어 사용자 + 채팅)**: 정적 UI=EN(버킷), 콘텐츠는 **원문**으로 제공(읽기 API `?original=true` → 소스 행). 사용자가 "번역하기"를 누르면 `POST /api/translate`(target=preferred_language)로 즉시 번역(프론트 캐시·원문 토글). 채팅(1:1)은 항상 동적 — 받은 메시지 "번역" 탭 시에만. 사전 6버전을 저장하지 않아 빠르다.
+- 번역 실패/미존재 → 조회 시 EN 폴백 → 그것도 없으면 첫 번째 번역본.
 
 ### 3-4. S3 이미지 업로드
 - 게시글 이미지: 저장 후 `@Async("s3Executor")` 업로드. MultipartFile을 요청 스코프 종료 전 `byte[]`로 읽어 `ImageData` record 전달.
@@ -154,6 +164,11 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 ### 3-12. 비밀번호 재설정 (identity)
 - `forgot-password`: 이메일 인증된 계정만 코드 발송(10분). `reset-password`: 코드 검증 후 적용, 성공 시 refreshToken 무효화(전 기기 로그아웃).
 
+### 3-13. 강의평 (coursereview)
+- `Lecture`(강의 카탈로그: code/name/professor/college/type/credits/semester) + `CourseReview`(별점 1~5 + 본문). **리뷰는 익명 노출**(작성자 이름 미표시), 단 `author_id`는 저장(본인 삭제·중복/신고용 — 응답 `isMine`으로 삭제버튼 제어).
+- **수업지표(에타식, 리뷰별 응답 → 강의 단위 집계)**: 수업방식 `AttendanceType`(대면/비대면/혼합) + 발표·조모임·과제·한국어사용 `FrequencyLevel`(적음/보통/많음). **모두 선택 입력**(null 허용). 상세 조회 시 `IndicatorSummary`로 옵션별 카운트 집계(0 버킷 포함, null 제외 → 합이 reviewCount보다 작을 수 있음). 한국어 사용 "적음" = 유학생 친화 신호.
+- 강의 검색: `name/professor/code` LIKE(학기 필터, 기본 `2026-1`). 다른 BC 의존 없음(완전 격리).
+
 ---
 
 ## 4. 데이터 / 스키마 (Flyway)
@@ -166,6 +181,12 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
   | `V2__delete_qna_answer_comments.sql` | qna/답변 댓글 데이터 삭제 (D3, 비가역) |
   | `V3__drop_comment_target_type.sql` | `comments.target_type` 컬럼 제거 |
   | `V4__drop_post_board_type.sql` | `posts.board_type` 컬럼 제거 |
+  | `V5`~`V7` | 멘토링 활동기록·뱃지 등 (각 기능 PR) |
+  | `V8__swap_es_to_uz_language.sql` | 지원 언어 ES(스페인어) → UZ(우즈벡어) 교체 + CHECK 제약 갱신 |
+  | `V9__add_profile_preferred_language.sql` | `profiles.preferred_language`(Azure 코드, nullable) 추가 + 기존행 backfill(language→코드) |
+  | `V10__add_image_url.sql` | 댓글/Q&A/답변/채팅에 `image_url` 추가 (media BC 이미지 업로드) |
+  | `V11__create_course_review.sql` | `lectures` + `course_reviews` 테이블 생성 (강의평) |
+  | `V12__add_course_review_indicators.sql` | `course_reviews`에 수업지표 5종 컬럼 추가 (attendance_type/presentation_freq/group_work_freq/assignment_freq/korean_usage, 모두 nullable) |
 - 스키마 변경은 **반드시 새 Flyway 마이그레이션**으로. 운영 적용 전 **RDS 스냅샷** 필수.
 - `@ManyToOne Member` → `Long memberId`는 매핑 컬럼(`*_id`) 동일 → 스키마 무변경(기존 데이터 그대로). DB FK 제약 유지.
 
@@ -233,13 +254,33 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 ### Quiz(campusguide) — `/api/quiz`
 | GET /questions · POST /submit · GET /results/me · GET /score/me | 문항/제출/내 기록/최고점수 |
 
+### Translation — `/api/translate`
+| Method | Path | 설명 |
+|--------|------|------|
+| POST | / | on-demand 번역 `{texts[], target, source?}` → `{translations[], detectedSource}` (콘텐츠 "번역하기"·채팅 "번역" 공용) |
+> Board/Q&A/Comment 읽기 엔드포인트는 `&original=true` 지원 — 번역본 대신 **원문(소스) 행** 반환(6개 외 언어 사용자용).
+
+### Media — `/api/images`
+| Method | Path | 설명 |
+|--------|------|------|
+| POST | / | 이미지 업로드(multipart `image`) → S3 → `{url}` (댓글/Q&A/답변/채팅이 `imageUrl`로 참조) |
+
+### Course Review(coursereview) — `/api/lectures`
+| Method | Path | 설명 |
+|--------|------|------|
+| GET | /?semester=2026-1&query= | 강의 검색 목록 (이름/교수/코드 LIKE, 페이징) |
+| GET | /{lectureId} | 강의 상세 + 지표 집계(`indicators`) + 강의평 목록(익명) |
+| POST | /{lectureId}/reviews | 강의평 작성 (별점·본문 필수, 지표 5종 선택) |
+| DELETE | /reviews/{reviewId} | 강의평 삭제 (작성자 본인만) |
+
 ---
 
 ## 6. 공통 규칙 (프론트 연동 필수)
 
 - **인증 헤더**: `Authorization: Bearer {accessToken}`
 - **공통 응답**: `{ "success": true, "message": "ok", "data": {...} }` (실패 시 success=false, data=null, message=에러)
-- **언어 파라미터**: `?language=KO` (KO/EN/ZH/VI/ES/MN), 생략 시 KO
+- **언어 파라미터**: `?language=KO` (KO/EN/ZH/VI/UZ/MN 버킷 — 한/영/중/베트남/우즈벡/몽골), 생략 시 KO. 6개 외 언어 사용자는 `&original=true`로 원문을 받고 `POST /api/translate`로 번역.
+- **선호 언어**: 프로필은 Azure 코드(`preferredLanguage`, 182개 중 택1)로 저장. 백엔드가 6개 버킷(`language`)을 파생. 프론트 정적 UI는 버킷(6개면 그 언어, 그 외 EN) 기준.
 - **페이지네이션**: `?page=0&size=20`
 - **인증 플로우**: register → verify-email(accessToken+refreshToken+hasProfile) → (hasProfile=false면) profile 생성 → 이후 Bearer 토큰 → 401 시 refresh
 
@@ -308,6 +349,11 @@ frontend/app/(main)/
 ├── chat/, mentoring, profile, quiz
 ```
 - 플랫폼 분기: `Alert.alert`은 웹 미동작 → `confirmAction` 헬퍼(웹은 `window.confirm`).
+- **번역/드롭다운 관련**:
+  - `src/components/ui/SearchableSelect.tsx` — 검색 드롭다운(학과·국적·선호언어 공용, 라이브러리 없이 Modal+FlatList).
+  - `src/data/` — `departments.ts`(경희대 국제캠 학과), `countries.ts`(ISO+다국어, 자동생성), `azureLanguages.ts`(Azure 182언어, 자동생성), `labels.ts`(코드→현지화 라벨 + 레거시 폴백), `selectOptions.ts`.
+  - `src/i18n/preferredLanguage.ts` — Azure코드↔버킷 매핑/모드 판별(백엔드 `toBucket`과 일치). `src/hooks/useTextTranslate.ts` — on-demand 번역 토글(캐시).
+  - 데이터 재생성 스크립트: `scripts/fetch-languages.ts`·`fetch-countries.ts`·`translate-data.ts`(VI/UZ/MN 보강).
 
 ---
 
@@ -339,7 +385,9 @@ frontend/app/(main)/
 | 항목 | 설명 |
 |------|------|
 | mentoring → profile 결합 | 매칭 알고리즘이 Profile(역할/입학년도) 직접 조회 → 추후 포트화 |
-| shared.infra → BC 엔티티 | `TranslationService`/`S3Service`가 board/qna 엔티티에 결합(영속화) → 추후 분리 |
+| shared.infra → BC 엔티티 | 순수 HTTP는 `AzureTranslateClient`로 분리 완료. 단 `TranslationService`(사전번역 영속화)·`S3Service`는 여전히 board/qna 엔티티 결합 → 추후 분리 |
+| 채팅/콘텐츠 on-demand 번역 캐시 | 현재 클라(세션) 캐시만 — 서버측 캐시 테이블 없음. 같은 메시지 재방문 시 재호출. Azure Free F0(월 2M자) 한도 주의 → 수동 탭으로 호출 억제 |
+| 멘토링 "같은 언어 +2" | 6개 외 언어 사용자는 버킷이 모두 EN → 서로 동일 언어로 집계되는 미세 부정확(추후 preferredLanguage 기준 보정) |
 | Scheduler 시간대 | cron이 서버 JVM(UTC) 기준 → KST와 9시간 차 |
 | S3 고아 파일 | 게시글/프로필 이미지 교체·삭제 시 기존 S3 파일 미삭제 |
 | commentCount 동시성 | 수동 증감 — 대규모 동시요청 시 race 가능 |

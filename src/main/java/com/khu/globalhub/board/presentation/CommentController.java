@@ -35,10 +35,11 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(
             @PathVariable Long postId,
-            @RequestParam(defaultValue = "KO") Language language
+            @RequestParam(defaultValue = "KO") Language language,
+            @RequestParam(defaultValue = "false") boolean original
     ) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        List<CommentResponse> result = commentService.getComments(postId, memberId, language);
+        List<CommentResponse> result = commentService.getComments(postId, memberId, language, original);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
 

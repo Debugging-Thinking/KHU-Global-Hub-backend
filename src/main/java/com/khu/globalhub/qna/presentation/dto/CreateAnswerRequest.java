@@ -13,5 +13,8 @@ public record CreateAnswerRequest(
         Language language,
 
         @NotBlank
-        String content
+        String content,
+
+        /** 첨부 이미지 URL (선택). */
+        String imageUrl
 ) {}

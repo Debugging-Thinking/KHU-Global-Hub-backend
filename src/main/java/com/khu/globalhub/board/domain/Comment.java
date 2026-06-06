@@ -58,6 +58,10 @@ public class Comment extends BaseTimeEntity {
     @Builder.Default
     private Integer likeCount = 0;
 
+    /** 첨부 이미지 URL (선택). S3 업로드 후 URL만 저장. */
+    @Column(name = "image_url")
+    private String imageUrl;
+
     /** 6개 언어 번역 버전. */
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

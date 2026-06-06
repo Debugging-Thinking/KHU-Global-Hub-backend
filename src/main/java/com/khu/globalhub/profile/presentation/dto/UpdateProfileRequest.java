@@ -22,6 +22,9 @@ public record UpdateProfileRequest(
         @NotNull
         Language language,
 
+        // 선택값: 실제 선호 언어 Azure 코드(6개 외 포함). 미입력 시 language로 폴백. 서버가 language(버킷)를 파생.
+        String preferredLanguage,
+
         // 선택값: 미입력(null) 시 기존 역할 유지. 신입생은 서비스 계층에서 MENTEE로 강제.
         MentoringRole mentoringRole,
 
