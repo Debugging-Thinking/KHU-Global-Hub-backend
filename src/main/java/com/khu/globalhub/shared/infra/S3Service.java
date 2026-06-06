@@ -106,10 +106,25 @@ public class S3Service {
         return toUrl(key);
     }
 
-    /** 경로 컴포넌트만 남기고(상위 경로 제거) 그대로 보존. 키는 원문(유니코드 허용), URL에서 인코딩한다. */
+    /** 경로 컴포넌트만 남기고 파일명 인코딩 보정. 키는 원문(유니코드 허용), URL에서 인코딩한다. */
     private static String safeName(String name) {
         if (name == null || name.isBlank()) return "";
-        return name.replaceAll(".*[/\\\\]", "").trim();
+        return fixEncoding(name.replaceAll(".*[/\\\\]", "").trim());
+    }
+
+    /**
+     * 멀티파트 파일명 인코딩 보정. Tomcat이 UTF-8 파일명을 ISO-8859-1로 잘못 디코드하면
+     * 한글이 깨지는데(모든 문자 ≤0xFF), 이 경우 ISO-8859-1 바이트로 되돌려 UTF-8로 재해석한다.
+     * 이미 올바른 유니코드(>0xFF 문자 포함)면 그대로 둔다(ASCII는 변화 없음).
+     */
+    private static String fixEncoding(String s) {
+        boolean looksLatin1 = s.chars().allMatch(c -> c <= 0xFF);
+        if (looksLatin1) {
+            String reDecoded = new String(s.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+            // 재해석 결과에 깨짐문자(U+FFFD)가 없을 때만 채택(원래 ASCII/Latin1이면 그대로 유지)
+            if (reDecoded.indexOf('�') < 0) return reDecoded;
+        }
+        return s;
     }
 
     /** S3 키 → 퍼블릭 URL. 각 경로 세그먼트를 퍼센트 인코딩(공백/한글 파일명 안전). */
