@@ -54,4 +54,12 @@ public class ChatController {
         List<ConversationSummaryResponse> result = chatService.getConversationList(myId);
         return ResponseEntity.ok(ApiResponse.ok(result));
     }
+
+    /** 메시지 삭제 (본인이 보낸 메시지만). */
+    @DeleteMapping("/{messageId}")
+    public ResponseEntity<ApiResponse<Void>> deleteMessage(@PathVariable Long messageId) {
+        Long myId = SecurityUtil.getCurrentMemberId();
+        chatService.deleteMessage(myId, messageId);
+        return ResponseEntity.ok(ApiResponse.ok("메시지가 삭제되었습니다."));
+    }
 }

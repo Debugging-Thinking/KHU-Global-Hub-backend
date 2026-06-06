@@ -83,6 +83,17 @@ public class ChatService {
                 .toList();
     }
 
+    /** 메시지 삭제 — 본인이 보낸 일반 메시지만 가능. */
+    @Transactional
+    public void deleteMessage(Long myId, Long messageId) {
+        ChatMessage msg = chatMessageRepository.findById(messageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_INPUT));
+        if (msg.getSenderId() == null || !msg.getSenderId().equals(myId)) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);  // 본인이 보낸 메시지만 삭제 가능
+        }
+        chatMessageRepository.delete(msg);
+    }
+
     /**
      * 내 DM 대화 상대 목록 (마지막 메시지 + 안 읽은 수 포함).
      */
@@ -103,11 +114,16 @@ public class ChatService {
             int unread = chatMessageRepository
                     .countBySenderIdAndReceiverIdAndIsReadFalse(partnerId, myId);
 
+            // 이미지/파일만 보낸 메시지는 content가 비어 목록 미리보기가 빈칸 → 언어중립 표시자(📷)로 대체
+            String preview = (last.getContent() != null && !last.getContent().isBlank())
+                    ? last.getContent()
+                    : (last.getImageUrl() != null && !last.getImageUrl().isBlank() ? "📎" : "");
+
             result.add(new ConversationSummaryResponse(
                     partnerId,
                     partnerName,
                     partnerImage,
-                    last.getContent(),
+                    preview,
                     unread,
                     last.getSentAt()
             ));
