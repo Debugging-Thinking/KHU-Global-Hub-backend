@@ -1,0 +1,77 @@
+name: Deploy Backend to EC2
+
+# main 에 push 되면 자동으로 jar 빌드 → EC2 전송 → 재기동.
+# 수동 실행도 가능(Actions 탭 → Run workflow).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false   # 배포 중엔 다음 배포가 끼어들지 않게
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+
+      - name: Build jar (테스트 제외 — Testcontainers는 CI에서 무거움)
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bootJar -x test --no-daemon
+
+      - name: Copy jar to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: build/libs/globalhub-0.0.1-SNAPSHOT.jar
+          target: /home/${{ secrets.EC2_USER }}/
+          strip_components: 2   # build/libs/ 경로 제거 → ~/globalhub-0.0.1-SNAPSHOT.jar 로 도착
+
+      - name: Restart backend on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd ~
+            mv -f globalhub-0.0.1-SNAPSHOT.jar app.jar
+
+            # 기존 인스턴스 종료 — self-excluding 패턴('active=pro[d]')으로
+            # ssh 세션 cmdline(app.jar 포함)을 죽이지 않도록 한다. (ARCHITECTURE §7 함정 ②)
+            pkill -f 'active=pro[d]' || true
+            sleep 3
+
+            # ~/.env 환경변수 로드 후 기동. ddl-auto=update 로 baseline 드리프트 validate 실패 회피
+            # (컬럼 추가만, 삭제 X = 데이터 안전 — ARCHITECTURE §7 함정 ①)
+            set -a
+            source ~/.env
+            set +a
+            setsid java -jar ~/app.jar \
+              --spring.profiles.active=prod \
+              --spring.jpa.hibernate.ddl-auto=update \
+              > ~/app.log 2>&1 < /dev/null &
+
+            sleep 8
+            # 기동 확인 — 프로세스가 살아있는지
+            if pgrep -f 'active=pro[d]' > /dev/null; then
+              echo "✅ backend started"
+            else
+              echo "❌ backend failed to start — last log:"
+              tail -40 ~/app.log
+              exit 1
+            fi
