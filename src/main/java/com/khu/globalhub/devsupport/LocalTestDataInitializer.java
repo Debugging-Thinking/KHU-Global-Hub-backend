@@ -74,6 +74,12 @@ public class LocalTestDataInitializer implements ApplicationRunner {
         long bob = member("bob@khu.ac.kr", pw);      profile(bob, "밥", "EE", "CA", 2021, "MENTOR");
         long carol = member("carol@khu.ac.kr", pw);  profile(carol, "캐롤", "IS", "VN", 2023, "MENTEE");
 
+        // 관리자 계정 — is_admin=true. 프로필은 일반 회원과 동일(role "관리자" 표시, 매칭 풀 제외).
+        // 로그인: admin@khu.ac.kr / password123
+        long admin = member("admin@khu.ac.kr", pw);
+        jdbc.update("UPDATE members SET is_admin = true WHERE id = ?", admin);
+        profile(admin, "관리자", "CSE", "KR", 2020, "MENTEE");
+
         // 게시글 (서로 다른 작성자 → 남의 글에 댓글 테스트 가능)
         long pAlice = post(alice, "기숙사 룸메 구해요 🛏", "이번 학기 같이 지낼 룸메 구합니다. 깔끔하신 분!", 3);
         long pBob = post(bob, "졸업 준비 체크리스트 공유", "졸업요건/영어성적/포트폴리오 정리해봤어요.", 7);
