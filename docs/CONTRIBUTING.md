@@ -42,4 +42,4 @@
 - 백/프가 같은 파일을 건드리면 충돌 흔함 — incoming(상대) 버전을 살리되 우리 수정도 반영.
 
 ---
-> 설계: [`ARCHITECTURE.md`](./ARCHITECTURE.md) · 로컬 실행: [`localtest.md`](./localtest.md)
+> 설계: [`ARCHITECTURE.md`](../ARCHITECTURE.md) · 로컬 실행: [`localtest.md`](./localtest.md)

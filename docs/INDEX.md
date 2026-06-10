@@ -5,11 +5,11 @@
 ## 시작하기
 - [README](../README.md) — 프로젝트 개요·기술스택
 - [온보딩 가이드](./ONBOARDING.md) — 셋업 → 첫 PR (신규 팀원용)
-- [로컬 실행](../localtest.md) — `dev.ps1`/`dev.sh` 원클릭, 테스트 계정
+- [로컬 실행](./localtest.md) — `dev.ps1`/`dev.sh` 원클릭, 테스트 계정
 
 ## 설계 · 협업
 - [ARCHITECTURE](../ARCHITECTURE.md) — BC 격리, 도메인 설계, 마이그레이션, API 전체 목록 (**단일 출처**)
-- [CONTRIBUTING](../CONTRIBUTING.md) — PR/머지 정책, gh·배포 함정 (각자의 AI에게 읽힐 작업 지침)
+- [CONTRIBUTING](./CONTRIBUTING.md) — PR/머지 정책, gh·배포 함정 (각자의 AI에게 읽힐 작업 지침)
 - [AGENTS](../AGENTS.md) — AI 에이전트 진입점 (ARCHITECTURE로 안내)
 
 ## 배포 · 인프라

@@ -3,6 +3,7 @@ package com.khu.globalhub.campusguide.infrastructure;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khu.globalhub.campusguide.application.QuizOptionsCodec;
+import com.khu.globalhub.campusguide.domain.BadgeId;
 import com.khu.globalhub.campusguide.domain.QuizQuestion;
 import com.khu.globalhub.campusguide.domain.QuizQuestionTranslation;
 import com.khu.globalhub.shared.enums.Language;
@@ -64,7 +65,7 @@ public class QuizDataInitializer implements ApplicationRunner {
             Map.Entry<String, JsonNode> e = metaIt.next();
             JsonNode m = e.getValue();
             QuizQuestion saved = questionRepository.save(QuizQuestion.builder()
-                    .category(text(m, "category"))
+                    .category(BadgeId.valueOf(text(m, "category")))   // 시드 키가 BadgeId 5종 밖이면 기동 시 즉시 실패(loud)
                     .answerIndex(intVal(m, "answerIndex"))
                     .build());
             idBySeedKey.put(e.getKey(), saved.getId());
