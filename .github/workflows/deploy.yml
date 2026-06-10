@@ -61,15 +61,20 @@ jobs:
             set -a
             source ~/.env
             set +a
-            setsid java -jar ~/app.jar \
+            # -Xmx420m: t3.micro(1GB)에서 힙 제한이 없으면 기동 중 OOM으로 죽는다 (재발 방지)
+            setsid java -Xmx420m -jar ~/app.jar \
               --spring.profiles.active=prod \
               --spring.jpa.hibernate.ddl-auto=update \
               > ~/app.log 2>&1 < /dev/null &
 
-            sleep 8
-            # 기동 확인 — 프로세스가 살아있는지
-            if pgrep -f 'active=pro[d]' > /dev/null; then
-              echo "✅ backend started"
+            # 8080 리슨까지 대기(Flyway 마이그레이션 시간 포함, 최대 ~40s).
+            # pgrep만으로는 '기동 중 OOM 사망'을 못 잡아 → 실제 포트 리슨으로 판정.
+            for i in $(seq 1 8); do
+              sleep 5
+              if sudo ss -tlnp 2>/dev/null | grep -q ':8080'; then break; fi
+            done
+            if sudo ss -tlnp 2>/dev/null | grep -q ':8080'; then
+              echo "✅ backend started (8080 listening)"
             else
               echo "❌ backend failed to start — last log:"
               tail -40 ~/app.log
