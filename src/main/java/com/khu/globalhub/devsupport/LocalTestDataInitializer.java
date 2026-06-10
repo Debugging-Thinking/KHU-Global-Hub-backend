@@ -117,12 +117,13 @@ public class LocalTestDataInitializer implements ApplicationRunner {
 
     /**
      * 데모 시드 테이블만 비우고 ID 시퀀스를 초기화한다.
-     * 제외: Flyway 이력, quiz 문항(고정), 그리고 **강의(lectures)/강의평** — 실데이터(스크래퍼)라 보존.
+     * 제외: Flyway 이력, quiz 문항·가이드(고정 콘텐츠 — 각 DataInitializer가 관리), 그리고 **강의(lectures)/강의평** — 실데이터(스크래퍼)라 보존.
      */
     private void resetTestData() {
         List<String> tables = jdbc.queryForList(
                 "SELECT tablename FROM pg_tables WHERE schemaname = 'public' " +
-                        "AND tablename NOT IN ('flyway_schema_history', 'quiz_questions', 'quiz_options', " +
+                        "AND tablename NOT IN ('flyway_schema_history', 'quiz_questions', 'quiz_question_translations', " +
+                        "'guide_categories', 'guide_category_translations', 'guide_tips', 'guide_tip_translations', " +
                         "'lectures', 'course_reviews', 'course_review_translations')",
                 String.class);
         if (!tables.isEmpty()) {

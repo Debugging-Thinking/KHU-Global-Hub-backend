@@ -67,7 +67,7 @@ public abstract class AbstractIntegrationTest {
     private void cleanDatabase() {
         List<String> tables = jdbcTemplate.queryForList(
                 "SELECT tablename FROM pg_tables WHERE schemaname = 'public' " +
-                        "AND tablename NOT IN ('flyway_schema_history', 'quiz_questions', 'quiz_options')",
+                        "AND tablename NOT IN ('flyway_schema_history', 'quiz_questions', 'quiz_question_translations')",
                 String.class);
         if (tables.isEmpty()) {
             return;

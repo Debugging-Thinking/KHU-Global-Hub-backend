@@ -51,24 +51,13 @@ jobs:
             cd ~
             mv -f globalhub-0.0.1-SNAPSHOT.jar app.jar
 
-            # 기존 인스턴스 종료 — self-excluding 패턴('active=pro[d]')으로
-            # ssh 세션 cmdline(app.jar 포함)을 죽이지 않도록 한다. (ARCHITECTURE §7 함정 ②)
-            pkill -f 'active=pro[d]' || true
-            sleep 3
+            # java는 systemd(globalhub.service)가 관리 — 새 jar로 재시작만 한다.
+            # systemd라서 ① ssh-action 세션이 끝나도 살아있고(예전 setsid/nohup은 CI에서 죽었음)
+            # ② 죽으면 Restart=always로 자동 재시작(OOM 자동 복구)
+            # ③ 힙 제한(-Xmx420m)은 service 파일의 ExecStart에 박혀 있음 (ARCHITECTURE §7)
+            sudo systemctl restart globalhub
 
-            # ~/.env 환경변수 로드 후 기동. ddl-auto=update 로 baseline 드리프트 validate 실패 회피
-            # (컬럼 추가만, 삭제 X = 데이터 안전 — ARCHITECTURE §7 함정 ①)
-            set -a
-            source ~/.env
-            set +a
-            # -Xmx420m: t3.micro(1GB)에서 힙 제한이 없으면 기동 중 OOM으로 죽는다 (재발 방지)
-            nohup setsid java -Xmx420m -jar ~/app.jar \
-              --spring.profiles.active=prod \
-              --spring.jpa.hibernate.ddl-auto=update \
-              > ~/app.log 2>&1 < /dev/null &
-
-            # 8080 리슨까지 대기(Flyway 마이그레이션 시간 포함, 최대 ~40s).
-            # pgrep만으로는 '기동 중 OOM 사망'을 못 잡아 → 실제 포트 리슨으로 판정.
+            # 8080 리슨까지 대기(Flyway 마이그레이션 시간 포함, 최대 ~40s)
             for i in $(seq 1 8); do
               sleep 5
               if sudo ss -tlnp 2>/dev/null | grep -q ':8080'; then break; fi
@@ -76,7 +65,7 @@ jobs:
             if sudo ss -tlnp 2>/dev/null | grep -q ':8080'; then
               echo "✅ backend started (8080 listening)"
             else
-              echo "❌ backend failed to start — last log:"
-              tail -40 ~/app.log
+              echo "❌ backend failed to start — journal:"
+              sudo journalctl -u globalhub -n 40 --no-pager
               exit 1
             fi

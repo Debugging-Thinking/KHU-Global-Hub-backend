@@ -1,0 +1,400 @@
+{
+  "quiz": {
+    "1": {
+      "category": "COURSE_REG",
+      "answerIndex": 1
+    },
+    "2": {
+      "category": "COURSE_REG",
+      "answerIndex": 2
+    },
+    "3": {
+      "category": "COURSE_REG",
+      "answerIndex": 3
+    },
+    "4": {
+      "category": "COURSE_REG",
+      "answerIndex": 1
+    },
+    "5": {
+      "category": "COURSE_REG",
+      "answerIndex": 2
+    },
+    "6": {
+      "category": "COURSE_REG",
+      "answerIndex": 3
+    },
+    "7": {
+      "category": "TRANSPORT",
+      "answerIndex": 1
+    },
+    "8": {
+      "category": "TRANSPORT",
+      "answerIndex": 2
+    },
+    "9": {
+      "category": "TRANSPORT",
+      "answerIndex": 1
+    },
+    "10": {
+      "category": "TRANSPORT",
+      "answerIndex": 2
+    },
+    "11": {
+      "category": "TRANSPORT",
+      "answerIndex": 2
+    },
+    "12": {
+      "category": "FOOD",
+      "answerIndex": 1
+    },
+    "13": {
+      "category": "FOOD",
+      "answerIndex": 1
+    },
+    "14": {
+      "category": "FOOD",
+      "answerIndex": 2
+    },
+    "15": {
+      "category": "FOOD",
+      "answerIndex": 2
+    },
+    "16": {
+      "category": "CAMPUS_SITE",
+      "answerIndex": 1
+    },
+    "17": {
+      "category": "CAMPUS_SITE",
+      "answerIndex": 2
+    },
+    "18": {
+      "category": "CAMPUS_SITE",
+      "answerIndex": 2
+    },
+    "19": {
+      "category": "CAMPUS_SITE",
+      "answerIndex": 1
+    },
+    "20": {
+      "category": "HUMANITIES",
+      "answerIndex": 2
+    },
+    "21": {
+      "category": "HUMANITIES",
+      "answerIndex": 2
+    },
+    "22": {
+      "category": "HUMANITIES",
+      "answerIndex": 2
+    },
+    "23": {
+      "category": "HUMANITIES",
+      "answerIndex": 2
+    }
+  },
+  "guideCategories": {
+    "COURSE_REG": {
+      "emoji": "📚",
+      "color": "#C41230",
+      "order": 0
+    },
+    "TRANSPORT": {
+      "emoji": "🚌",
+      "color": "#1A6B3C",
+      "order": 1
+    },
+    "FOOD": {
+      "emoji": "🍽️",
+      "color": "#E8650A",
+      "order": 2
+    },
+    "CAMPUS_SITE": {
+      "emoji": "🔗",
+      "color": "#1565C0",
+      "order": 3
+    },
+    "HUMANITIES": {
+      "emoji": "🎓",
+      "color": "#6A1B9A",
+      "order": 4
+    }
+  },
+  "guideTips": {
+    "COURSE_REG#0": {
+      "icon": "💻",
+      "link": null,
+      "order": 0
+    },
+    "COURSE_REG#1": {
+      "icon": "🏠",
+      "link": null,
+      "order": 1
+    },
+    "COURSE_REG#2": {
+      "icon": "🖥️",
+      "link": null,
+      "order": 2
+    },
+    "COURSE_REG#3": {
+      "icon": "⚙️",
+      "link": null,
+      "order": 3
+    },
+    "COURSE_REG#4": {
+      "icon": "🎯",
+      "link": null,
+      "order": 4
+    },
+    "COURSE_REG#5": {
+      "icon": "✅",
+      "link": null,
+      "order": 5
+    },
+    "COURSE_REG#6": {
+      "icon": "❌",
+      "link": null,
+      "order": 6
+    },
+    "COURSE_REG#7": {
+      "icon": "📅",
+      "link": null,
+      "order": 7
+    },
+    "COURSE_REG#8": {
+      "icon": "💾",
+      "link": null,
+      "order": 8
+    },
+    "TRANSPORT#0": {
+      "icon": "🆓",
+      "link": null,
+      "order": 0
+    },
+    "TRANSPORT#1": {
+      "icon": "🏙️",
+      "link": null,
+      "order": 1
+    },
+    "TRANSPORT#2": {
+      "icon": "⚠️",
+      "link": null,
+      "order": 2
+    },
+    "TRANSPORT#3": {
+      "icon": "🚇",
+      "link": null,
+      "order": 3
+    },
+    "TRANSPORT#4": {
+      "icon": "🚶",
+      "link": null,
+      "order": 4
+    },
+    "FOOD#0": {
+      "icon": "🥟",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ-WvQaDJQezURZRmpOAZlYEM",
+      "order": 0
+    },
+    "FOOD#1": {
+      "icon": "🍜",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJney8-NtEezURmTbw_SibryY",
+      "order": 1
+    },
+    "FOOD#2": {
+      "icon": "🥩",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ8UDQnNxEezURxVPGqSxDea0",
+      "order": 2
+    },
+    "FOOD#3": {
+      "icon": "🍚",
+      "link": "https://www.google.com/maps/place/%EB%B0%A5%EC%9D%80%ED%99%94+%EA%B2%BD%ED%9D%AC%EB%8C%80%EA%B5%AD%EC%A0%9C%EC%BA%A0%ED%8D%BC%EC%8A%A4%EC%A0%90/data=!3m1!4b1!4m6!3m5!1s0x357b452e7b0d177b:0x1f5efd10481b8e25!8m2!3d37.2465428!4d127.0764846!16s%2Fg%2F11rsbp4tg8?entry=ttu&g_ep=EgoyMDI2MDUxMC4wIKXMDSoASAFQAw%3D%3D",
+      "order": 3
+    },
+    "FOOD#4": {
+      "icon": "🌶️",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJg_sLqdlEezURd28V2oN1avY",
+      "order": 4
+    },
+    "FOOD#5": {
+      "icon": "🐙",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ7wmg4MREezUR0hXGUKxxgOY",
+      "order": 5
+    },
+    "FOOD#6": {
+      "icon": "🍱",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJef10VtlEezURvUDjsg76Kj4",
+      "order": 6
+    },
+    "FOOD#7": {
+      "icon": "🍲",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJz6NtewBFezURKR4SwIWsiJ4",
+      "order": 7
+    },
+    "FOOD#8": {
+      "icon": "🥩",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJHQ7yUdlEezURAkRfwhDiC0w",
+      "order": 8
+    },
+    "FOOD#9": {
+      "icon": "🍖",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJP9IBBdxEezURoLqX905ON48",
+      "order": 9
+    },
+    "FOOD#10": {
+      "icon": "🍱",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ-wo3VZ1FezURRaMr3qgcWUM",
+      "order": 10
+    },
+    "FOOD#11": {
+      "icon": "🍛",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ3bGH4KZFezUR6ykAoH6WXiw",
+      "order": 11
+    },
+    "FOOD#12": {
+      "icon": "🥩",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJjdj9ctxEezURsW0wTs6kmrw",
+      "order": 12
+    },
+    "FOOD#13": {
+      "icon": "🍤",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJdSeSBdlEezURWQMcJFkyaxQ",
+      "order": 13
+    },
+    "FOOD#14": {
+      "icon": "🥩",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJow8U59hFezURBPLju5i66Rs",
+      "order": 14
+    },
+    "FOOD#15": {
+      "icon": "🌶️",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ_zJG5BpFezURN3GLNS7NHdE",
+      "order": 15
+    },
+    "FOOD#16": {
+      "icon": "🥢",
+      "link": "https://maps.app.goo.gl/D11jSRYZg4aeonq97",
+      "order": 16
+    },
+    "FOOD#17": {
+      "icon": "🌶️",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJc6ng9NtEezURh560XwubxY8",
+      "order": 17
+    },
+    "FOOD#18": {
+      "icon": "🍱",
+      "link": "https://maps.app.goo.gl/dNku4UjpvkHZiGdn9",
+      "order": 18
+    },
+    "FOOD#19": {
+      "icon": "🧁",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ_QG7bdxEezURHvehCDhvmIU",
+      "order": 19
+    },
+    "FOOD#20": {
+      "icon": "🍓",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJ_1l6JdxEezURLfoVeMyhey4",
+      "order": 20
+    },
+    "FOOD#21": {
+      "icon": "☕",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJSeSSR9lEezURYKbL9gQ8lzw",
+      "order": 21
+    },
+    "FOOD#22": {
+      "icon": "🍧",
+      "link": "https://maps.app.goo.gl/zGfhggDE2taLQZJ16",
+      "order": 22
+    },
+    "FOOD#23": {
+      "icon": "🥗",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJV_dl1aZFezURMNnXoJFWhDw",
+      "order": 23
+    },
+    "FOOD#24": {
+      "icon": "🍕",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJFxk7tC5FezURX7yjI4KoF5I",
+      "order": 24
+    },
+    "FOOD#25": {
+      "icon": "🌯",
+      "link": "https://www.google.com/maps/place/?q=place_id:ChIJWzFvZNxEezURbyQQNSHcEmA",
+      "order": 25
+    },
+    "CAMPUS_SITE#0": {
+      "icon": "🏫",
+      "link": "https://www.khu.ac.kr/",
+      "order": 0
+    },
+    "CAMPUS_SITE#1": {
+      "icon": "📋",
+      "link": "https://info21.khu.ac.kr/",
+      "order": 1
+    },
+    "CAMPUS_SITE#2": {
+      "icon": "💻",
+      "link": "https://e-campus.khu.ac.kr/",
+      "order": 2
+    },
+    "CAMPUS_SITE#3": {
+      "icon": "📚",
+      "link": "https://lib.khu.ac.kr/",
+      "order": 3
+    },
+    "CAMPUS_SITE#4": {
+      "icon": "🗓️",
+      "link": "https://khu-kr.libcal.com/",
+      "order": 4
+    },
+    "CAMPUS_SITE#5": {
+      "icon": "🏛️",
+      "link": "http://ghaksa.khu.ac.kr/",
+      "order": 5
+    },
+    "CAMPUS_SITE#6": {
+      "icon": "🏠",
+      "link": "https://khucoop.com/",
+      "order": 6
+    },
+    "CAMPUS_SITE#7": {
+      "icon": "🏘️",
+      "link": "https://dorm2.khu.ac.kr/",
+      "order": 7
+    },
+    "CAMPUS_SITE#8": {
+      "icon": "📱",
+      "link": "https://everytime.kr/",
+      "order": 8
+    },
+    "CAMPUS_SITE#9": {
+      "icon": "📸",
+      "link": "https://www.instagram.com/kyunghee_university/",
+      "order": 9
+    },
+    "HUMANITIES#0": {
+      "icon": "📋",
+      "link": null,
+      "order": 0
+    },
+    "HUMANITIES#1": {
+      "icon": "✍️",
+      "link": null,
+      "order": 1
+    },
+    "HUMANITIES#2": {
+      "icon": "🌍",
+      "link": null,
+      "order": 2
+    },
+    "HUMANITIES#3": {
+      "icon": "📊",
+      "link": null,
+      "order": 3
+    },
+    "HUMANITIES#4": {
+      "icon": "⚠️",
+      "link": null,
+      "order": 4
+    }
+  }
+}

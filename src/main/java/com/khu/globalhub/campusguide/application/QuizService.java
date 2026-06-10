@@ -1,13 +1,17 @@
 package com.khu.globalhub.campusguide.application;
 
+import com.khu.globalhub.campusguide.presentation.dto.AdminQuizQuestionResponse;
 import com.khu.globalhub.campusguide.presentation.dto.MyQuizResultResponse;
 import com.khu.globalhub.campusguide.presentation.dto.QuizQuestionResponse;
 import com.khu.globalhub.campusguide.presentation.dto.QuizSubmitRequest;
 import com.khu.globalhub.campusguide.presentation.dto.QuizSubmitResponse;
 import com.khu.globalhub.campusguide.domain.QuizQuestion;
+import com.khu.globalhub.campusguide.domain.QuizQuestionTranslation;
 import com.khu.globalhub.campusguide.domain.QuizResult;
 import com.khu.globalhub.campusguide.infrastructure.QuizQuestionRepository;
+import com.khu.globalhub.campusguide.infrastructure.QuizQuestionTranslationRepository;
 import com.khu.globalhub.campusguide.infrastructure.QuizResultRepository;
+import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.extevent.campusguide.QuizCompletedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,23 +30,63 @@ import java.util.stream.Collectors;
 public class QuizService {
 
     private final QuizQuestionRepository questionRepository;
+    private final QuizQuestionTranslationRepository translationRepository;
     private final QuizResultRepository resultRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    /** 전체 문제 조회 (정답 미포함). 카테고리 필터 선택 가능. */
-    public List<QuizQuestionResponse> getQuestions(String category) {
+    /**
+     * 전체 문제 조회 (정답 미포함). 카테고리 필터 선택 가능.
+     * 문항 텍스트는 요청 언어 번역 행으로 조립(없으면 KO → 첫 행 폴백).
+     */
+    public List<QuizQuestionResponse> getQuestions(String category, Language language) {
         List<QuizQuestion> questions = (category != null && !category.isBlank())
                 ? questionRepository.findByCategory(category)
                 : questionRepository.findAll();
-        return questions.stream().map(QuizQuestionResponse::from).toList();
+
+        Map<Long, List<QuizQuestionTranslation>> byQuestion = translationsByQuestion(
+                questions.stream().map(QuizQuestion::getId).toList());
+
+        return questions.stream().map(q -> {
+            QuizQuestionTranslation picked = pick(byQuestion.getOrDefault(q.getId(), List.of()), language);
+            String question = picked != null ? picked.getQuestion() : "";
+            List<String> options = picked != null ? QuizOptionsCodec.deserialize(picked.getOptionsJson()) : List.of();
+            return new QuizQuestionResponse(q.getId(), q.getCategory(), question, options);
+        }).toList();
     }
 
-    /** 답안 제출 → 채점 → QuizResult 저장 → Profile.quizScore 갱신. */
+    /**
+     * 관리자 전용 문항 조회 (정답 answerIndex + 해설 explanation 포함).
+     * 수정 폼 프리필용 — 공개 {@link #getQuestions}와 달리 정답/해설을 내려준다 (AdminGuard 뒤에서만 호출).
+     */
+    public List<AdminQuizQuestionResponse> getQuestionsForAdmin(String category, Language language) {
+        List<QuizQuestion> questions = (category != null && !category.isBlank())
+                ? questionRepository.findByCategory(category)
+                : questionRepository.findAll();
+
+        Map<Long, List<QuizQuestionTranslation>> byQuestion = translationsByQuestion(
+                questions.stream().map(QuizQuestion::getId).toList());
+
+        return questions.stream().map(q -> {
+            QuizQuestionTranslation picked = pick(byQuestion.getOrDefault(q.getId(), List.of()), language);
+            String question = picked != null ? picked.getQuestion() : "";
+            List<String> options = picked != null ? QuizOptionsCodec.deserialize(picked.getOptionsJson()) : List.of();
+            String explanation = picked != null ? picked.getExplanation() : "";
+            return new AdminQuizQuestionResponse(
+                    q.getId(), q.getCategory(), question, options, q.getAnswerIndex(), explanation);
+        }).toList();
+    }
+
+    /** 답안 제출 → 채점(answerIndex 기준) → QuizResult 저장 → Profile.quizScore 갱신. */
     @Transactional
     public QuizSubmitResponse submitQuiz(Long memberId, QuizSubmitRequest request) {
-        Map<Long, QuizQuestion> questionMap = questionRepository
-                .findAllById(request.answers().stream().map(QuizSubmitRequest.QuizAnswerItem::questionId).toList())
+        List<Long> questionIds = request.answers().stream()
+                .map(QuizSubmitRequest.QuizAnswerItem::questionId).toList();
+        Map<Long, QuizQuestion> questionMap = questionRepository.findAllById(questionIds)
                 .stream().collect(Collectors.toMap(QuizQuestion::getId, q -> q));
+
+        // 해설(explanation)은 요청 언어 번역 행에서 (없으면 KO 폴백)
+        Language language = request.language() != null ? request.language() : Language.KO;
+        Map<Long, List<QuizQuestionTranslation>> byQuestion = translationsByQuestion(questionIds);
 
         List<QuizSubmitResponse.QuizAnswerResult> results = new ArrayList<>();
         int correctCount = 0;
@@ -53,8 +98,11 @@ public class QuizService {
             boolean correct = question.getAnswerIndex() == answer.selectedOption();
             if (correct) correctCount++;
 
+            QuizQuestionTranslation tr = pick(byQuestion.getOrDefault(question.getId(), List.of()), language);
+            String explanation = tr != null ? tr.getExplanation() : null;
+
             results.add(new QuizSubmitResponse.QuizAnswerResult(
-                    question.getId(), correct, question.getAnswerIndex(), question.getExplanation()
+                    question.getId(), correct, question.getAnswerIndex(), explanation
             ));
         }
 
@@ -85,5 +133,20 @@ public class QuizService {
         return resultRepository.findTopByMemberIdOrderByScoreDesc(memberId)
                 .map(QuizResult::getScore)
                 .orElse(0.0);
+    }
+
+    /** 여러 문항의 번역 행을 한 번에 조회 후 questionId로 그룹핑 (N+1 방지). */
+    private Map<Long, List<QuizQuestionTranslation>> translationsByQuestion(List<Long> questionIds) {
+        if (questionIds.isEmpty()) return Map.of();
+        return translationRepository.findByQuestionIdIn(questionIds).stream()
+                .collect(Collectors.groupingBy(QuizQuestionTranslation::getQuestionId));
+    }
+
+    /** 요청 언어 → KO → 첫 행(원문) 순으로 번역 행 선택. */
+    private QuizQuestionTranslation pick(List<QuizQuestionTranslation> trs, Language language) {
+        return trs.stream().filter(t -> t.getLanguage() == language).findFirst()
+                .or(() -> trs.stream().filter(t -> t.getLanguage() == Language.KO).findFirst())
+                .or(() -> trs.stream().min(Comparator.comparing(QuizQuestionTranslation::getId)))
+                .orElse(null);
     }
 }

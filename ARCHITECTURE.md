@@ -160,6 +160,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 
 ### 3-11. 퀴즈 (campusguide)
 - 응시 채점 후 `QuizResult` 저장 + `QuizCompletedEvent(memberId, score)` 발행 → profile이 최고점수(quizScore) 갱신. (campusguide는 profile을 모름)
+- **다국어 DB(V16)**: `QuizQuestion`은 메타(category·answerIndex)만 보유, 텍스트(question·options·explanation)는 `QuizQuestionTranslation`(language enum, options는 JSON 직렬화 문자열)으로 분리 — 게시판식 사전번역. 관리자 생성/수정 시 KO 원문 동기 저장 + `QuizTranslationWriter @Async`로 나머지 5개 언어 번역(질문 1+보기 N+해설 1을 한 번에 보내 인덱스로 분해). 조회는 `?language=`(요청언어→KO→첫행 폴백). 채점은 answerIndex 기준이라 언어 무관.
 
 ### 3-12. 비밀번호 재설정 (identity)
 - `forgot-password`: 이메일 인증된 계정만 코드 발송(10분). `reset-password`: 코드 검증 후 적용, 성공 시 refreshToken 무효화(전 기기 로그아웃).
@@ -190,6 +191,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
   | `V11__create_course_review.sql` | `lectures` + `course_reviews` 테이블 생성 (강의평) |
   | `V12__add_course_review_indicators.sql` | `course_reviews`에 수업지표 5종 컬럼 추가 (attendance_type/presentation_freq/group_work_freq/assignment_freq/korean_usage, 모두 nullable) |
   | `V13__create_course_review_translation.sql` | `course_review_translations` 생성 (강의평 6개 언어 사전번역 — 게시판식 번역 시스템) |
+  | `V16__quiz_multilang.sql` | `quiz_question_translations` 생성 + 기존 문항(question/explanation)·`quiz_options`를 KO 번역행으로 이관 후 `quiz_questions.question/explanation`·`quiz_options` 제거 (퀴즈 다국어 전환) |
 - 스키마 변경은 **반드시 새 Flyway 마이그레이션**으로. 운영 적용 전 **RDS 스냅샷** 필수.
 - `@ManyToOne Member` → `Long memberId`는 매핑 컬럼(`*_id`) 동일 → 스키마 무변경(기존 데이터 그대로). DB FK 제약 유지.
 
@@ -260,7 +262,14 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 > DM 목록의 마지막 메시지가 이미지/파일 전용(content 없음)이면 `📎`로 미리보기. 채팅방은 상대 프로필(헤더 이름·아바타 + 받은 메시지 아바타)을 `GET /members/{partnerId}`로 표시.
 
 ### Quiz(campusguide) — `/api/quiz`
-| GET /questions · POST /submit · GET /results/me · GET /score/me | 문항/제출/내 기록/최고점수 |
+| GET /questions?language=KO · POST /submit · GET /results/me · GET /score/me | 문항(요청언어 번역)/제출/내 기록/최고점수 |
+
+### Admin Quiz(campusguide) — `/api/admin/quiz/questions` (AdminGuard)
+| Method | Path | 설명 |
+|--------|------|------|
+| POST | / | 퀴즈 문항 생성 (category·answerIndex·KO question/options/explanation → 원문 저장 + 6개 언어 비동기 번역) |
+| PUT | /{questionId} | 퀴즈 문항 수정 (메타 갱신 + 원문 upsert + 재번역) |
+| DELETE | /{questionId} | 퀴즈 문항 삭제 (번역행 cascade) |
 
 ### Translation — `/api/translate`
 | Method | Path | 설명 |

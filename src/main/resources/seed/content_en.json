@@ -1,0 +1,473 @@
+{
+  "quiz": {
+    "1": {
+      "question": "Why must freshmen register for courses only on a PC?",
+      "options": [
+        "Because the app crashes often",
+        "Because they didn't add desired courses to their wishlist in advance",
+        "Because school rules require freshmen to use a PC",
+        "Because the mobile app is only for 2nd-year students and above"
+      ],
+      "explanation": "Freshmen haven't done the advance wishlist step, so they can only register on a PC."
+    },
+    "2": {
+      "question": "Which tool is recommended for checking the exact timing of course registration?",
+      "options": [
+        "Naver Clock",
+        "Windows built-in clock",
+        "Navyism",
+        "Kakao Clock"
+      ],
+      "explanation": "Use Navyism (milliseconds ON, date OFF). A 0.001-second difference can mean a gap of hundreds of places in line."
+    },
+    "3": {
+      "question": "Which key should you never press during course registration?",
+      "options": [
+        "Enter",
+        "Tab",
+        "ESC",
+        "F5"
+      ],
+      "explanation": "F5 (refresh) is strictly forbidden. Mashing ESC about 1,000 times resets your entire registration."
+    },
+    "4": {
+      "question": "When the confirmation popup appears, which key do you use to close it and register the next course?",
+      "options": [
+        "Enter",
+        "ESC",
+        "Delete",
+        "Space"
+      ],
+      "explanation": "Close the confirmation popup with ESC and immediately register the next course code."
+    },
+    "5": {
+      "question": "Around what time does the cancellation-delay system take effect?",
+      "options": [
+        "10:00",
+        "11:00",
+        "11:30",
+        "12:00"
+      ],
+      "explanation": "The cancellation-delay system kicks in around 11:30, so a dropped seat can be claimed after a set delay."
+    },
+    "6": {
+      "question": "Using the Credit Save System, what's the maximum number of credits you can register for next semester?",
+      "options": [
+        "18 credits",
+        "19 credits",
+        "20 credits",
+        "21 credits"
+      ],
+      "explanation": "If you're short on credits with no F grades, the Credit Save System lets you register for up to 21 credits next semester."
+    },
+    "7": {
+      "question": "How do you ride the bus for free within the KHU campus section?",
+      "options": [
+        "Show your student ID to the driver",
+        "Don't tap your card",
+        "Get a coupon from an app",
+        "Tell the driver you're a student"
+      ],
+      "explanation": "The on-campus section is free as long as you don't tap your card."
+    },
+    "8": {
+      "question": "Which stop do you board the 1550-1 bus at when heading toward Gangnam?",
+      "options": [
+        "Jeonggeon (Kyung Hee University)",
+        "Yeongtong Station Exit 8",
+        "Front Gate (KHU Front Gate)",
+        "In front of the student union building"
+      ],
+      "explanation": "Toward Gangnam → Front Gate (KHU Front Gate stop); toward Hanshin Univ. → Jeonggeon (Kyung Hee University stop)."
+    },
+    "9": {
+      "question": "What's special about the G5100 bus?",
+      "options": [
+        "It has no free on-campus section",
+        "It's a double-decker bus",
+        "It's an M-Bus (Metropolitan Express)",
+        "It doesn't start from KHU"
+      ],
+      "explanation": "The G5100 is a double-decker bus bound for Gangnam."
+    },
+    "10": {
+      "question": "About how many minutes is the walk from Yeongtong Station to the KHU Front Gate?",
+      "options": [
+        "5 minutes",
+        "10 minutes",
+        "15 minutes",
+        "25 minutes"
+      ],
+      "explanation": "It's about a 15-minute walk from Yeongtong Station to the school's front gate."
+    },
+    "11": {
+      "question": "When you're about to be late, what's the fastest way to get from Yeongtong Station to campus?",
+      "options": [
+        "Exit 6, bus 310",
+        "Exit 6, bus 900",
+        "Exit 8, red bus (paid)",
+        "On foot"
+      ],
+      "explanation": "When you're in a rush, the fastest option is the red bus (express seated bus) from Exit 8. Note that a fare applies."
+    },
+    "12": {
+      "question": "Which restaurant is famous for its value-for-money lunch special (₩6,900)?",
+      "options": [
+        "Sadamson Mandu",
+        "Cheonbohyeon",
+        "Budaetongnyeong",
+        "Babeunhwa"
+      ],
+      "explanation": "Cheonbohyeon's yukhoe bibimbap + brisket doenjang stew lunch special for ₩6,900 is famous."
+    },
+    "13": {
+      "question": "Which restaurant has a solid reputation as a malatang spot?",
+      "options": [
+        "Genko",
+        "Yaensibu",
+        "Buta Sensei",
+        "Kujira"
+      ],
+      "explanation": "Yaensibu is a go-to malatang spot, and its malatang + egg fried rice combo is especially popular."
+    },
+    "14": {
+      "question": "Which restaurant offers unlimited rice refills?",
+      "options": [
+        "Sadamson Mandu",
+        "Jeonju Bonga",
+        "Budaetongnyeong",
+        "Cheongjinok"
+      ],
+      "explanation": "Budaetongnyeong offers unlimited rice refills."
+    },
+    "15": {
+      "question": "What is the only tendon specialist in Yeongtong?",
+      "options": [
+        "Mimikatsu",
+        "Buta Sensei",
+        "Kujira",
+        "Genko"
+      ],
+      "explanation": "Kujira is the only tendon specialist in Yeongtong."
+    },
+    "16": {
+      "question": "Which site handles course registration, grade lookup, and the academic calendar all in one?",
+      "options": [
+        "e-Campus",
+        "Info21",
+        "KHU official website",
+        "Everytime"
+      ],
+      "explanation": "Info21 (info21.khu.ac.kr) manages academic affairs overall, including course registration, grades, and the academic calendar."
+    },
+    "17": {
+      "question": "Which site lets you book group study rooms online?",
+      "options": [
+        "Info21",
+        "lib.khu.ac.kr",
+        "khu-kr.libcal.com",
+        "khucoop.com"
+      ],
+      "explanation": "Study room reservations are made at khu-kr.libcal.com."
+    },
+    "18": {
+      "question": "Which site provides hometown bus reservations and student cafeteria info?",
+      "options": [
+        "Info21",
+        "Everytime",
+        "Co-op (khucoop.com)",
+        "e-Campus"
+      ],
+      "explanation": "At the co-op (khucoop.com) you can reserve the hometown bus and check store and cafeteria info."
+    },
+    "19": {
+      "question": "Which site is for administrative tasks like taking leave, returning to school, and enrollment changes?",
+      "options": [
+        "Info21",
+        "Academic Affairs Office (ghaksa.khu.ac.kr)",
+        "Dormitory (dorm2.khu.ac.kr)",
+        "e-Campus"
+      ],
+      "explanation": "The Academic Affairs Office (ghaksa.khu.ac.kr) handles leave of absence, returning to school, enrollment changes, and the like."
+    },
+    "20": {
+      "question": "How many required-course credits do 2024 entrants need?",
+      "options": [
+        "12 credits",
+        "15 credits",
+        "17 credits",
+        "20 credits"
+      ],
+      "explanation": "Required courses: Exploring Human Values (3) + The World and Citizens (3) + From the Big Bang to Civilization (3) + Reflection and Expression (3) + Thematic Research (3) + College English (2) = 17 credits."
+    },
+    "21": {
+      "question": "What is the prerequisite course for taking 'Thematic Research'?",
+      "options": [
+        "The World and Citizens",
+        "Exploring Human Values",
+        "Reflection and Expression",
+        "College English"
+      ],
+      "explanation": "'Reflection and Expression' is a 1st-year requirement and the prerequisite for 'Thematic Research.'"
+    },
+    "22": {
+      "question": "For the distribution requirement, in at least how many of the 5 areas must you complete courses?",
+      "options": [
+        "1 area",
+        "2 areas",
+        "3 areas",
+        "All 5 areas"
+      ],
+      "explanation": "You must choose at least 3 of the 5 areas and complete at least 9 credits."
+    },
+    "23": {
+      "question": "What's the maximum general-education credits recognized for International Campus students?",
+      "options": [
+        "29 credits",
+        "40 credits",
+        "50 credits",
+        "56 credits"
+      ],
+      "explanation": "The International Campus recognizes up to 50 general-education credits (Seoul Campus allows 56)."
+    }
+  },
+  "guideCategories": {
+    "COURSE_REG": {
+      "title": "Course Registration"
+    },
+    "TRANSPORT": {
+      "title": "Transportation"
+    },
+    "FOOD": {
+      "title": "Restaurants"
+    },
+    "CAMPUS_SITE": {
+      "title": "Campus Websites"
+    },
+    "HUMANITIES": {
+      "title": "Humanitas General Education"
+    }
+  },
+  "guideTips": {
+    "COURSE_REG#0": {
+      "title": "Freshmen Can Only Register on a PC",
+      "content": "You can register for courses using either the mobile app or the PC website. However, since freshmen haven't done the pre-registration wishlist (adding desired/backup courses in advance), they can only register through the PC website."
+    },
+    "COURSE_REG#1": {
+      "title": "Where to Register: Home vs. PC Café",
+      "content": "Your computer's specs barely affect the outcome. Your entry timing and how fast your hands move decide 95% of the result.\n\n• Home PC: fine unless it's seriously outdated\n• PC café: arrive 1 hour early — 30 minutes can be cutting it close\n\nIn reality, plenty of people have gotten every course they wanted on a campus work-study computer, while others have struck out completely on a high-end gaming PC."
+    },
+    "COURSE_REG#2": {
+      "title": "Set Up 3 Windows + a Notepad",
+      "content": "Get 3 windows ready:\n① Navyism server time (search \"Navyism\" on Naver, milliseconds ON / date OFF)\n② Notepad — your list of course codes (strip the hyphens, put the most competitive classes on top, prepare backup codes)\n③ The course registration site\n\n⚠️ Don't use other time tools like the Naver clock.\n💡 For general-education electives, always pick professors with good lecture reviews. The difference between professors is huge."
+    },
+    "COURSE_REG#3": {
+      "title": "PC Setup Checklist",
+      "content": "Settings to finish before registration:\n• Chrome: right-click → run as administrator\n• Popups: Chrome settings → Popups and redirects → Allow\n• Close all background apps\n• Pause your antivirus software\n• Navyism: date OFF, milliseconds ON\n• Always confirm the server time matches\n• Auto-logout after 10 minutes of inactivity → refresh the page periodically\n• Never press F5\n\n💡 A 0.001-second difference can mean a gap of hundreds to thousands of places in line."
+    },
+    "COURSE_REG#4": {
+      "title": "Step-by-Step on the Day",
+      "content": "The most important thing is not to panic. Stay calm:\n\n① Copy the top course code from your notepad in advance\n② Enter the registration site\n③ Paste the code into the search box (top right)\n④ Click the register button (left side of the screen)\n⑤ When the confirmation popup appears, close it with the ESC key\n⑥ Copy the next course code and repeat\n\n⚠️ Be careful about mashing ESC — it can trigger an anti-macro popup\n⚠️ Hitting ESC about 1,000 times resets your entire registration!"
+    },
+    "COURSE_REG#5": {
+      "title": "After a Clean Sweep",
+      "content": "• If all the lecture reviews look good, just call it done\n• If one of your professors seems only so-so, keep an eye on the remaining seat count and try to swap in a better class\n\n💡 Online classes are managed with a \"section split\" system, where admins release extra openings at staggered times. Even if you missed out, don't give up — keep checking. Sometimes 10 seats suddenly open up 10 minutes later."
+    },
+    "COURSE_REG#6": {
+      "title": "If You Missed Some Courses",
+      "content": "① Calmly try registering with your backup course codes\n② Freshman classes have relatively plenty of seats — it's rare for a workable timetable to be impossible\n③ Keep the site open until at least noon and keep checking for remaining openings\n\n💡 Cancellation-delay system: kicks in around 11:30. Even when another student drops a course, the seat only becomes available after a set delay — a chance to grab one of the few open spots.\n💡 Most required freshman courses are also offered in the seasonal (winter/summer) sessions."
+    },
+    "COURSE_REG#7": {
+      "title": "Add/Drop Period (Mar 4–8)",
+      "content": "Mar 4, 10:30 ~ Mar 8 (Fri): you can add courses you missed or drop courses.\n\n• Major courses (2nd year and up): professor can let you in at their discretion ✅\n• Major foundation courses: practically impossible — check open seats yourself ❌\n• Electives: practically impossible — check open seats yourself ❌\n\n⚠️ Not completing your major foundation courses can limit your eligibility for the academic merit scholarship!\n💡 Popular classes (4.0+ stars) almost never have open seats even during the add/drop period."
+    },
+    "COURSE_REG#8": {
+      "title": "Credit Save System",
+      "content": "A last resort you can use if you're unavoidably short on credits:\n• If the credits you earn this semester fall below the standard, you can register for up to 21 credits (3 extra) next semester\n• Conditions: no F grades, and you can save up to 3 credits\n\nCheck the school's information board for the detailed conditions."
+    },
+    "TRANSPORT#0": {
+      "title": "Free Rides Within Campus",
+      "content": "The following buses are free within campus:\n9 / 7000 / 5100 / 1112 / M5107 / 1560\n\n• Campus → outside: free up to Jeonggeon (Kyung Hee University stop)\n• Outside → campus: free from the Front Gate (KHU Front Gate stop)\n• How: just don't tap your card\n\n💡 Be sure to say \"Thank you~\" to the driver when you board!\n⚠️ A fare is charged if you board before the Front Gate or travel past Jeonggeon."
+    },
+    "TRANSPORT#1": {
+      "title": "Red Express Buses to Seoul",
+      "content": "Express service with no stops in between:\n\n• 7000 → Sadang\n• 5100 → Gangnam\n• 1112 → Jamsil, Guui (near Konkuk Univ.)\n• 1560 → Gangnam\n• G5100 → Gangnam 🚌 double-decker bus\n\nTravel time: about 1 hour (longer during rush hour)\n⚠️ No standing room — if there are no seats, take the next bus\n💡 Most start from KHU → relatively easy to get a seat"
+    },
+    "TRANSPORT#2": {
+      "title": "1550-1: Mind Your Direction",
+      "content": "People often board in the wrong direction!\n\n• Toward Gangnam → Front Gate (KHU Front Gate stop)\n• Toward Hanshin Univ. → Jeonggeon (Kyung Hee University stop)\n\nThe bus often fills up."
+    },
+    "TRANSPORT#3": {
+      "title": "M5107 — Direct to Downtown Seoul",
+      "content": "M-Bus (Metropolitan Express Bus): KHU ↔ Euljiro · City Hall · Seoul Station\n• Enters campus, can board for free\n\n💡 If you board before the service start time: the driver may ask you to get off at Jeonggeon and re-board. The card terminal is inactive, so just follow the driver's instructions."
+    },
+    "TRANSPORT#4": {
+      "title": "Yeongtong Station → Campus Tips",
+      "content": "It's about a 15-minute walk from Yeongtong Station to campus.\nTaking the bus is recommended especially for the Electronics/Information College, International College, and Central Library areas.\n\n• Plenty of time and energy: walk to the Front Gate → ride free from the Front Gate\n• In-between on time: Exit 6 → bus 310 or 900 → get off at Jeonggeon and use the underpass\n• Don't want to walk: Exit 6 → wait for bus 9 (intervals between buses)\n• About to be late: Exit 8 → red express bus (fare applies)\n\n⚠️ For buses 310 and 900, you get off at Jeonggeon and have to cross the underpass."
+    },
+    "FOOD#0": {
+      "title": "Sadamson Mandu — Korean Food",
+      "content": "Recommended: dumpling hot pot, fried dumplings\n\nThe dumpling hot pot is so generous that we'd suggest ordering one portion fewer than the number of people in your group. The fried dumplings boast top-tier crispiness too."
+    },
+    "FOOD#1": {
+      "title": "Jwawujigan — Clam Kalguksu",
+      "content": "Recommended: clam kalguksu (knife-cut noodle soup), cold noodles, dumplings\n\nIt's mainly a cold-noodle and dumpling place, but the sheer amount of clams in the clam kalguksu is especially impressive. The spot you crave on a sniffly cold day."
+    },
+    "FOOD#2": {
+      "title": "Cheonbohyeon — ₩6,900 Lunch Special",
+      "content": "Recommended: yukhoe bibimbap + brisket doenjang stew (lunch special)\n\nThe ₩6,900 lunch special is the main draw. Some say the yukhoe bibimbap is even better than at famous meat restaurants."
+    },
+    "FOOD#3": {
+      "title": "Babeunhwa — Best Bang for Your Buck",
+      "content": "Recommended: spicy baby-octopus & bean-sprout rice bowl, fried chicken-skin dumplings\n\nA chain with unbeatable value in the ₩3,500–5,500 range. Highly recommend pairing the octopus rice bowl with a beer. The fried chicken-skin dumplings are a perfect beer snack. Just be ready to wait at weekday lunch."
+    },
+    "FOOD#4": {
+      "title": "Cheongjinok — Spicy Stir-Fried Pork",
+      "content": "Recommended: spicy stir-fried pork\n\nThe spicy stir-fried pork is delicious. Located across the street from Sadamson Mandu."
+    },
+    "FOOD#5": {
+      "title": "Urban Dream — Mackerel & Baby Octopus",
+      "content": "Recommended: lunch-special grilled mackerel, spicy baby octopus\n\nThe price can feel a bit steep, but the taste lives up to it. Reviewers say the side salad that comes with it is nutty and tasty."
+    },
+    "FOOD#6": {
+      "title": "Jeonju Bonga — Tonkatsu & Spicy Pork",
+      "content": "Recommended: tonkatsu, bean-sprout soft-tofu stew, spicy stir-fried pork"
+    },
+    "FOOD#7": {
+      "title": "Budaetongnyeong — Free Rice Refills",
+      "content": "Recommended: snail doenjang stew, dakgalbi (spicy chicken)\n\nUnlimited rice refills. On a really hungry day, two bowls of rice with one stew is no problem."
+    },
+    "FOOD#8": {
+      "title": "Matdon — Fried Rice",
+      "content": "Recommended: fried rice\n\nA meat restaurant with decent value. It has been renovated during a vacation before, so it's worth checking whether it's open after the semester starts."
+    },
+    "FOOD#9": {
+      "title": "Juho Restaurant — Beef Hot Pot",
+      "content": "Recommended: beef hot pot, fried shrimp\n\nIt's mainly a bar, but the beef hot pot is especially good. The bar snacks are high quality across the board."
+    },
+    "FOOD#10": {
+      "title": "Genko — Beef Intestine Rice Bowl",
+      "content": "Recommended: beef-intestine rice bowl (go spicy), Nagasaki ramen, soy-marinated shrimp bowl\n\nThe intestine rice bowl can get rich, so we suggest ordering it spicy. There's a lunch wait, but it's worth it."
+    },
+    "FOOD#11": {
+      "title": "Buta Sensei — Pork Bowl (Butadon)",
+      "content": "Recommended: butadon (pork bowl), oyakodon\n\nThe menu is fairly simple. Opinions are somewhat divided — love it or not."
+    },
+    "FOOD#12": {
+      "title": "Kiwamaruaji — Gyudon (Beef Bowl)",
+      "content": "Recommended: gyudon\n\nThe gyudon alone gets a strong recommendation."
+    },
+    "FOOD#13": {
+      "title": "Kujira — Tendon (Only One in Yeongtong)",
+      "content": "Recommended: tendon (tempura rice bowl)\n\nThe only tendon specialist in Yeongtong. It costs a bit, but the taste is guaranteed. Note that the layout means it can only seat a few people."
+    },
+    "FOOD#14": {
+      "title": "Mimikatsu — Tonkatsu",
+      "content": "Recommended: tonkatsu\n\nDelicious, but it tends to go soggy over time, so we recommend eating it quickly."
+    },
+    "FOOD#15": {
+      "title": "Yaensibu — Malatang",
+      "content": "Recommended: malatang, mala xiang guo, guobaorou (sweet & sour pork), egg fried rice\n\nA well-established go-to for malatang. The malatang + egg fried rice combo is outstanding."
+    },
+    "FOOD#16": {
+      "title": "Jjamachina — Kimchi Pork Belly Bowl",
+      "content": "Recommended: kimchi pork belly rice bowl"
+    },
+    "FOOD#17": {
+      "title": "Dugaji Tteokbokki — Rosé",
+      "content": "Recommended: rosé tteokbokki, fried chicken skin, spicy pork cartilage\n\nThe rosé tteokbokki is the top pick. It takes a while to cook, but the taste is worth the wait."
+    },
+    "FOOD#18": {
+      "title": "Bunsik Nara Gimbap Maeul",
+      "content": "Recommended: fish-roe rice bowl (albap), curry kalguksu"
+    },
+    "FOOD#19": {
+      "title": "Rocobling — Macarons",
+      "content": "Recommended: macarons (all flavors)\n\nKnown as a top macaron spot in Suwon. Check the menu on Instagram."
+    },
+    "FOOD#20": {
+      "title": "Cheongchun Orchard — Fruit Specialist",
+      "content": "Recommended: seasonal fruit cup, banana-almond fresh juice\n\nA fruit shop especially recommended for dorm students. Be sure to collect your stamp coupons. The owner is famous for being kind."
+    },
+    "FOOD#21": {
+      "title": "The Master Coffee — Hidden Café",
+      "content": "Recommended: chocolate cake, egg tart (warmed up), Americano\n\nA somewhat hidden café you'll find if you head back from Yaensibu toward the 7-Eleven. The dense, sweet chocolate cake is the signature."
+    },
+    "FOOD#22": {
+      "title": "Snow White — Patbingsu",
+      "content": "Recommended: red-bean bingsu (a 2-person size is perfect to split among 4)\n\nA franchise bingsu shop. The value highlight: 4 people can share 2 servings and still get full. Note that it's not the soft snowflake-ice style."
+    },
+    "FOOD#23": {
+      "title": "Fuoco — Salad",
+      "content": "Recommended: kaya jam sandwich, egg salad\n\nA salad specialist. Generous portions and tasty. Check Instagram for the menu."
+    },
+    "FOOD#24": {
+      "title": "Solpi — Thin-Crust Pizza",
+      "content": "Recommended: thin-crust pizza, side dishes\n\nLocated in the semi-basement behind Paris Baguette. Highly recommended if you like thin crust. The interior has been renovated. Perfect for a pizza-and-beer combo."
+    },
+    "FOOD#25": {
+      "title": "Maximo Burrito — Burritos",
+      "content": "Recommended: burrito\n\nYeongtong's go-to burrito spot — some say it's even better than Dos Mas."
+    },
+    "CAMPUS_SITE#0": {
+      "title": "KHU Official Website",
+      "content": "Announcements and general university information\nkhu.ac.kr"
+    },
+    "CAMPUS_SITE#1": {
+      "title": "Info21 — Registration, Grades, Academics",
+      "content": "Manages all academic affairs — course registration, grade lookup, academic calendar, and more\ninfo21.khu.ac.kr"
+    },
+    "CAMPUS_SITE#2": {
+      "title": "e-Campus — Lectures, Assignments, Attendance",
+      "content": "Take online lectures, submit assignments, manage attendance\ne-campus.khu.ac.kr"
+    },
+    "CAMPUS_SITE#3": {
+      "title": "International Campus Central Library",
+      "content": "Book search, reading room access\nlib.khu.ac.kr"
+    },
+    "CAMPUS_SITE#4": {
+      "title": "Study Room Booking",
+      "content": "Book group study rooms online\nkhu-kr.libcal.com"
+    },
+    "CAMPUS_SITE#5": {
+      "title": "Academic Affairs Office — Leave, Return, Records",
+      "content": "Handles academic administration like leave of absence, returning to school, and enrollment changes\nghaksa.khu.ac.kr"
+    },
+    "CAMPUS_SITE#6": {
+      "title": "Co-op — Cafeteria, Store, Hometown Bus",
+      "content": "Student cafeteria, convenience store, hometown bus reservations, and more\nkhucoop.com"
+    },
+    "CAMPUS_SITE#7": {
+      "title": "International Campus Dormitory",
+      "content": "Dormitory applications and living guide\ndorm2.khu.ac.kr"
+    },
+    "CAMPUS_SITE#8": {
+      "title": "Everytime — Lecture Reviews",
+      "content": "Student community and lecture reviews\nA must-check before building your timetable!\neverytime.kr"
+    },
+    "CAMPUS_SITE#9": {
+      "title": "KHU Official Instagram",
+      "content": "University news and event announcements\n@kyunghee_university"
+    },
+    "HUMANITIES#0": {
+      "title": "Required Courses — 17 Credits",
+      "content": "Required courses for 2024 entrants (17 credits total):\n\n• Exploring Human Values — 3 cr (1st year)\n• The World and Citizens — 3 cr (1st year)\n• From the Big Bang to Civilization — 3 cr (any year)\n• Reflection and Expression — 3 cr (1st-year requirement, prerequisite for Thematic Research)\n• Thematic Research — 3 cr (2nd year)\n• College English — 2 cr (1st year, 3-hour class)\n\nInternational Campus: College English may be replaced with a Korean-language course"
+    },
+    "HUMANITIES#1": {
+      "title": "Reflection & Expression → Prerequisite",
+      "content": "\"Reflection and Expression\" is both a 1st-year required course and a prerequisite for \"Thematic Research.\"\nYou must complete it in your first year to take Thematic Research in your second year."
+    },
+    "HUMANITIES#2": {
+      "title": "Distribution Requirements — 3 of 5 Areas",
+      "content": "Choose at least 3 of the 5 areas and complete at least 9 credits:\n\n① Life·Universe·Humanity\n② Analysis·Reasoning·Logic\n③ Symbol·Culture·Communication\n④ Society·Community·Peace\n⑤ Intelligence·Information·Future\n\nEach course: 3 hours, 3 credits"
+    },
+    "HUMANITIES#3": {
+      "title": "General Education Credits Summary",
+      "content": "• Required courses: 17 credits\n• Distribution courses: 9+ credits\n• Free-elective courses: 3+ credits\n→ Minimum total: 29 credits\n\nMaximum recognized:\n• Seoul Campus: 56 credits\n• International Campus: 50 credits\n\nInternational Campus free electives: \"Major Exploration & Entrepreneurship Seminar\" required (waived for international and transfer students)"
+    },
+    "HUMANITIES#4": {
+      "title": "Note for Pre-2024 Entrants",
+      "content": "Students who entered before the 2023 academic year must separately check the \"Transitional Measures Following the Curriculum Reform.\"\n\nGeneral transfer students: earning 9+ credits in distribution courses (regardless of area) counts as fulfilling the distribution requirement."
+    }
+  }
+}
