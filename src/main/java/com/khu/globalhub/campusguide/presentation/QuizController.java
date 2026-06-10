@@ -6,6 +6,7 @@ import com.khu.globalhub.campusguide.presentation.dto.QuizSubmitRequest;
 import com.khu.globalhub.campusguide.presentation.dto.QuizSubmitResponse;
 import com.khu.globalhub.campusguide.application.QuizService;
 import com.khu.globalhub.shared.common.ApiResponse;
+import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,13 @@ public class QuizController {
 
     private final QuizService quizService;
 
-    /** 문제 목록 조회. category 파라미터로 필터링 가능 (생략 시 전체). */
+    /** 문제 목록 조회. category로 필터링 가능(생략 시 전체), language로 번역 선택(기본 KO). */
     @GetMapping("/questions")
     public ResponseEntity<ApiResponse<List<QuizQuestionResponse>>> getQuestions(
-            @RequestParam(required = false) String category
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "KO") Language language
     ) {
-        return ResponseEntity.ok(ApiResponse.ok(quizService.getQuestions(category)));
+        return ResponseEntity.ok(ApiResponse.ok(quizService.getQuestions(category, language)));
     }
 
     /** 답안 제출 → 채점 결과 반환. */

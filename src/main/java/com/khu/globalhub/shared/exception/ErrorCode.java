@@ -66,6 +66,10 @@ public enum ErrorCode {
     // ── Quiz ──────────────────────────────────────────
     QUIZ_QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 퀴즈 문항입니다."),
 
+    // ── Guide (학사 가이드) ────────────────────────────
+    GUIDE_CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 가이드 카테고리입니다."),
+    GUIDE_TIP_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 가이드 팁입니다."),
+
     // ── Translation ───────────────────────────────────
     TRANSLATION_FAILED(HttpStatus.BAD_GATEWAY, "번역 서비스 호출에 실패했습니다."),
 

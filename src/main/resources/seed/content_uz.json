@@ -1,0 +1,463 @@
+{
+  "quiz": {
+    "1": {
+      "question": "Nega birinchi kurs talabalari kurslarga faqat kompyuterda ro'yxatdan o'tishlari kerak?",
+      "options": [
+        "Chunki ilova tez-tez ishdan chiqadi",
+        "Chunki ular kerakli kurslarni oldindan istaklar ro'yxatiga qo'shmagan",
+        "Chunki maktab qoidalari birinchi kurs talabalaridan kompyuterdan foydalanishni talab qiladi",
+        "Chunki mobil ilova faqat 2-kurs va undan yuqori talabalar uchun"
+      ],
+      "explanation": "Birinchi kurs talabalari oldindan istaklar ro'yxatini tuzish bosqichini bajarmagan, shuning uchun ular faqat kompyuterda ro'yxatdan o'tishlari mumkin."
+    },
+    "2": {
+      "question": "Kursga ro'yxatdan o'tishning aniq vaqtini tekshirish uchun qaysi vosita tavsiya etiladi?",
+      "options": [
+        "Naver soati",
+        "Windows'ning o'rnatilgan soati",
+        "Navyism",
+        "Kakao soati"
+      ],
+      "explanation": "Navyism'dan foydalaning (millisekundlar YOQILGAN, sana O'CHIRILGAN). 0.001 soniyalik farq navbatda yuzlab o'rin farqini anglatishi mumkin."
+    },
+    "3": {
+      "question": "Kursga ro'yxatdan o'tish vaqtida qaysi tugmani hech qachon bosmaslik kerak?",
+      "options": [
+        "Enter",
+        "Tab",
+        "ESC",
+        "F5"
+      ],
+      "explanation": "F5 (yangilash) qat'iyan taqiqlanadi. ESC tugmasini taxminan 1,000 marta ketma-ket bosish butun ro'yxatdan o'tishingizni nolga qaytaradi."
+    },
+    "4": {
+      "question": "Tasdiqlash oynasi paydo bo'lganda, uni yopib, keyingi kursga ro'yxatdan o'tish uchun qaysi tugmadan foydalanasiz?",
+      "options": [
+        "Enter",
+        "ESC",
+        "Delete",
+        "Space"
+      ],
+      "explanation": "Tasdiqlash oynasini ESC bilan yoping va darhol keyingi kurs kodini ro'yxatdan o'tkazing."
+    },
+    "5": {
+      "question": "Bekor qilishni kechiktirish tizimi taxminan qaysi vaqtda kuchga kiradi?",
+      "options": [
+        "10:00",
+        "11:00",
+        "11:30",
+        "12:00"
+      ],
+      "explanation": "Bekor qilishni kechiktirish tizimi taxminan 11:30 da ishga tushadi, shuning uchun bo'shagan o'rinni belgilangan kechikishdan keyin egallash mumkin."
+    },
+    "6": {
+      "question": "Kredit saqlash tizimidan foydalanib, keyingi semestrda ro'yxatdan o'tishingiz mumkin bo'lgan maksimal kreditlar soni qancha?",
+      "options": [
+        "18 kredit",
+        "19 kredit",
+        "20 kredit",
+        "21 kredit"
+      ],
+      "explanation": "Agar sizda F baholari bo'lmagan holda kredit yetishmasa, Kredit saqlash tizimi keyingi semestrda 21 kreditgacha ro'yxatdan o'tish imkonini beradi."
+    },
+    "7": {
+      "question": "Kyung Hee universiteti kampusi bo'limida avtobusda qanday qilib bepul yurish mumkin?",
+      "options": [
+        "Haydovchiga talabalik guvohnomangizni ko'rsating",
+        "Kartangizni skanerlamang",
+        "Ilovadan kupon oling",
+        "Haydovchiga talaba ekanligingizni ayting"
+      ],
+      "explanation": "Kampus ichidagi bo'lim, agar kartangizni skanerlamasangiz, bepul."
+    },
+    "8": {
+      "question": "Gangnam tomon ketayotganda 1550-1 avtobusiga qaysi bekatdan chiqasiz?",
+      "options": [
+        "Jeonggeon (Kyung Hee universiteti)",
+        "Yeongtong stansiyasi, 8-chiqish",
+        "Asosiy darvoza (Kyung Hee universiteti asosiy darvozasi)",
+        "Talabalar uyushmasi binosi oldida"
+      ],
+      "explanation": "Gangnam tomon → Asosiy darvoza (Kyung Hee universiteti asosiy darvozasi bekati); Hanshin universiteti tomon → Jeonggeon (Kyung Hee universiteti bekati)."
+    },
+    "9": {
+      "question": "G5100 avtobusining o'ziga xosligi nimada?",
+      "options": [
+        "Uning kampus ichida bepul bo'limi yo'q",
+        "Bu ikki qavatli avtobus",
+        "Bu M-avtobus (Metropolitan Express)",
+        "U Kyung Hee universitetidan boshlanmaydi"
+      ],
+      "explanation": "G5100 — Gangnamga yo'l oluvchi ikki qavatli avtobus."
+    },
+    "10": {
+      "question": "Yeongtong stansiyasidan Kyung Hee universiteti asosiy darvozasigacha piyoda yurish taxminan necha daqiqa?",
+      "options": [
+        "5 daqiqa",
+        "10 daqiqa",
+        "15 daqiqa",
+        "25 daqiqa"
+      ],
+      "explanation": "Yeongtong stansiyasidan maktabning asosiy darvozasigacha taxminan 15 daqiqalik piyoda masofa."
+    },
+    "11": {
+      "question": "Kechikishingizga oz qolganda, Yeongtong stansiyasidan kampusga yetib borishning eng tez yo'li qanday?",
+      "options": [
+        "6-chiqish, 310-avtobus",
+        "6-chiqish, 900-avtobus",
+        "8-chiqish, qizil avtobus (pullik)",
+        "Piyoda"
+      ],
+      "explanation": "Shoshilayotganingizda eng tez variant — 8-chiqishdan qizil avtobus (ekspress o'rindiqli avtobus). E'tibor bering, bunda yo'lkira to'lanadi."
+    },
+    "12": {
+      "question": "Qaysi restoran arzon va sifatli tushlik taomi (6,900 von) bilan mashhur?",
+      "options": [
+        "Sadamson Mandu",
+        "Cheonbohyeon",
+        "Budaetongnyeong",
+        "Babeunhwa"
+      ],
+      "explanation": "Cheonbohyeon restoranining yukhoe bibimbap + ko'krak go'shtli doenjang sho'rvasidan iborat 6,900 vonlik tushlik taomi mashhur."
+    },
+    "13": {
+      "question": "Qaysi restoran malatang taomi joyi sifatida mustahkam obro'ga ega?",
+      "options": [
+        "Genko",
+        "Yaensibu",
+        "Buta Sensei",
+        "Kujira"
+      ],
+      "explanation": "Yaensibu — malatang uchun sevimli joy bo'lib, uning malatang + tuxumli qovurilgan guruch jamlanmasi ayniqsa mashhur."
+    },
+    "14": {
+      "question": "Qaysi restoran cheksiz guruch qo'shimchasini taklif qiladi?",
+      "options": [
+        "Sadamson Mandu",
+        "Jeonju Bonga",
+        "Budaetongnyeong",
+        "Cheongjinok"
+      ],
+      "explanation": "Budaetongnyeong cheksiz guruch qo'shimchasini taklif qiladi."
+    },
+    "15": {
+      "question": "Yeongtongdagi yagona tendon (tempura guruchli kosa) restorani qaysi?",
+      "options": [
+        "Mimikatsu",
+        "Buta Sensei",
+        "Kujira",
+        "Genko"
+      ],
+      "explanation": "Kujira — Yeongtongdagi yagona tendon taomi mutaxassisi."
+    },
+    "16": {
+      "question": "Qaysi sayt kursga ro'yxatdan o'tish, baholarni ko'rish va o'quv jadvalini bir joyda boshqaradi?",
+      "options": [
+        "e-Campus",
+        "Info21",
+        "Kyung Hee universiteti rasmiy veb-sayti",
+        "Everytime"
+      ],
+      "explanation": "Info21 (info21.khu.ac.kr) kursga ro'yxatdan o'tish, baholar va o'quv jadvalini o'z ichiga olgan butun akademik ishlarni boshqaradi."
+    },
+    "17": {
+      "question": "Qaysi sayt guruhli o'quv xonalarini onlayn band qilish imkonini beradi?",
+      "options": [
+        "Info21",
+        "lib.khu.ac.kr",
+        "khu-kr.libcal.com",
+        "khucoop.com"
+      ],
+      "explanation": "O'quv xonalarini band qilish khu-kr.libcal.com saytida amalga oshiriladi."
+    },
+    "18": {
+      "question": "Qaysi sayt vatanga qaytish avtobusini band qilish va talabalar oshxonasi ma'lumotlarini taqdim etadi?",
+      "options": [
+        "Info21",
+        "Everytime",
+        "Kooperativ (khucoop.com)",
+        "e-Campus"
+      ],
+      "explanation": "Kooperativda (khucoop.com) vatanga qaytish avtobusini band qilishingiz va do'kon hamda oshxona ma'lumotlarini tekshirishingiz mumkin."
+    },
+    "19": {
+      "question": "Qaysi sayt ta'tilga chiqish, o'qishga qaytish va ro'yxatdagi o'zgarishlar kabi ma'muriy ishlar uchun mo'ljallangan?",
+      "options": [
+        "Info21",
+        "Akademik ishlar bo'limi (ghaksa.khu.ac.kr)",
+        "Yotoqxona (dorm2.khu.ac.kr)",
+        "e-Campus"
+      ],
+      "explanation": "Akademik ishlar bo'limi (ghaksa.khu.ac.kr) ta'tilga chiqish, o'qishga qaytish, ro'yxatdagi o'zgarishlar va shu kabilarni boshqaradi."
+    },
+    "20": {
+      "question": "2024-yilda qabul qilinganlarga necha kredit majburiy kurs kerak?",
+      "options": [
+        "12 kredit",
+        "15 kredit",
+        "17 kredit",
+        "20 kredit"
+      ],
+      "explanation": "Majburiy kurslar: Insoniy qadriyatlarni o'rganish (3) + Dunyo va fuqarolar (3) + Katta portlashdan sivilizatsiyagacha (3) + Mulohaza va ifoda (3) + Tematik tadqiqot (3) + Kollej ingliz tili (2) = 17 kredit."
+    },
+    "21": {
+      "question": "'Tematik tadqiqot' kursini olish uchun zaruriy (oldingi) kurs qaysi?",
+      "options": [
+        "Dunyo va fuqarolar",
+        "Insoniy qadriyatlarni o'rganish",
+        "Mulohaza va ifoda",
+        "Kollej ingliz tili"
+      ],
+      "explanation": "'Mulohaza va ifoda' — birinchi kurs majburiy fani va 'Tematik tadqiqot' uchun zaruriy shartdir."
+    },
+    "22": {
+      "question": "Taqsimot talabiga ko'ra, 5 ta sohadan kamida nechtasida kurslarni tugatishingiz kerak?",
+      "options": [
+        "1 ta soha",
+        "2 ta soha",
+        "3 ta soha",
+        "Barcha 5 ta soha"
+      ],
+      "explanation": "Siz 5 ta sohadan kamida 3 tasini tanlashingiz va kamida 9 ta kreditni tugatishingiz kerak."
+    },
+    "23": {
+      "question": "Xalqaro kampus talabalari uchun tan olinadigan maksimal umumiy ta'lim krediti qancha?",
+      "options": [
+        "29 kredit",
+        "40 kredit",
+        "50 kredit",
+        "56 kredit"
+      ],
+      "explanation": "Xalqaro kampus 50 tagacha umumiy ta'lim kreditini tan oladi (Seul kampusi 56 tani ruxsat etadi)."
+    }
+  },
+  "guideCategories": {
+    "COURSE_REG": { "title": "Kursga ro'yxatdan o'tish" },
+    "TRANSPORT": { "title": "Transport" },
+    "FOOD": { "title": "Restoranlar" },
+    "CAMPUS_SITE": { "title": "Kampus veb-saytlari" },
+    "HUMANITIES": { "title": "Humanitas umumiy ta'limi" }
+  },
+  "guideTips": {
+    "COURSE_REG#0": {
+      "title": "Birinchi kurs talabalari faqat kompyuterda ro'yxatdan o'tishi mumkin",
+      "content": "Kurslarga mobil ilova yoki kompyuter veb-sayti orqali ro'yxatdan o'tishingiz mumkin. Biroq, birinchi kurs talabalari oldindan ro'yxatdan o'tish istaklar ro'yxatini (kerakli/zaxira kurslarni oldindan qo'shish) bajarmaganligi sababli, ular faqat kompyuter veb-sayti orqali ro'yxatdan o'tishlari mumkin."
+    },
+    "COURSE_REG#1": {
+      "title": "Qayerda ro'yxatdan o'tish: Uy yoki internet-kafe (PC kafe)",
+      "content": "Kompyuteringizning texnik xususiyatlari natijaga deyarli ta'sir qilmaydi. Kirish vaqtingiz va qo'llaringizning qanchalik tez harakatlanishi natijaning 95% ini hal qiladi.\n\n• Uy kompyuteri: jiddiy eskirgan bo'lmasa, yetarli\n• Internet-kafe: 1 soat oldin yetib boring — 30 daqiqa juda kam bo'lishi mumkin\n\nAslida, ko'p odamlar kampusdagi ish-o'qish kompyuterida o'zlari xohlagan barcha kurslarni olishgan, boshqalar esa yuqori darajadagi o'yin kompyuterida butunlay muvaffaqiyatsizlikka uchragan."
+    },
+    "COURSE_REG#2": {
+      "title": "3 ta oyna + bloknot tayyorlang",
+      "content": "3 ta oynani tayyorlang:\n① Navyism server vaqti (Naverda \"Navyism\" ni qidiring, millisekundlar YOQILGAN / sana O'CHIRILGAN)\n② Bloknot — kurs kodlari ro'yxatingiz (tirelarni olib tashlang, eng raqobatbardosh darslarni tepaga qo'ying, zaxira kodlarni tayyorlang)\n③ Kursga ro'yxatdan o'tish sayti\n\n⚠️ Naver soati kabi boshqa vaqt vositalaridan foydalanmang.\n💡 Umumiy ta'lim tanlov fanlari uchun har doim yaxshi dars sharhlariga ega professorlarni tanlang. Professorlar o'rtasidagi farq juda katta."
+    },
+    "COURSE_REG#3": {
+      "title": "Kompyuterni sozlash ro'yxati",
+      "content": "Ro'yxatdan o'tishdan oldin bajariladigan sozlamalar:\n• Chrome: o'ng tugmani bosing → administrator sifatida ishga tushiring\n• Qalqib chiquvchi oynalar: Chrome sozlamalari → Qalqib chiquvchi oynalar va yo'naltirishlar → Ruxsat berish\n• Barcha fon ilovalarini yoping\n• Antivirus dasturingizni vaqtincha to'xtating\n• Navyism: sana O'CHIRILGAN, millisekundlar YOQILGAN\n• Server vaqti mos kelishini har doim tasdiqlang\n• 10 daqiqa harakatsizlikdan keyin avtomatik chiqish → sahifani vaqti-vaqti bilan yangilang\n• Hech qachon F5 ni bosmang\n\n💡 0.001 soniyalik farq navbatda yuzlab yoki minglab o'rin farqini anglatishi mumkin."
+    },
+    "COURSE_REG#4": {
+      "title": "O'sha kunning bosqichma-bosqich tartibi",
+      "content": "Eng muhimi — vahimaga tushmaslik. Xotirjam bo'ling:\n\n① Bloknotdan eng yuqoridagi kurs kodini oldindan nusxalang\n② Ro'yxatdan o'tish saytiga kiring\n③ Kodni qidiruv oynasiga (yuqori o'ngda) joylashtiring\n④ Ro'yxatdan o'tish tugmasini bosing (ekranning chap tomonida)\n⑤ Tasdiqlash oynasi paydo bo'lganda, uni ESC tugmasi bilan yoping\n⑥ Keyingi kurs kodini nusxalang va takrorlang\n\n⚠️ ESC ni ketma-ket bosishdan ehtiyot bo'ling — bu makroga qarshi qalqib chiquvchi oynani ishga tushirishi mumkin\n⚠️ ESC ni taxminan 1,000 marta bosish butun ro'yxatdan o'tishingizni nolga qaytaradi!"
+    },
+    "COURSE_REG#5": {
+      "title": "Barcha kursni olganingizdan keyin",
+      "content": "• Agar barcha dars sharhlari yaxshi ko'rinsa, shu bilan tugatavering\n• Agar professorlaringizdan biri o'rtacha tuyulsa, qolgan o'rinlar soniga e'tibor bering va yaxshiroq darsga almashtirishga harakat qiling\n\n💡 Onlayn darslar \"bo'limga ajratish\" tizimi orqali boshqariladi, bunda administratorlar qo'shimcha o'rinlarni turli vaqtlarda ochadi. Agar o'tkazib yuborgan bo'lsangiz ham, taslim bo'lmang — tekshirishda davom eting. Ba'zan 10 daqiqadan keyin to'satdan 10 ta o'rin ochiladi."
+    },
+    "COURSE_REG#6": {
+      "title": "Agar ba'zi kurslarni o'tkazib yuborgan bo'lsangiz",
+      "content": "① Zaxira kurs kodlaringiz bilan xotirjam ro'yxatdan o'tishga harakat qiling\n② Birinchi kurs darslarida nisbatan ko'p o'rin bor — ishlaydigan jadval tuzish imkonsiz bo'lishi kam uchraydi\n③ Saytni hech bo'lmaganda tushgacha ochiq qoldiring va qolgan o'rinlarni tekshirishda davom eting\n\n💡 Bekor qilishni kechiktirish tizimi: taxminan 11:30 da ishga tushadi. Boshqa talaba kursdan voz kechganda ham, o'rin faqat belgilangan kechikishdan keyin bo'shaydi — bu kam sonli bo'sh o'rinlardan birini egallash imkoniyatidir.\n💡 Ko'pchilik majburiy birinchi kurs fanlari mavsumiy (qishki/yozgi) semestrlarda ham taklif etiladi."
+    },
+    "COURSE_REG#7": {
+      "title": "Qo'shish/voz kechish davri (4–8 mart)",
+      "content": "4-mart, 10:30 ~ 8-mart (juma): o'tkazib yuborgan kurslaringizni qo'shishingiz yoki kurslardan voz kechishingiz mumkin.\n\n• Mutaxassislik kurslari (2-kurs va undan yuqori): professor o'z xohishiga ko'ra sizni qabul qilishi mumkin ✅\n• Mutaxassislik asos kurslari: amalda imkonsiz — bo'sh o'rinlarni o'zingiz tekshiring ❌\n• Tanlov fanlari: amalda imkonsiz — bo'sh o'rinlarni o'zingiz tekshiring ❌\n\n⚠️ Mutaxassislik asos kurslarini tugatmaslik akademik nufuz stipendiyasiga loyiqligingizni cheklashi mumkin!\n💡 Mashhur darslarda (4.0+ yulduz) qo'shish/voz kechish davrida ham deyarli hech qachon bo'sh o'rin bo'lmaydi."
+    },
+    "COURSE_REG#8": {
+      "title": "Kredit saqlash tizimi",
+      "content": "Agar muqarrar ravishda kredit yetishmasa, foydalanishingiz mumkin bo'lgan oxirgi chora:\n• Agar bu semestrda olgan kreditlaringiz me'yordan past bo'lsa, keyingi semestrda 21 kreditgacha (3 ta qo'shimcha) ro'yxatdan o'tishingiz mumkin\n• Shartlar: F baholari yo'q va siz 3 kreditgacha saqlashingiz mumkin\n\nBatafsil shartlar uchun maktabning axborot taxtasini tekshiring."
+    },
+    "TRANSPORT#0": {
+      "title": "Kampus ichida bepul sayohatlar",
+      "content": "Quyidagi avtobuslar kampus ichida bepul:\n9 / 7000 / 5100 / 1112 / M5107 / 1560\n\n• Kampus → tashqari: Jeonggeongacha (Kyung Hee universiteti bekati) bepul\n• Tashqari → kampus: Asosiy darvozadan (Kyung Hee universiteti asosiy darvozasi bekati) bepul\n• Qanday: shunchaki kartangizni skanerlamang\n\n💡 Avtobusga chiqqaningizda haydovchiga \"Rahmat~\" deyishni unutmang!\n⚠️ Agar Asosiy darvozadan oldin chiqsangiz yoki Jeonggeondan o'tib ketsangiz, yo'lkira olinadi."
+    },
+    "TRANSPORT#1": {
+      "title": "Seulga qatnaydigan qizil ekspress avtobuslar",
+      "content": "Oraliq bekatlarsiz ekspress xizmat:\n\n• 7000 → Sadang\n• 5100 → Gangnam\n• 1112 → Jamsil, Guui (Konkuk universiteti yaqinida)\n• 1560 → Gangnam\n• G5100 → Gangnam 🚌 ikki qavatli avtobus\n\nYo'l vaqti: taxminan 1 soat (tirbandlik vaqtida uzoqroq)\n⚠️ Tik turish joyi yo'q — agar o'rin bo'lmasa, keyingi avtobusga chiqing\n💡 Ko'pchiligi Kyung Hee universitetidan boshlanadi → o'rin olish nisbatan oson"
+    },
+    "TRANSPORT#2": {
+      "title": "1550-1: yo'nalishingizga e'tibor bering",
+      "content": "Odamlar ko'pincha noto'g'ri yo'nalishda avtobusga chiqishadi!\n\n• Gangnam tomon → Asosiy darvoza (Kyung Hee universiteti asosiy darvozasi bekati)\n• Hanshin universiteti tomon → Jeonggeon (Kyung Hee universiteti bekati)\n\nAvtobus ko'pincha to'lib ketadi."
+    },
+    "TRANSPORT#3": {
+      "title": "M5107 — Seul markaziga to'g'ridan-to'g'ri",
+      "content": "M-avtobus (Metropolitan ekspress avtobus): Kyung Hee universiteti ↔ Euljiro · Shahar hokimligi · Seul stansiyasi\n• Kampusga kiradi, bepul chiqish mumkin\n\n💡 Agar xizmat boshlanish vaqtidan oldin chiqsangiz: haydovchi sizdan Jeonggeonda tushib, qaytadan chiqishingizni so'rashi mumkin. Karta terminali ishlamaydi, shuning uchun shunchaki haydovchining ko'rsatmalariga amal qiling."
+    },
+    "TRANSPORT#4": {
+      "title": "Yeongtong stansiyasi → kampus maslahatlari",
+      "content": "Yeongtong stansiyasidan kampusgacha taxminan 15 daqiqalik piyoda masofa.\nAyniqsa Elektronika/Axborot kolleji, Xalqaro kollej va Markaziy kutubxona hududlari uchun avtobusda yurish tavsiya etiladi.\n\n• Vaqt va kuch yetarli bo'lsa: Asosiy darvozagacha piyoda boring → Asosiy darvozadan bepul yuring\n• Vaqt o'rtacha bo'lsa: 6-chiqish → 310 yoki 900-avtobus → Jeonggeonda tushib, yer osti yo'lagidan foydalaning\n• Piyoda yurishni xohlamasangiz: 6-chiqish → 9-avtobusni kuting (avtobuslar orasida tanaffuslar bor)\n• Kechikishingizga oz qolsa: 8-chiqish → qizil ekspress avtobus (yo'lkira olinadi)\n\n⚠️ 310 va 900-avtobuslar uchun Jeonggeonda tushib, yer osti yo'lagidan o'tishingiz kerak."
+    },
+    "FOOD#0": {
+      "title": "Sadamson Mandu — Koreys taomlari",
+      "content": "Tavsiya etiladi: chuchvara qaynoq qozoni, qovurilgan chuchvara\n\nChuchvara qaynoq qozonidagi chuchvara shunchalik ko'pki, guruhingizdagi odamlar sonidan bitta porsiya kam buyurtma qilishni tavsiya qilamiz. Qovurilgan chuchvara ham eng yuqori darajadagi qarsildoqligi bilan ajralib turadi."
+    },
+    "FOOD#1": {
+      "title": "Jwawujigan — Chig'anoqli kalguksu",
+      "content": "Tavsiya etiladi: chig'anoqli kalguksu (pichoqda kesilgan ugra sho'rvasi), sovuq ugra, chuchvara\n\nBu asosan sovuq ugra va chuchvara joyi, ammo chig'anoqli kalguksudagi chig'anoqlarning ko'pligi ayniqsa hayratlanarli. Tumov bo'lib turgan sovuq kunda yodga tushadigan joy."
+    },
+    "FOOD#2": {
+      "title": "Cheonbohyeon — 6,900 vonlik tushlik taomi",
+      "content": "Tavsiya etiladi: yukhoe bibimbap + ko'krak go'shtli doenjang sho'rvasi (tushlik taomi)\n\n6,900 vonlik tushlik taomi asosiy jalb etuvchi narsa. Ba'zilar yukhoe bibimbap mashhur go'sht restoranlaridagidan ham yaxshiroq deyishadi."
+    },
+    "FOOD#3": {
+      "title": "Babeunhwa — Pulingizga eng yaxshi qiymat",
+      "content": "Tavsiya etiladi: achchiq yosh sakkizoyoq va loviya niholi guruchli kosasi, qovurilgan tovuq terili chuchvara\n\n3,500–5,500 von oralig'idagi tengsiz qiymatga ega tarmoq. Sakkizoyoqli guruch kosasini pivo bilan birga buyurtma qilishni qattiq tavsiya qilamiz. Qovurilgan tovuq terili chuchvara pivoga mukammal gazak. Faqat ish kunlari tushligida kutishga tayyor bo'ling."
+    },
+    "FOOD#4": {
+      "title": "Cheongjinok — Achchiq qovurilgan cho'chqa go'shti",
+      "content": "Tavsiya etiladi: achchiq qovurilgan cho'chqa go'shti\n\nAchchiq qovurilgan cho'chqa go'shti mazali. Sadamson Mandu ro'parasida, ko'chaning narigi tomonida joylashgan."
+    },
+    "FOOD#5": {
+      "title": "Urban Dream — Skumbriya va yosh sakkizoyoq",
+      "content": "Tavsiya etiladi: tushlik taomi sifatidagi panjarada pishirilgan skumbriya, achchiq yosh sakkizoyoq\n\nNarxi biroz qimmat tuyulishi mumkin, lekin ta'mi shunga arziydi. Sharhlovchilarning aytishicha, u bilan keladigan garnir salat yong'oqsimon ta'mga ega va mazali."
+    },
+    "FOOD#6": {
+      "title": "Jeonju Bonga — Tonkatsu va achchiq cho'chqa go'shti",
+      "content": "Tavsiya etiladi: tonkatsu, loviya niholli yumshoq tofu sho'rvasi, achchiq qovurilgan cho'chqa go'shti"
+    },
+    "FOOD#7": {
+      "title": "Budaetongnyeong — Bepul guruch qo'shimchalari",
+      "content": "Tavsiya etiladi: shilliqqurtli doenjang sho'rvasi, dakgalbi (achchiq tovuq)\n\nCheksiz guruch qo'shimchalari. Juda och bo'lgan kuni bitta sho'rva bilan ikki kosa guruch hech qanday muammo emas."
+    },
+    "FOOD#8": {
+      "title": "Matdon — Qovurilgan guruch",
+      "content": "Tavsiya etiladi: qovurilgan guruch\n\nMaqbul narxli go'sht restorani. Ilgari ta'til paytida ta'mirlangan, shuning uchun semestr boshlangandan keyin ochiqligini tekshirish foydali."
+    },
+    "FOOD#9": {
+      "title": "Juho restorani — Mol go'shtli qaynoq qozon",
+      "content": "Tavsiya etiladi: mol go'shtli qaynoq qozon, qovurilgan qisqichbaqa\n\nBu asosan bar, ammo mol go'shtli qaynoq qozon ayniqsa yaxshi. Bardagi gazaklar umuman olganda yuqori sifatli."
+    },
+    "FOOD#10": {
+      "title": "Genko — Mol ichagi guruchli kosasi",
+      "content": "Tavsiya etiladi: mol ichagi guruchli kosasi (achchiq tanlang), Nagasaki ramen, soya sousida marinadlangan qisqichbaqali kosa\n\nIchagi guruchli kosasi yog'li bo'lishi mumkin, shuning uchun uni achchiq buyurtma qilishni tavsiya qilamiz. Tushlikda kutish bor, lekin bunga arziydi."
+    },
+    "FOOD#11": {
+      "title": "Buta Sensei — Cho'chqa go'shtli kosa (Butadon)",
+      "content": "Tavsiya etiladi: butadon (cho'chqa go'shtli kosa), oyakodon\n\nMenyu ancha sodda. Fikrlar biroz bo'lingan — kimdir yaxshi ko'radi, kimdir yo'q."
+    },
+    "FOOD#12": {
+      "title": "Kiwamaruaji — Gyudon (Mol go'shtli kosa)",
+      "content": "Tavsiya etiladi: gyudon\n\nFaqat gyudonning o'zi qattiq tavsiyaga loyiq."
+    },
+    "FOOD#13": {
+      "title": "Kujira — Tendon (Yeongtongdagi yagona)",
+      "content": "Tavsiya etiladi: tendon (tempura guruchli kosa)\n\nYeongtongdagi yagona tendon mutaxassisi. Biroz qimmat, lekin ta'mi kafolatlangan. E'tibor bering, joylashuvi tufayli faqat bir nechta odamga joy bor."
+    },
+    "FOOD#14": {
+      "title": "Mimikatsu — Tonkatsu",
+      "content": "Tavsiya etiladi: tonkatsu\n\nMazali, lekin vaqt o'tishi bilan namlanib qolishga moyil, shuning uchun uni tez yeyishni tavsiya qilamiz."
+    },
+    "FOOD#15": {
+      "title": "Yaensibu — Malatang",
+      "content": "Tavsiya etiladi: malatang, mala xiang guo, guobaorou (shirin-nordon cho'chqa go'shti), tuxumli qovurilgan guruch\n\nMalatang uchun mustahkam tanilgan sevimli joy. Malatang + tuxumli qovurilgan guruch jamlanmasi ajoyib."
+    },
+    "FOOD#16": {
+      "title": "Jjamachina — Kimchili cho'chqa qorni go'shtli kosa",
+      "content": "Tavsiya etiladi: kimchili cho'chqa qorni go'shtli guruchli kosa"
+    },
+    "FOOD#17": {
+      "title": "Dugaji Tteokbokki — Rosé",
+      "content": "Tavsiya etiladi: rosé tteokbokki, qovurilgan tovuq terisi, achchiq cho'chqa tog'ayi\n\nRosé tteokbokki — eng yaxshi tanlov. Pishirish biroz vaqt oladi, lekin ta'mi kutishga arziydi."
+    },
+    "FOOD#18": {
+      "title": "Bunsik Nara Gimbap Maeul",
+      "content": "Tavsiya etiladi: baliq ikrali guruchli kosa (albap), karrili kalguksu"
+    },
+    "FOOD#19": {
+      "title": "Rocobling — Makaronlar",
+      "content": "Tavsiya etiladi: makaronlar (barcha ta'mlar)\n\nSuvondagi eng yaxshi makaron joyi sifatida tanilgan. Menyuni Instagramda tekshiring."
+    },
+    "FOOD#20": {
+      "title": "Cheongchun Orchard — Meva mutaxassisi",
+      "content": "Tavsiya etiladi: mavsumiy meva stakani, banan-bodomli yangi sharbat\n\nAyniqsa yotoqxonada yashovchi talabalarga tavsiya etiladigan meva do'koni. Shtamp kuponlaringizni yig'ishni unutmang. Egasi mehribonligi bilan mashhur."
+    },
+    "FOOD#21": {
+      "title": "The Master Coffee — Yashirin kafe",
+      "content": "Tavsiya etiladi: shokoladli tort, tuxumli tart (isitilgan), Americano\n\nYaensibudan 7-Eleven tomon qaytsangiz topadigan biroz yashirin kafe. Quyuq, shirin shokoladli tort — uning o'ziga xos taomi."
+    },
+    "FOOD#22": {
+      "title": "Snow White — Patbingsu",
+      "content": "Tavsiya etiladi: qizil loviyali bingsu (2 kishilik porsiya 4 kishiga bo'lish uchun ideal)\n\nFranshiza bingsu do'koni. Qiymat jihatidan ajralib turadi: 4 kishi 2 porsiyani bo'lishib, baribir to'q bo'ladi. E'tibor bering, bu yumshoq qor parchasi muzli uslub emas."
+    },
+    "FOOD#23": {
+      "title": "Fuoco — Salat",
+      "content": "Tavsiya etiladi: kaya murabboli sendvich, tuxumli salat\n\nSalat mutaxassisi. Porsiyalar saxiy va mazali. Menyu uchun Instagramni tekshiring."
+    },
+    "FOOD#24": {
+      "title": "Solpi — Yupqa xamirli pitsa",
+      "content": "Tavsiya etiladi: yupqa xamirli pitsa, garnirlar\n\nParis Baguette orqasidagi yarim yerto'lada joylashgan. Agar yupqa xamirni yoqtirsangiz, juda tavsiya etiladi. Ichki bezagi ta'mirlangan. Pitsa va pivo jamlanmasi uchun mukammal."
+    },
+    "FOOD#25": {
+      "title": "Maximo Burrito — Burritolar",
+      "content": "Tavsiya etiladi: burrito\n\nYeongtongning sevimli burrito joyi — ba'zilar bu hatto Dos Masdan ham yaxshiroq deyishadi."
+    },
+    "CAMPUS_SITE#0": {
+      "title": "Kyung Hee universiteti rasmiy veb-sayti",
+      "content": "E'lonlar va universitet haqida umumiy ma'lumot\nkhu.ac.kr"
+    },
+    "CAMPUS_SITE#1": {
+      "title": "Info21 — Ro'yxatdan o'tish, baholar, akademik ishlar",
+      "content": "Barcha akademik ishlarni boshqaradi — kursga ro'yxatdan o'tish, baholarni ko'rish, o'quv jadvali va boshqalar\ninfo21.khu.ac.kr"
+    },
+    "CAMPUS_SITE#2": {
+      "title": "e-Campus — Ma'ruzalar, topshiriqlar, davomat",
+      "content": "Onlayn ma'ruzalarni tinglang, topshiriqlarni topshiring, davomatni boshqaring\ne-campus.khu.ac.kr"
+    },
+    "CAMPUS_SITE#3": {
+      "title": "Xalqaro kampus markaziy kutubxonasi",
+      "content": "Kitob qidirish, o'quv zaliga kirish\nlib.khu.ac.kr"
+    },
+    "CAMPUS_SITE#4": {
+      "title": "O'quv xonasini band qilish",
+      "content": "Guruhli o'quv xonalarini onlayn band qiling\nkhu-kr.libcal.com"
+    },
+    "CAMPUS_SITE#5": {
+      "title": "Akademik ishlar bo'limi — Ta'til, qaytish, hujjatlar",
+      "content": "Ta'tilga chiqish, o'qishga qaytish va ro'yxatdagi o'zgarishlar kabi akademik ma'muriy ishlarni boshqaradi\nghaksa.khu.ac.kr"
+    },
+    "CAMPUS_SITE#6": {
+      "title": "Kooperativ — Oshxona, do'kon, vatanga qaytish avtobusi",
+      "content": "Talabalar oshxonasi, do'kon, vatanga qaytish avtobusini band qilish va boshqalar\nkhucoop.com"
+    },
+    "CAMPUS_SITE#7": {
+      "title": "Xalqaro kampus yotoqxonasi",
+      "content": "Yotoqxonaga ariza va yashash bo'yicha qo'llanma\ndorm2.khu.ac.kr"
+    },
+    "CAMPUS_SITE#8": {
+      "title": "Everytime — Dars sharhlari",
+      "content": "Talabalar hamjamiyati va dars sharhlari\nDars jadvalingizni tuzishdan oldin albatta tekshirilishi shart!\neverytime.kr"
+    },
+    "CAMPUS_SITE#9": {
+      "title": "Kyung Hee universiteti rasmiy Instagrami",
+      "content": "Universitet yangiliklari va tadbirlar e'lonlari\n@kyunghee_university"
+    },
+    "HUMANITIES#0": {
+      "title": "Majburiy kurslar — 17 kredit",
+      "content": "2024-yilda qabul qilinganlar uchun majburiy kurslar (jami 17 kredit):\n\n• Insoniy qadriyatlarni o'rganish — 3 kredit (1-kurs)\n• Dunyo va fuqarolar — 3 kredit (1-kurs)\n• Katta portlashdan sivilizatsiyagacha — 3 kredit (istalgan kurs)\n• Mulohaza va ifoda — 3 kredit (1-kurs majburiy, Tematik tadqiqot uchun zaruriy shart)\n• Tematik tadqiqot — 3 kredit (2-kurs)\n• Kollej ingliz tili — 2 kredit (1-kurs, 3 soatlik dars)\n\nXalqaro kampus: Kollej ingliz tilini koreys tili kursi bilan almashtirish mumkin"
+    },
+    "HUMANITIES#1": {
+      "title": "Mulohaza va ifoda → Zaruriy shart",
+      "content": "\"Mulohaza va ifoda\" — bu ham birinchi kurs majburiy fani, ham \"Tematik tadqiqot\" uchun zaruriy shart.\nIkkinchi kursda Tematik tadqiqotni olish uchun uni birinchi kursda tugatishingiz kerak."
+    },
+    "HUMANITIES#2": {
+      "title": "Taqsimot talablari — 5 ta sohadan 3 tasi",
+      "content": "5 ta sohadan kamida 3 tasini tanlang va kamida 9 ta kreditni tugating:\n\n① Hayot·Koinot·Insoniyat\n② Tahlil·Mulohaza·Mantiq\n③ Ramz·Madaniyat·Muloqot\n④ Jamiyat·Jamoa·Tinchlik\n⑤ Intellekt·Axborot·Kelajak\n\nHar bir kurs: 3 soat, 3 kredit"
+    },
+    "HUMANITIES#3": {
+      "title": "Umumiy ta'lim kreditlari xulosasi",
+      "content": "• Majburiy kurslar: 17 kredit\n• Taqsimot kurslari: 9+ kredit\n• Erkin tanlov kurslari: 3+ kredit\n→ Jami kamida: 29 kredit\n\nMaksimal tan olinadigan:\n• Seul kampusi: 56 kredit\n• Xalqaro kampus: 50 kredit\n\nXalqaro kampus erkin tanlov fanlari: \"Mutaxassislikni o'rganish va Tadbirkorlik seminari\" majburiy (xorijiy va o'tkazma talabalar uchun bekor qilinadi)"
+    },
+    "HUMANITIES#4": {
+      "title": "2024-yilgacha qabul qilinganlar uchun eslatma",
+      "content": "2023 o'quv yilidan oldin qabul qilingan talabalar \"O'quv dasturi islohotidan keyingi o'tish choralari\"ni alohida tekshirishlari kerak.\n\nUmumiy o'tkazma talabalar: taqsimot kurslarida (soha qaysidan qat'i nazar) 9+ kredit olish taqsimot talabini bajarish hisoblanadi."
+    }
+  }
+}

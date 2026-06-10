@@ -1,0 +1,463 @@
+{
+  "quiz": {
+    "1": {
+      "question": "Vì sao sinh viên năm nhất chỉ được đăng ký môn học trên máy tính (PC)?",
+      "options": [
+        "Vì ứng dụng hay bị lỗi",
+        "Vì họ chưa thêm môn học mong muốn vào danh sách trước đó",
+        "Vì quy định của trường yêu cầu sinh viên năm nhất phải dùng máy tính",
+        "Vì ứng dụng di động chỉ dành cho sinh viên năm 2 trở lên"
+      ],
+      "explanation": "Sinh viên năm nhất chưa thực hiện bước thêm môn vào danh sách trước, nên chỉ có thể đăng ký trên máy tính."
+    },
+    "2": {
+      "question": "Công cụ nào được khuyên dùng để canh chính xác thời điểm đăng ký môn học?",
+      "options": [
+        "Đồng hồ Naver",
+        "Đồng hồ tích hợp của Windows",
+        "Navyism",
+        "Đồng hồ Kakao"
+      ],
+      "explanation": "Hãy dùng Navyism (bật mili giây, tắt ngày). Chênh lệch 0,001 giây có thể tạo ra khoảng cách hàng trăm thứ hạng."
+    },
+    "3": {
+      "question": "Phím nào tuyệt đối không được nhấn khi đang đăng ký môn học?",
+      "options": [
+        "Enter",
+        "Tab",
+        "ESC",
+        "F5"
+      ],
+      "explanation": "Tuyệt đối cấm nhấn F5 (làm mới). Nhấn ESC liên tục khoảng 1.000 lần sẽ xóa sạch toàn bộ kết quả đăng ký."
+    },
+    "4": {
+      "question": "Khi cửa sổ xác nhận hiện ra, bạn dùng phím nào để đóng nó và đăng ký môn tiếp theo?",
+      "options": [
+        "Enter",
+        "ESC",
+        "Delete",
+        "Space"
+      ],
+      "explanation": "Đóng cửa sổ xác nhận bằng phím ESC rồi đăng ký ngay mã môn tiếp theo."
+    },
+    "5": {
+      "question": "Chế độ hoãn hủy bắt đầu có hiệu lực vào khoảng mấy giờ?",
+      "options": [
+        "10:00",
+        "11:00",
+        "11:30",
+        "12:00"
+      ],
+      "explanation": "Chế độ hoãn hủy bắt đầu có hiệu lực vào khoảng 11:30, nên một chỗ bị hủy chỉ có thể giành được sau một khoảng thời gian nhất định."
+    },
+    "6": {
+      "question": "Khi dùng chế độ lưu tín chỉ (Credit Save), học kỳ sau bạn được đăng ký tối đa bao nhiêu tín chỉ?",
+      "options": [
+        "18 tín chỉ",
+        "19 tín chỉ",
+        "20 tín chỉ",
+        "21 tín chỉ"
+      ],
+      "explanation": "Nếu bạn thiếu tín chỉ mà không có điểm F, chế độ lưu tín chỉ cho phép đăng ký tối đa 21 tín chỉ vào học kỳ sau."
+    },
+    "7": {
+      "question": "Làm thế nào để đi xe buýt miễn phí trong đoạn nội khu Đại học Kyung Hee?",
+      "options": [
+        "Cho tài xế xem thẻ sinh viên",
+        "Không quẹt thẻ",
+        "Nhận phiếu giảm giá từ ứng dụng",
+        "Nói với tài xế rằng bạn là sinh viên"
+      ],
+      "explanation": "Đoạn trong khuôn viên trường là miễn phí miễn là bạn không quẹt thẻ."
+    },
+    "8": {
+      "question": "Khi đi hướng Gangnam, bạn lên xe buýt 1550-1 tại trạm nào?",
+      "options": [
+        "Jeonggeon (Đại học Kyung Hee)",
+        "Ga Yeongtong, Lối ra 8",
+        "Cổng chính (Cổng chính ĐH Kyung Hee)",
+        "Trước tòa nhà hội sinh viên"
+      ],
+      "explanation": "Hướng Gangnam → Cổng chính (trạm Cổng chính ĐH Kyung Hee); hướng ĐH Hanshin → Jeonggeon (trạm Đại học Kyung Hee)."
+    },
+    "9": {
+      "question": "Xe buýt G5100 có gì đặc biệt?",
+      "options": [
+        "Nó không có đoạn miễn phí trong khuôn viên",
+        "Nó là xe buýt hai tầng",
+        "Nó là xe buýt M (tốc hành liên vùng)",
+        "Nó không xuất phát từ ĐH Kyung Hee"
+      ],
+      "explanation": "G5100 là xe buýt hai tầng đi Gangnam."
+    },
+    "10": {
+      "question": "Đi bộ từ ga Yeongtong đến Cổng chính ĐH Kyung Hee mất khoảng bao nhiêu phút?",
+      "options": [
+        "5 phút",
+        "10 phút",
+        "15 phút",
+        "25 phút"
+      ],
+      "explanation": "Từ ga Yeongtong đến cổng chính của trường mất khoảng 15 phút đi bộ."
+    },
+    "11": {
+      "question": "Khi sắp trễ giờ, cách nhanh nhất để đi từ ga Yeongtong đến trường là gì?",
+      "options": [
+        "Lối ra 6, xe buýt 310",
+        "Lối ra 6, xe buýt 900",
+        "Lối ra 8, xe buýt đỏ (mất phí)",
+        "Đi bộ"
+      ],
+      "explanation": "Khi gấp, lựa chọn nhanh nhất là đi xe buýt đỏ (xe ghế ngồi tốc hành) từ Lối ra 8. Lưu ý là sẽ mất phí."
+    },
+    "12": {
+      "question": "Quán nào nổi tiếng với suất trưa đặc biệt giá hời (6.900 won)?",
+      "options": [
+        "Sadamson Mandu",
+        "Cheonbohyeon",
+        "Budaetongnyeong",
+        "Babeunhwa"
+      ],
+      "explanation": "Suất trưa đặc biệt giá 6.900 won gồm cơm trộn thịt bò sống (yukhoe bibimbap) + canh tương đậu ức bò của Cheonbohyeon rất nổi tiếng."
+    },
+    "13": {
+      "question": "Quán nào có tiếng là quán malatang ngon?",
+      "options": [
+        "Genko",
+        "Yaensibu",
+        "Buta Sensei",
+        "Kujira"
+      ],
+      "explanation": "Yaensibu là quán malatang quen thuộc, và combo malatang + cơm chiên trứng của quán đặc biệt được ưa chuộng."
+    },
+    "14": {
+      "question": "Quán nào cho thêm cơm không giới hạn?",
+      "options": [
+        "Sadamson Mandu",
+        "Jeonju Bonga",
+        "Budaetongnyeong",
+        "Cheongjinok"
+      ],
+      "explanation": "Budaetongnyeong cho thêm cơm không giới hạn."
+    },
+    "15": {
+      "question": "Quán tendon duy nhất ở Yeongtong là quán nào?",
+      "options": [
+        "Mimikatsu",
+        "Buta Sensei",
+        "Kujira",
+        "Genko"
+      ],
+      "explanation": "Kujira là quán chuyên tendon duy nhất ở Yeongtong."
+    },
+    "16": {
+      "question": "Trang web nào xử lý cả đăng ký môn học, tra cứu điểm và lịch học vụ trong một nơi?",
+      "options": [
+        "e-Campus",
+        "Info21",
+        "Trang chính thức của ĐH Kyung Hee",
+        "Everytime"
+      ],
+      "explanation": "Info21 (info21.khu.ac.kr) quản lý toàn bộ học vụ, bao gồm đăng ký môn học, điểm số và lịch học vụ."
+    },
+    "17": {
+      "question": "Trang web nào cho phép đặt phòng học nhóm trực tuyến?",
+      "options": [
+        "Info21",
+        "lib.khu.ac.kr",
+        "khu-kr.libcal.com",
+        "khucoop.com"
+      ],
+      "explanation": "Việc đặt phòng học được thực hiện tại khu-kr.libcal.com."
+    },
+    "18": {
+      "question": "Trang web nào cung cấp dịch vụ đặt xe buýt về quê và thông tin căng tin sinh viên?",
+      "options": [
+        "Info21",
+        "Everytime",
+        "Hợp tác xã (khucoop.com)",
+        "e-Campus"
+      ],
+      "explanation": "Tại hợp tác xã (khucoop.com), bạn có thể đặt xe buýt về quê và xem thông tin cửa hàng, căng tin."
+    },
+    "19": {
+      "question": "Trang web nào dùng cho các thủ tục hành chính như nghỉ học, học lại và thay đổi học bạ?",
+      "options": [
+        "Info21",
+        "Phòng Hỗ trợ Học vụ (ghaksa.khu.ac.kr)",
+        "Ký túc xá (dorm2.khu.ac.kr)",
+        "e-Campus"
+      ],
+      "explanation": "Phòng Hỗ trợ Học vụ (ghaksa.khu.ac.kr) xử lý các thủ tục như nghỉ học, học lại, thay đổi học bạ, v.v."
+    },
+    "20": {
+      "question": "Sinh viên nhập học khóa 2024 cần bao nhiêu tín chỉ môn bắt buộc?",
+      "options": [
+        "12 tín chỉ",
+        "15 tín chỉ",
+        "17 tín chỉ",
+        "20 tín chỉ"
+      ],
+      "explanation": "Môn bắt buộc: Khám phá giá trị con người (3) + Thế giới và Công dân (3) + Từ Big Bang đến Văn minh (3) + Suy ngẫm và Biểu đạt (3) + Nghiên cứu chuyên đề (3) + Tiếng Anh đại học (2) = 17 tín chỉ."
+    },
+    "21": {
+      "question": "Môn tiên quyết để học 'Nghiên cứu chuyên đề' là môn nào?",
+      "options": [
+        "Thế giới và Công dân",
+        "Khám phá giá trị con người",
+        "Suy ngẫm và Biểu đạt",
+        "Tiếng Anh đại học"
+      ],
+      "explanation": "'Suy ngẫm và Biểu đạt' là môn bắt buộc năm nhất và là môn tiên quyết của 'Nghiên cứu chuyên đề'."
+    },
+    "22": {
+      "question": "Đối với môn phân bổ, bạn phải hoàn thành môn học ở ít nhất bao nhiêu trong số 5 lĩnh vực?",
+      "options": [
+        "1 lĩnh vực",
+        "2 lĩnh vực",
+        "3 lĩnh vực",
+        "Cả 5 lĩnh vực"
+      ],
+      "explanation": "Bạn phải chọn ít nhất 3 trong 5 lĩnh vực và hoàn thành tối thiểu 9 tín chỉ."
+    },
+    "23": {
+      "question": "Số tín chỉ đại cương tối đa được công nhận cho sinh viên Cơ sở Quốc tế là bao nhiêu?",
+      "options": [
+        "29 tín chỉ",
+        "40 tín chỉ",
+        "50 tín chỉ",
+        "56 tín chỉ"
+      ],
+      "explanation": "Cơ sở Quốc tế công nhận tối đa 50 tín chỉ đại cương (Cơ sở Seoul cho phép 56)."
+    }
+  },
+  "guideCategories": {
+    "COURSE_REG": { "title": "Đăng ký môn học" },
+    "TRANSPORT": { "title": "Phương tiện di chuyển" },
+    "FOOD": { "title": "Quán ăn ngon" },
+    "CAMPUS_SITE": { "title": "Website của trường" },
+    "HUMANITIES": { "title": "Giáo dục đại cương Humanitas" }
+  },
+  "guideTips": {
+    "COURSE_REG#0": {
+      "title": "Sinh viên năm nhất chỉ đăng ký được trên máy tính",
+      "content": "Bạn có thể đăng ký môn học bằng ứng dụng di động hoặc trang web trên máy tính. Tuy nhiên, vì sinh viên năm nhất chưa thực hiện bước thêm môn mong muốn/môn dự phòng vào danh sách trước, nên chỉ có thể đăng ký qua trang web trên máy tính."
+    },
+    "COURSE_REG#1": {
+      "title": "Chọn địa điểm đăng ký: ở nhà hay quán net",
+      "content": "Cấu hình máy tính hầu như không ảnh hưởng đến kết quả. Thời điểm vào và tốc độ thao tác tay quyết định 95% kết quả.\n\n• Máy tính ở nhà: chỉ cần không phải máy quá cũ là đủ\n• Quán net: nên đến sớm 1 tiếng — đến trước 30 phút có thể hơi sát giờ\n\nThực tế, rất nhiều người đăng ký được hết môn mình muốn ngay trên máy tính làm thêm trong trường, trong khi nhiều người lại thua trắng dù dùng máy chơi game cấu hình cao."
+    },
+    "COURSE_REG#2": {
+      "title": "Chuẩn bị 3 cửa sổ + một Notepad",
+      "content": "Hãy chuẩn bị sẵn 3 cửa sổ:\n① Giờ máy chủ Navyism (tìm \"Navyism\" trên Naver, bật mili giây / tắt ngày)\n② Notepad — danh sách mã môn học của bạn (bỏ dấu gạch nối, đặt môn cạnh tranh cao nhất lên trên, chuẩn bị sẵn mã dự phòng)\n③ Trang web đăng ký môn học\n\n⚠️ Đừng dùng các công cụ xem giờ khác như đồng hồ Naver.\n💡 Với môn đại cương tự chọn, hãy luôn chọn giáo sư có đánh giá giảng dạy tốt. Chênh lệch giữa các giáo sư là rất lớn."
+    },
+    "COURSE_REG#3": {
+      "title": "Danh sách kiểm tra thiết lập máy tính",
+      "content": "Những thiết lập cần hoàn tất trước khi đăng ký:\n• Chrome: nhấp chuột phải → chạy với quyền quản trị viên\n• Cửa sổ bật lên: Cài đặt Chrome → Cửa sổ bật lên và chuyển hướng → Cho phép\n• Đóng tất cả ứng dụng chạy nền\n• Tạm dừng phần mềm diệt virus\n• Navyism: tắt ngày, bật mili giây\n• Luôn kiểm tra xem giờ máy chủ có khớp không\n• Tự động đăng xuất sau 10 phút không hoạt động → làm mới trang định kỳ\n• Tuyệt đối không nhấn F5\n\n💡 Chênh lệch 0,001 giây có thể tạo ra khoảng cách hàng trăm đến hàng nghìn thứ hạng."
+    },
+    "COURSE_REG#4": {
+      "title": "Trình tự thực hiện trong ngày",
+      "content": "Quan trọng nhất là đừng hoảng. Hãy bình tĩnh:\n\n① Sao chép sẵn mã môn ở dòng trên cùng trong Notepad\n② Vào trang web đăng ký môn học\n③ Dán mã vào ô tìm kiếm (góc trên bên phải)\n④ Nhấn nút đăng ký (bên trái màn hình)\n⑤ Khi cửa sổ xác nhận hiện ra, đóng nó bằng phím ESC\n⑥ Sao chép mã môn tiếp theo rồi lặp lại\n\n⚠️ Cẩn thận khi nhấn ESC liên tục — nó có thể kích hoạt cửa sổ chống macro\n⚠️ Nhấn ESC khoảng 1.000 lần sẽ xóa sạch toàn bộ kết quả đăng ký!"
+    },
+    "COURSE_REG#5": {
+      "title": "Sau khi đã đăng ký được hết môn",
+      "content": "• Nếu đánh giá của tất cả các lớp đều ổn thì cứ kết thúc như vậy\n• Nếu có giáo sư nào chỉ ở mức tạm ổn, hãy theo dõi số chỗ còn lại và thử đổi sang lớp tốt hơn\n\n💡 Lớp học trực tuyến được quản lý theo chế độ \"chia lớp (section)\", trong đó quản trị viên mở thêm chỗ trống vào các thời điểm khác nhau. Dù bạn có lỡ thì cũng đừng bỏ cuộc — cứ kiểm tra liên tục. Có khi 10 phút sau đột nhiên mở ra 10 chỗ."
+    },
+    "COURSE_REG#6": {
+      "title": "Khi không đăng ký đủ môn",
+      "content": "① Bình tĩnh thử đăng ký bằng các mã môn dự phòng\n② Lớp học năm nhất tương đối nhiều chỗ — rất hiếm khi không thể xếp nổi một thời khóa biểu khả thi\n③ Giữ trang web mở ít nhất đến 12 giờ trưa và liên tục kiểm tra chỗ còn trống\n\n💡 Chế độ hoãn hủy: bắt đầu có hiệu lực vào khoảng 11:30. Dù sinh viên khác có hủy môn, chỗ đó cũng chỉ trống sau một khoảng thời gian nhất định — đây là cơ hội để giành lấy một trong số ít chỗ trống.\n💡 Hầu hết các môn bắt buộc của năm nhất cũng được mở trong học kỳ hè/đông."
+    },
+    "COURSE_REG#7": {
+      "title": "Thời gian điều chỉnh (4/3 – 8/3)",
+      "content": "Từ 10:30 ngày 4/3 ~ ngày 8/3 (Thứ Sáu): bạn có thể bổ sung môn chưa đăng ký được hoặc hủy môn.\n\n• Môn chuyên ngành chính (năm 2 trở lên): giáo sư có thể cho bạn vào lớp tùy quyết định ✅\n• Môn cơ sở ngành: gần như không thể — tự kiểm tra chỗ trống ❌\n• Môn tự chọn: gần như không thể — tự kiểm tra chỗ trống ❌\n\n⚠️ Nếu không hoàn thành các môn cơ sở ngành, bạn có thể bị hạn chế điều kiện nhận học bổng khuyến khích học tập!\n💡 Các lớp được ưa chuộng (đánh giá từ 4.0 sao trở lên) hầu như không còn chỗ trống ngay cả trong thời gian điều chỉnh."
+    },
+    "COURSE_REG#8": {
+      "title": "Chế độ lưu tín chỉ",
+      "content": "Phương án cuối cùng bạn có thể dùng khi bất đắc dĩ bị thiếu tín chỉ:\n• Nếu số tín chỉ bạn đạt được trong học kỳ này thấp hơn tiêu chuẩn, học kỳ sau bạn có thể đăng ký tối đa 21 tín chỉ (thêm 3 tín chỉ)\n• Điều kiện: không có điểm F và được lưu tối đa 3 tín chỉ\n\nXem điều kiện chi tiết tại bảng thông tin của trường."
+    },
+    "TRANSPORT#0": {
+      "title": "Đi xe miễn phí trong khuôn viên",
+      "content": "Các tuyến xe buýt sau được đi miễn phí trong khuôn viên:\n9 / 7000 / 5100 / 1112 / M5107 / 1560\n\n• Trong trường → ra ngoài: miễn phí đến trạm Jeonggeon (trạm Đại học Kyung Hee)\n• Ngoài → vào trường: miễn phí từ Cổng chính (trạm Cổng chính ĐH Kyung Hee)\n• Cách làm: chỉ cần không quẹt thẻ\n\n💡 Khi lên xe nhớ nói với tài xế một câu \"Cảm ơn ạ~\"!\n⚠️ Nếu lên xe trước Cổng chính hoặc đi quá trạm Jeonggeon thì sẽ bị tính phí."
+    },
+    "TRANSPORT#1": {
+      "title": "Xe buýt đỏ tốc hành đi Seoul",
+      "content": "Chạy tốc hành, không dừng ở trạm trung gian:\n\n• 7000 → Sadang\n• 5100 → Gangnam\n• 1112 → Jamsil, Guui (gần ĐH Konkuk)\n• 1560 → Gangnam\n• G5100 → Gangnam 🚌 xe buýt hai tầng\n\nThời gian di chuyển: khoảng 1 tiếng (lâu hơn vào giờ cao điểm)\n⚠️ Không được đứng — nếu hết ghế thì đi chuyến sau\n💡 Phần lớn xuất phát từ ĐH Kyung Hee → tương đối dễ có chỗ ngồi"
+    },
+    "TRANSPORT#2": {
+      "title": "1550-1: Chú ý hướng đi",
+      "content": "Rất hay có người lên nhầm hướng!\n\n• Hướng Gangnam → Cổng chính (trạm Cổng chính ĐH Kyung Hee)\n• Hướng ĐH Hanshin → Jeonggeon (trạm Đại học Kyung Hee)\n\nXe thường xuyên hết chỗ."
+    },
+    "TRANSPORT#3": {
+      "title": "M5107 — Đi thẳng trung tâm Seoul",
+      "content": "Xe buýt M (xe buýt tốc hành liên vùng): ĐH Kyung Hee ↔ Euljiro · Tòa thị chính · Ga Seoul\n• Vào tận khuôn viên trường, được lên xe miễn phí\n\n💡 Nếu bạn lên xe trước giờ bắt đầu vận hành: tài xế có thể yêu cầu bạn xuống ở Jeonggeon rồi lên lại. Máy quẹt thẻ chưa được kích hoạt, nên cứ làm theo hướng dẫn của tài xế."
+    },
+    "TRANSPORT#4": {
+      "title": "Mẹo di chuyển từ ga Yeongtong đến trường",
+      "content": "Từ ga Yeongtong đến trường mất khoảng 15 phút đi bộ.\nNên đi xe buýt, đặc biệt nếu đi về phía Khoa Điện tử/Thông tin, Khoa Quốc tế và Thư viện Trung tâm.\n\n• Dư dả thời gian và sức khỏe: đi bộ đến Cổng chính → lên xe miễn phí từ Cổng chính\n• Thời gian hơi sát: Lối ra 6 → xe 310 hoặc 900 → xuống ở Jeonggeon rồi đi đường hầm\n• Lười đi bộ: Lối ra 6 → đợi xe 9 (có giãn cách giữa các chuyến)\n• Sắp trễ giờ: Lối ra 8 → xe buýt đỏ tốc hành (mất phí)\n\n⚠️ Với xe 310 và 900, bạn xuống ở Jeonggeon và phải băng qua đường hầm."
+    },
+    "FOOD#0": {
+      "title": "Sadamson Mandu — Món Hàn",
+      "content": "Món gợi ý: lẩu bánh xếp (mandu), bánh xếp chiên\n\nLẩu bánh xếp nhiều đến mức nên gọi ít hơn số người trong nhóm một phần. Bánh xếp chiên cũng giòn ở mức đỉnh cao."
+    },
+    "FOOD#1": {
+      "title": "Jwawujigan — Mì kalguksu nghêu",
+      "content": "Món gợi ý: mì kalguksu nghêu (mì sợi cắt tay), mì lạnh, bánh xếp\n\nQuán chủ yếu bán mì lạnh và bánh xếp, nhưng lượng nghêu trong tô kalguksu nghêu đặc biệt ấn tượng. Quán mà bạn sẽ thèm vào những ngày trời lạnh sụt sịt."
+    },
+    "FOOD#2": {
+      "title": "Cheonbohyeon — Suất trưa đặc biệt 6.900 won",
+      "content": "Món gợi ý: cơm trộn thịt bò sống (yukhoe bibimbap) + canh tương đậu ức bò (suất trưa đặc biệt)\n\nSuất trưa đặc biệt giá 6.900 won là điểm nhấn. Có người còn nhận xét cơm trộn thịt bò sống ở đây ngon hơn cả các quán thịt nổi tiếng."
+    },
+    "FOOD#3": {
+      "title": "Babeunhwa — Vua giá hời",
+      "content": "Món gợi ý: cơm bạch tuộc con xào cay & giá đỗ, bánh xếp da gà chiên\n\nChuỗi quán có giá hời khó bì ở tầm 3.500–5.500 won. Rất khuyến nghị ăn cơm bạch tuộc kèm một ly bia. Bánh xếp da gà chiên là món nhắm tuyệt vời. Chỉ cần sẵn sàng xếp hàng vào buổi trưa ngày thường."
+    },
+    "FOOD#4": {
+      "title": "Cheongjinok — Thịt heo xào cay",
+      "content": "Món gợi ý: thịt heo xào cay (jeyuk bokkeum)\n\nThịt heo xào cay rất ngon. Nằm bên kia đường, đối diện quán Sadamson Mandu."
+    },
+    "FOOD#5": {
+      "title": "Urban Dream — Cá thu & Bạch tuộc con",
+      "content": "Món gợi ý: cá thu nướng suất trưa đặc biệt, bạch tuộc con xào cay\n\nGiá có thể hơi đắt một chút, nhưng hương vị thì hoàn toàn xứng đáng. Nhiều người nhận xét món salad ăn kèm rất bùi và ngon."
+    },
+    "FOOD#6": {
+      "title": "Jeonju Bonga — Tonkatsu & thịt heo xào cay",
+      "content": "Món gợi ý: tonkatsu (cốt lết heo chiên xù), canh đậu hũ non giá đỗ, thịt heo xào cay"
+    },
+    "FOOD#7": {
+      "title": "Budaetongnyeong — Thêm cơm miễn phí",
+      "content": "Món gợi ý: canh tương đậu ốc, dakgalbi (gà xào cay)\n\nThêm cơm không giới hạn. Vào ngày thật đói, một nồi canh ăn kèm hai bát cơm cũng dễ dàng."
+    },
+    "FOOD#8": {
+      "title": "Matdon — Cơm chiên",
+      "content": "Món gợi ý: cơm chiên\n\nMột quán thịt nướng có giá khá hợp lý. Quán từng được sửa sang trong kỳ nghỉ, nên sau khi vào học bạn nên kiểm tra xem quán có mở cửa không."
+    },
+    "FOOD#9": {
+      "title": "Quán Juho — Lẩu thịt bò",
+      "content": "Món gợi ý: lẩu thịt bò, tôm chiên\n\nChủ yếu là quán nhậu, nhưng lẩu thịt bò đặc biệt ngon. Các món nhắm nhìn chung đều có chất lượng cao."
+    },
+    "FOOD#10": {
+      "title": "Genko — Cơm lòng bò",
+      "content": "Món gợi ý: cơm lòng bò (nên chọn vị cay), mì ramen Nagasaki, cơm tôm ngâm tương\n\nCơm lòng bò có thể hơi ngấy nên khuyên bạn gọi vị cay. Buổi trưa phải xếp hàng nhưng đáng để chờ."
+    },
+    "FOOD#11": {
+      "title": "Buta Sensei — Cơm thịt heo (Butadon)",
+      "content": "Món gợi ý: butadon (cơm thịt heo), oyakodon\n\nThực đơn khá đơn giản. Khẩu vị thì hơi chia rẽ — người thích người không."
+    },
+    "FOOD#12": {
+      "title": "Kiwamaruaji — Gyudon (cơm thịt bò)",
+      "content": "Món gợi ý: gyudon\n\nRiêng món gyudon thì rất đáng để thử."
+    },
+    "FOOD#13": {
+      "title": "Kujira — Tendon (duy nhất ở Yeongtong)",
+      "content": "Món gợi ý: tendon (cơm tempura)\n\nQuán chuyên tendon duy nhất ở Yeongtong. Giá có hơi cao một chút nhưng hương vị thì được đảm bảo. Lưu ý là do cách bố trí nên quán chỉ chứa được vài người."
+    },
+    "FOOD#14": {
+      "title": "Mimikatsu — Tonkatsu",
+      "content": "Món gợi ý: tonkatsu\n\nNgon, nhưng để lâu dễ bị mềm ỉu nên khuyên bạn ăn nhanh."
+    },
+    "FOOD#15": {
+      "title": "Yaensibu — Malatang",
+      "content": "Món gợi ý: malatang, mala xiang guo (mala xào khô), guobaorou (heo chua ngọt), cơm chiên trứng\n\nMột quán malatang quen thuộc đã có tiếng. Combo malatang + cơm chiên trứng thì xuất sắc."
+    },
+    "FOOD#16": {
+      "title": "Jjamachina — Cơm ba chỉ heo kim chi",
+      "content": "Món gợi ý: cơm ba chỉ heo kim chi"
+    },
+    "FOOD#17": {
+      "title": "Dugaji Tteokbokki — Sốt rosé",
+      "content": "Món gợi ý: tteokbokki sốt rosé, da gà chiên, sụn heo xào cay\n\nTteokbokki sốt rosé là lựa chọn số một. Nấu hơi lâu một chút nhưng hương vị thì đáng để chờ."
+    },
+    "FOOD#18": {
+      "title": "Làng Gimbap Bunsik Nara",
+      "content": "Món gợi ý: cơm trứng cá (albap), mì kalguksu cà ri"
+    },
+    "FOOD#19": {
+      "title": "Rocobling — Macaron",
+      "content": "Món gợi ý: macaron (tất cả các vị)\n\nĐược biết đến là một trong những quán macaron ngon nhất ở Suwon. Hãy xem thực đơn trên Instagram."
+    },
+    "FOOD#20": {
+      "title": "Cheongchun Orchard — Chuyên về trái cây",
+      "content": "Món gợi ý: cốc trái cây theo mùa, nước ép tươi chuối hạnh nhân\n\nQuán trái cây đặc biệt được khuyên cho sinh viên ở ký túc xá. Nhớ tích phiếu đóng dấu nhé. Chủ quán nổi tiếng thân thiện."
+    },
+    "FOOD#21": {
+      "title": "The Master Coffee — Quán cà phê ẩn mình",
+      "content": "Món gợi ý: bánh sô-cô-la, bánh tart trứng (hâm nóng), Americano\n\nMột quán cà phê khá kín đáo, bạn sẽ thấy nếu đi từ Yaensibu vòng về phía 7-Eleven. Bánh sô-cô-la đặc và ngọt là món signature."
+    },
+    "FOOD#22": {
+      "title": "Snow White — Patbingsu (đá bào đậu đỏ)",
+      "content": "Món gợi ý: bingsu đậu đỏ (phần 2 người là hoàn hảo để chia cho 4)\n\nQuán bingsu thuộc chuỗi nhượng quyền. Điểm cộng về giá: 4 người chia 2 phần vẫn no căng. Lưu ý đây không phải kiểu đá bông tuyết mềm mịn."
+    },
+    "FOOD#23": {
+      "title": "Fuoco — Salad",
+      "content": "Món gợi ý: sandwich mứt kaya, salad trứng\n\nQuán chuyên salad. Phần ăn nhiều và ngon. Xem thực đơn trên Instagram."
+    },
+    "FOOD#24": {
+      "title": "Solpi — Pizza đế mỏng",
+      "content": "Món gợi ý: pizza đế mỏng, các món phụ\n\nNằm ở tầng bán hầm phía sau Paris Baguette. Cực kỳ khuyến nghị nếu bạn thích đế mỏng. Nội thất đã được sửa sang lại. Hợp hết nấc cho combo pizza và bia."
+    },
+    "FOOD#25": {
+      "title": "Maximo Burrito — Burrito",
+      "content": "Món gợi ý: burrito\n\nQuán burrito quen thuộc ở Yeongtong — có người nói còn ngon hơn cả Dos Mas."
+    },
+    "CAMPUS_SITE#0": {
+      "title": "Trang chính thức của ĐH Kyung Hee",
+      "content": "Thông báo và thông tin chung về trường\nkhu.ac.kr"
+    },
+    "CAMPUS_SITE#1": {
+      "title": "Info21 — Đăng ký môn, điểm số, học vụ",
+      "content": "Quản lý toàn bộ học vụ — đăng ký môn học, tra cứu điểm, lịch học vụ, v.v.\ninfo21.khu.ac.kr"
+    },
+    "CAMPUS_SITE#2": {
+      "title": "e-Campus — Bài giảng, bài tập, điểm danh",
+      "content": "Học bài giảng trực tuyến, nộp bài tập, quản lý điểm danh\ne-campus.khu.ac.kr"
+    },
+    "CAMPUS_SITE#3": {
+      "title": "Thư viện Trung tâm Cơ sở Quốc tế",
+      "content": "Tìm sách, sử dụng phòng đọc\nlib.khu.ac.kr"
+    },
+    "CAMPUS_SITE#4": {
+      "title": "Đặt phòng học",
+      "content": "Đặt phòng học nhóm trực tuyến\nkhu-kr.libcal.com"
+    },
+    "CAMPUS_SITE#5": {
+      "title": "Phòng Hỗ trợ Học vụ — Nghỉ học, học lại, học bạ",
+      "content": "Xử lý các thủ tục hành chính học vụ như nghỉ học, học lại và thay đổi học bạ\nghaksa.khu.ac.kr"
+    },
+    "CAMPUS_SITE#6": {
+      "title": "Hợp tác xã — Căng tin, cửa hàng, xe về quê",
+      "content": "Căng tin sinh viên, cửa hàng tiện lợi, đặt xe buýt về quê, v.v.\nkhucoop.com"
+    },
+    "CAMPUS_SITE#7": {
+      "title": "Ký túc xá Cơ sở Quốc tế",
+      "content": "Đăng ký ký túc xá và hướng dẫn sinh hoạt\ndorm2.khu.ac.kr"
+    },
+    "CAMPUS_SITE#8": {
+      "title": "Everytime — Đánh giá giảng dạy",
+      "content": "Cộng đồng sinh viên và đánh giá giảng dạy\nNhất định phải tham khảo trước khi xếp thời khóa biểu!\neverytime.kr"
+    },
+    "CAMPUS_SITE#9": {
+      "title": "Instagram chính thức của ĐH Kyung Hee",
+      "content": "Tin tức của trường và thông báo sự kiện\n@kyunghee_university"
+    },
+    "HUMANITIES#0": {
+      "title": "Môn bắt buộc — 17 tín chỉ",
+      "content": "Môn bắt buộc cho sinh viên nhập học khóa 2024 (tổng 17 tín chỉ):\n\n• Khám phá giá trị con người — 3 tín chỉ (năm 1)\n• Thế giới và Công dân — 3 tín chỉ (năm 1)\n• Từ Big Bang đến Văn minh — 3 tín chỉ (mọi khóa)\n• Suy ngẫm và Biểu đạt — 3 tín chỉ (bắt buộc năm 1, môn tiên quyết của Nghiên cứu chuyên đề)\n• Nghiên cứu chuyên đề — 3 tín chỉ (năm 2)\n• Tiếng Anh đại học — 2 tín chỉ (năm 1, lớp 3 tiết)\n\nCơ sở Quốc tế: Tiếng Anh đại học có thể được thay bằng một môn tiếng Hàn"
+    },
+    "HUMANITIES#1": {
+      "title": "Suy ngẫm & Biểu đạt → Môn tiên quyết",
+      "content": "\"Suy ngẫm và Biểu đạt\" vừa là môn bắt buộc của năm 1, vừa là môn tiên quyết của \"Nghiên cứu chuyên đề\".\nBạn phải hoàn thành môn này ở năm nhất thì mới được học Nghiên cứu chuyên đề ở năm hai."
+    },
+    "HUMANITIES#2": {
+      "title": "Môn phân bổ — 3 trong 5 lĩnh vực",
+      "content": "Chọn ít nhất 3 trong 5 lĩnh vực và hoàn thành tối thiểu 9 tín chỉ:\n\n① Sự sống·Vũ trụ·Con người\n② Phân tích·Suy luận·Logic\n③ Biểu tượng·Văn hóa·Giao tiếp\n④ Xã hội·Cộng đồng·Hòa bình\n⑤ Trí tuệ·Thông tin·Tương lai\n\nMỗi môn: 3 tiết, 3 tín chỉ"
+    },
+    "HUMANITIES#3": {
+      "title": "Tổng hợp tín chỉ đại cương",
+      "content": "• Môn bắt buộc: 17 tín chỉ\n• Môn phân bổ: từ 9 tín chỉ\n• Môn tự chọn tự do: từ 3 tín chỉ\n→ Tổng tối thiểu: 29 tín chỉ\n\nCông nhận tối đa:\n• Cơ sở Seoul: 56 tín chỉ\n• Cơ sở Quốc tế: 50 tín chỉ\n\nMôn tự chọn tự do ở Cơ sở Quốc tế: bắt buộc \"Hội thảo Khám phá ngành & Tinh thần khởi nghiệp\" (miễn cho sinh viên nước ngoài và sinh viên chuyển tiếp)"
+    },
+    "HUMANITIES#4": {
+      "title": "Lưu ý cho sinh viên nhập học trước 2024",
+      "content": "Sinh viên nhập học trước năm học 2023 phải kiểm tra riêng \"Biện pháp chuyển tiếp theo cải cách chương trình đào tạo\".\n\nSinh viên chuyển tiếp thông thường: đạt từ 9 tín chỉ trở lên trong các môn phân bổ (bất kể lĩnh vực nào) được tính là đã hoàn thành yêu cầu môn phân bổ."
+    }
+  }
+}

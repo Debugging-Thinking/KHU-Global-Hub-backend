@@ -3,9 +3,11 @@ package com.khu.globalhub.campusguide.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * 퀴즈 문항 메타데이터.
+ * 다국어 전환(V16) 이후 텍스트(question/options/explanation)는 {@link QuizQuestionTranslation}으로 분리되었고,
+ * 이 엔티티는 언어 무관 메타(카테고리, 정답 인덱스)만 보유한다.
+ */
 @Entity
 @Table(name = "quiz_questions")
 @Getter
@@ -21,19 +23,13 @@ public class QuizQuestion {
     @Column(nullable = false)
     private String category;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String question;
-
-    @ElementCollection
-    @CollectionTable(name = "quiz_options", joinColumns = @JoinColumn(name = "question_id"))
-    @Column(name = "option_text", columnDefinition = "TEXT")
-    @OrderColumn(name = "option_index")
-    @Builder.Default
-    private List<String> options = new ArrayList<>();
-
+    /** 정답 보기의 인덱스(0-base). 채점 기준 — 언어와 무관. */
     @Column(nullable = false)
     private Integer answerIndex;
 
-    @Column(columnDefinition = "TEXT")
-    private String explanation;
+    /** 관리자 수정 시 메타 갱신 (텍스트는 번역 행에서 별도 관리). */
+    public void updateMeta(String category, Integer answerIndex) {
+        this.category = category;
+        this.answerIndex = answerIndex;
+    }
 }

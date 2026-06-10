@@ -8,12 +8,13 @@
 
 ---
 
-## 1. 프로젝트 현황 (2026-05)
+## 1. 프로젝트 현황 (2026-06)
 
 - **백엔드**: Spring Boot 3.4.5 / Java 21 / PostgreSQL 17 — AWS EC2 운영 배포 중
 - **프론트엔드**: React Native (Expo SDK 52) + TypeScript — 핵심 기능 구현 완료, Expo Web으로 웹 배포
 - **배포 URL**: `http://{EC2_IP}` (포트 80, Nginx static serving + `/api/` 프록시)
 - **2026-05 BC 격리 리팩토링 완료**: 모놀리식 → Bounded Context 단위로 격리. 3인 팀이 각자 영역 소유.
+- **2026-06 관리자 모드 + 학사 가이드 추가**: 단일 운영자(ADMIN_EMAIL) 계정이 콘텐츠 삭제·회원 정지·퀴즈/가이드 CRUD·멘토링 수동매칭을 수행. campusguide BC에 학사 가이드(카테고리/팁, 다국어 DB)와 뱃지가 추가됨. 배포는 nohup/setsid → **systemd(globalhub.service)**로 전환.
 
 ---
 
@@ -31,7 +32,7 @@ com.khu.globalhub/
 ├── qna/           # 질문 + 답변(채택) + 좋아요
 ├── chat/          # 1:1 DM
 ├── mentoring/     # 멘토-멘티 매칭 + 스케줄러
-├── campusguide/   # 퀴즈 (+ 학사 가이드 예정)
+├── campusguide/   # 퀴즈 + 학사 가이드 + 뱃지 (퀴즈·가이드 모두 다국어 DB)
 ├── translation/   # on-demand 텍스트 번역 (POST /api/translate) — 6개 외 언어/채팅용
 ├── media/         # 이미지 업로드 (POST /api/images → S3) — 댓글/Q&A/답변/채팅 공용
 ├── coursereview/  # 강의평 (강의 목록 + 익명 리뷰 + 수업지표 집계)
@@ -65,7 +66,7 @@ infrastructure┘
 | qna | 본인 | QnA, Answer, QnALike, AnswerLike, *Translation |
 | chat | 현우 | ChatMessage |
 | mentoring | 현우 | MentorMenteeMatch |
-| campusguide | 태경 | QuizQuestion, QuizResult |
+| campusguide | 태경 | 퀴즈(QuizQuestion·QuizQuestionTranslation·QuizResult) + 가이드(GuideCategory·GuideTip + 각 *Translation) + MemberBadge — 퀴즈/가이드 모두 다국어 DB |
 | translation | 본인 | (무상태 — `shared.infra.AzureTranslateClient` 위임) |
 | media | 본인 | (무상태 — `shared.infra.S3Service.uploadImage` 위임) |
 | coursereview | 본인 | Lecture, CourseReview (+ AttendanceType/FrequencyLevel 지표) |
@@ -89,6 +90,8 @@ ProfileQueryPort   // 구현: profile.application.ProfileQueryAdapter
 MemberQueryPort    // 구현: identity.application.MemberQueryAdapter
   boolean exists(Long memberId);
   Optional<String> findEmail(Long memberId);
+  boolean isAdmin(Long memberId);    // 관리자 가드(AdminGuard)·삭제 권한 판정 (미존재 시 false)
+  boolean isActive(Long memberId);   // 활동 가능(정지 아님) 여부 (미존재 시 false)
 ProfileGateway     // 구현: profile.application.ProfileGatewayAdapter (identity가 프로필 생성/존재확인에 사용)
   boolean exists(Long memberId);
   void create(ProfileCreationCommand command);
@@ -152,14 +155,20 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 - 시스템 메시지: `senderId=null, isSystem=true, contextPartnerId`로 대화 귀속. 멘토링 매칭 시 `MatchCreatedEvent` 수신해 삽입.
 - 읽음 처리: 대화 조회 시 자동 일괄. 현재 폴링 방식.
 
-### 3-10. 멘토링 (mentoring) — 스케줄러
-- `@Scheduled` 매년 3/1, 9/1 자정(UTC). 매칭 알고리즘: **점수제 그리디** — 같은 국적 +3 / 같은 언어 +2 / 멘토가 1~2년 선배 +1 → 점수 내림차순 1:1 매칭 후 남는 인원은 라운드로빈 배정. (학과는 점수에서 제외) 3월엔 매칭 전 전년도 입학 멘티를 MENTOR로 자동 승격.
+### 3-10. 멘토링 (mentoring) — 관리자 수동 매칭
+- 매칭 알고리즘: **점수제 그리디** — 같은 국적 +3 / 같은 언어 +2 / 멘토가 1~2년 선배 +1 → 점수 내림차순 1:1 매칭 후 남는 인원은 라운드로빈 배정. (학과는 점수에서 제외) 3월엔 매칭 전 전년도 입학 멘티를 MENTOR로 자동 승격.
 - 매칭 생성 시 `MatchCreatedEvent` 발행(chat이 시스템 메시지 삽입). 매칭은 `mentor_id`/`mentee_id`(Long ID).
-- 수동 매칭 트리거 `POST /api/mentoring/run`은 **로컬 전용**(`@Profile("local")` · `MentoringDevController`) — 운영 미노출. 운영 매칭은 스케줄러만 수행.
+- **운영 매칭은 관리자 수동**: `POST /api/admin/mentoring/run`(`AdminMentoringController`, AdminGuard) — 선택한 `memberIds`에만 그리디 적용(semester 미입력 시 현재 학기). 전체 현황 `GET /api/admin/mentoring/matches`, 대기열(ACTIVE 매칭 없는 활성 멤버) `GET /api/admin/mentoring/queue`.
+- **자동 스케줄러는 기본 비활성**: `MentoringScheduler`(@Scheduled 3/1·9/1 자정 UTC)는 `@ConditionalOnProperty(mentoring.scheduler.enabled=true)` — 프로퍼티를 켜야만 빈 등록. 현재 운영은 관리자 수동 매칭만 사용.
+- 로컬 전용 수동 트리거 `POST /api/mentoring/run`(`@Profile("local")` · `MentoringDevController`)도 별도 존재 — 운영 미노출.
 - **멘토링 활동 기록**: 매칭 당사자(멘토/멘티)만 작성·조회. `mentoring_activities`(match_id·author_id·title·content, V6).
 
 ### 3-11. 퀴즈 (campusguide)
 - 응시 채점 후 `QuizResult` 저장 + `QuizCompletedEvent(memberId, score)` 발행 → profile이 최고점수(quizScore) 갱신. (campusguide는 profile을 모름)
+- **카테고리별 독립 응시**: `QuizQuestion.category`로 분류. 공개 조회 `GET /api/quiz/questions?category=`로 특정 카테고리만(생략 시 전체) 받아 그 셋만 제출(`POST /api/quiz/submit`) → 카테고리 단위로 채점·점수 산출. 점수는 `정답수/문항수`(소수 1자리 %).
+- **다국어 DB(V16)**: `QuizQuestion`은 메타(category·answerIndex)만 보유, 텍스트(question·options·explanation)는 `QuizQuestionTranslation`(language enum, options는 JSON 배열 문자열 — `QuizOptionsCodec`)으로 분리 — 게시판식 사전번역. 조회는 `?language=`(요청언어→KO→첫행 폴백). 채점은 answerIndex 기준이라 언어 무관(공개 조회 응답엔 정답·해설 미포함).
+- **관리자 CRUD(`/api/admin/quiz/questions`, AdminGuard)**: 생성/수정 시 메타 저장 + 원문(KO 등) 번역 행 동기 저장 + `QuizTranslationWriter @Async`로 나머지 언어 번역(질문 1+보기 N+해설 1을 한 번에 보내 입력 인덱스로 분해, 원문 언어 자동 감지 후 라벨 보정). 삭제는 번역행 함께 제거. `GET`은 **정답(answerIndex)·해설 포함** 응답(`getQuestionsForAdmin`, 수정 폼 프리필용 — 공개 조회와 분리).
+- **시드**: `QuizDataInitializer`가 최초 기동(`quiz_questions` 비었을 때) 시 `seed/content_meta.json`(메타) + `seed/content_<lang>.json`(언어별 텍스트)으로 문항·번역 행 적재. 기동 시 Azure 호출 없음(시드 JSON은 프론트 `extract_seed.ts`+번역 도구가 생성). 존재하는 언어 파일만 로드(미완 언어는 KO 폴백). 로컬 리셋(TRUNCATE)에서 퀴즈 테이블 제외 → 재시작에도 보존.
 
 ### 3-12. 비밀번호 재설정 (identity)
 - `forgot-password`: 이메일 인증된 계정만 코드 발송(10분). `reset-password`: 코드 검증 후 적용, 성공 시 refreshToken 무효화(전 기기 로그아웃).
@@ -170,6 +179,23 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 - 강의 검색: `name/professor/code` LIKE(학기 필터, 기본 `2026-1`). 다른 BC 의존 없음(완전 격리). 프론트는 입력 즉시(디바운스 300ms) 검색.
 - **번역**: 강의평 본문도 게시판과 동일한 사전번역(6개) + on-demand 토글 — `course_review_translations`(V13), `CourseReviewTranslationWriter @Async`. 읽기 `?language=`/`&original=true` 지원.
 - **실제 강의 데이터**: 경희대 국제캠 2026-1 **2141건** 임포트(`KhuSugangClient`가 sugang.khu.ac.kr `lectListJson` loginYn=N 공개 엔드포인트 스크랩 → `GLOBAL_COLLEGE_CODES` 필터). `POST /api/lectures/import`로 적재(로컬·운영 모두 완료).
+
+### 3-14. 학사 가이드 (campusguide)
+- **카테고리 → 팁 2단 트리**: `GuideCategory`(badgeKey·emoji·color·sortOrder) 하위에 `GuideTip`(icon·link·sortOrder). 조회 `GET /api/guide?language=`는 카테고리(정렬순서)+각 카테고리 팁(정렬순서)을 한 트리로 반환.
+- **다국어 DB(V17)**: 퀴즈와 동일한 사전번역 방식. 텍스트만 언어별 행으로 분리 — `GuideCategoryTranslation`(title), `GuideTipTranslation`(title·content). 메타(badgeKey/emoji/color/icon/link/정렬)는 언어 무관. 조회 선택은 `?language=`(요청언어→KO→첫행 폴백).
+- **관리자 CRUD(`/api/admin/guide`, AdminGuard)**: 카테고리/팁 각각 생성·수정·삭제. 생성/수정 시 메타 저장 + 원문(KO 등) 번역 행 동기 저장 + `GuideTranslationWriter @Async`로 나머지 언어 번역(카테고리=title 1개, 팁=title+content 2개를 한 번에, 원문 언어 자동 감지 후 라벨 보정). 카테고리 삭제 시 하위 팁·번역행까지 정리(DB FK ON DELETE CASCADE + 앱 레벨 명시 제거).
+- **시드**: `GuideDataInitializer`가 최초 기동(`guide_categories` 비었을 때) 시 `seed/content_meta.json`(카테고리/팁 메타, 팁 키 `"<catId>#<i>"`로 카테고리 연결) + `seed/content_<lang>.json`(언어별 텍스트)으로 적재. 퀴즈와 동일하게 Azure 호출 없음·존재 언어만 로드. **로컬 리셋(TRUNCATE)에서 가이드 4개 테이블 제외 → 재시작에도 보존**(과거 시드 유실 버그 수정).
+
+### 3-15. 뱃지 (campusguide)
+- `BadgeId` enum 5종: `COURSE_REG`(수강신청 박사) · `TRANSPORT`(교통 박사) · `FOOD`(맛집 박사) · `CAMPUS_SITE`(사이트 박사) · `HUMANITIES`(교양 박사). 각 enum이 KO/EN 이름 + 이모지 보유.
+- `MemberBadge`(member_id·badge_id, V7)로 획득 기록. `POST /api/badges/{badgeId}`로 획득(이미 있으면 멱등 무시), `GET /api/badges/me`·`GET /api/members/{memberId}/badges`로 조회. 가이드 카테고리(badgeKey)와 enum 이름이 대응 — 가이드 학습 후 해당 뱃지 획득 동선.
+
+### 3-16. 관리자 모드 (cross-cutting)
+- **단일 운영자 계정**: `members.is_admin`(V14). 부팅 시 `AdminAccountInitializer`가 `app.admin.email`(ADMIN_EMAIL) 회원에 `is_admin=true` 동기화(멱등, 미가입이면 가입 후 재기동 시 부여). 로그인/이메일 인증 응답(`LoginResponse`)에 `isAdmin` 포함 → 프론트가 관리자 UI 노출. 프로필 응답(`ProfileResponse`)도 `isAdmin`/`isActive` 노출.
+- **관리자 가드**: `shared.common.AdminGuard`(`MemberQueryPort.isAdmin`에만 의존, 구현 BC 비결합). 어떤 BC 컨트롤러든 주입해 `adminGuard.check()` 호출 → 비관리자면 `ADMIN_ONLY`(403). 관리자 전용 컨트롤러: `AdminQuizController`·`AdminGuideController`·`AdminMemberController`·`AdminMentoringController`.
+- **읽기 + 삭제 권한(콘텐츠 모더레이션)**: 게시글/댓글/Q&A/강의평 삭제는 작성자 본인 외에 **관리자도 가능** — 각 서비스 삭제에서 `!작성자 && !memberQueryPort.isAdmin(memberId)`면 거부(예: `POST_UNAUTHORIZED`). 관리자는 익명 글도 모두 조회 가능.
+- **회원 정지**: `members.is_active`(V15). `POST /api/admin/members/{id}/suspend`(=`is_active=false`) / `.../activate`(복구). 정지 계정은 로그인 시 `ACCOUNT_SUSPENDED`로 차단(`AuthService`).
+- **콘텐츠 CRUD**: 퀴즈(§3-11)·가이드(§3-14) 문항/카테고리/팁을 관리자가 직접 작성·수정·삭제(AdminGuard). 멘토링 수동 매칭은 §3-10.
 
 ---
 
@@ -190,6 +216,10 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
   | `V11__create_course_review.sql` | `lectures` + `course_reviews` 테이블 생성 (강의평) |
   | `V12__add_course_review_indicators.sql` | `course_reviews`에 수업지표 5종 컬럼 추가 (attendance_type/presentation_freq/group_work_freq/assignment_freq/korean_usage, 모두 nullable) |
   | `V13__create_course_review_translation.sql` | `course_review_translations` 생성 (강의평 6개 언어 사전번역 — 게시판식 번역 시스템) |
+  | `V14__add_member_is_admin.sql` | `members.is_admin`(BOOLEAN NOT NULL DEFAULT false) 추가 — 관리자 계정 플래그(단일 운영자) |
+  | `V15__add_member_is_active.sql` | `members.is_active`(BOOLEAN NOT NULL DEFAULT true) 추가 — 회원 활동 정지 플래그(false면 로그인 차단) |
+  | `V16__quiz_multilang.sql` | `quiz_question_translations` 생성 + 기존 문항(question/explanation)·`quiz_options`를 KO 번역행으로 이관 후 `quiz_questions.question/explanation`·`quiz_options` 제거 (퀴즈 다국어 전환) |
+  | `V17__guide_tables.sql` | 학사 가이드 4개 테이블 생성 — `guide_categories`/`guide_category_translations`(title) + `guide_tips`/`guide_tip_translations`(title·content). 메타+언어별 번역 행 분리(퀴즈식 사전번역, 신규 기능) |
 - 스키마 변경은 **반드시 새 Flyway 마이그레이션**으로. 운영 적용 전 **RDS 스냅샷** 필수.
 - `@ManyToOne Member` → `Long memberId`는 매핑 컬럼(`*_id`) 동일 → 스키마 무변경(기존 데이터 그대로). DB FK 제약 유지.
 
@@ -201,9 +231,9 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 | Method | Path | 설명 |
 |--------|------|------|
 | POST | /register | 이메일 인증 코드 발송 (@khu.ac.kr 전용) |
-| POST | /verify-email | 코드 확인 + JWT 발급 (hasProfile 포함) |
+| POST | /verify-email | 코드 확인 + JWT 발급 (hasProfile·isAdmin 포함) |
 | POST | /profile | 최초 프로필 생성 (신입생=MENTEE 강제) |
-| POST | /login | 로그인 |
+| POST | /login | 로그인 (응답에 isAdmin 포함, 정지 계정은 ACCOUNT_SUSPENDED 차단) |
 | POST | /refresh | 액세스 토큰 갱신 |
 | POST | /logout | refresh token null 처리 |
 | POST | /forgot-password | 비밀번호 재설정 코드 발송 (10분) |
@@ -260,7 +290,48 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 > DM 목록의 마지막 메시지가 이미지/파일 전용(content 없음)이면 `📎`로 미리보기. 채팅방은 상대 프로필(헤더 이름·아바타 + 받은 메시지 아바타)을 `GET /members/{partnerId}`로 표시.
 
 ### Quiz(campusguide) — `/api/quiz`
-| GET /questions · POST /submit · GET /results/me · GET /score/me | 문항/제출/내 기록/최고점수 |
+| Method | Path | 설명 |
+|--------|------|------|
+| GET | /questions?category=&language=KO | 문항 목록 (카테고리 필터·요청언어 번역, 정답/해설 미포함) |
+| POST | /submit | 답안 제출 → 채점(answerIndex 기준) → 결과+해설 반환 |
+| GET | /results/me · /score/me | 내 응시 기록 / 최고점수 |
+
+### Admin Quiz(campusguide) — `/api/admin/quiz/questions` (AdminGuard)
+| Method | Path | 설명 |
+|--------|------|------|
+| GET | /?category=&language= | 관리자 문항 목록 (**정답 answerIndex·해설 포함** — 수정 폼 프리필용) |
+| POST | / | 퀴즈 문항 생성 (category·answerIndex·KO question/options/explanation → 원문 저장 + 나머지 언어 비동기 번역) |
+| PUT | /{questionId} | 퀴즈 문항 수정 (메타 갱신 + 원문 upsert + 재번역) |
+| DELETE | /{questionId} | 퀴즈 문항 삭제 (번역행 cascade) |
+
+### Guide(campusguide) — `/api/guide`
+| Method | Path | 설명 |
+|--------|------|------|
+| GET | /?language=KO | 학사 가이드 트리 — 카테고리(정렬) + 하위 팁(정렬), 요청언어 번역(KO 폴백) |
+
+### Admin Guide(campusguide) — `/api/admin/guide` (AdminGuard)
+| Method | Path | 설명 |
+|--------|------|------|
+| POST/PUT/DELETE | /categories , /categories/{categoryId} | 가이드 카테고리 생성/수정/삭제 (badgeKey·emoji·color·sortOrder 메타 + KO title 원문 저장 + 비동기 번역, 삭제 시 하위 팁·번역 cascade) |
+| POST/PUT/DELETE | /tips , /tips/{tipId} | 가이드 팁 생성/수정/삭제 (categoryId·icon·link·sortOrder 메타 + KO title/content 원문 저장 + 비동기 번역) |
+
+### Badge(campusguide) — `/api/badges`
+| Method | Path | 설명 |
+|--------|------|------|
+| POST | /{badgeId} | 뱃지 획득 (BadgeId enum 5종, 이미 보유 시 멱등 무시) |
+| GET | /me · /api/members/{memberId}/badges | 내 뱃지 / 특정 멤버 뱃지 목록 |
+
+### Admin Member(identity) — `/api/admin/members` (AdminGuard)
+| Method | Path | 설명 |
+|--------|------|------|
+| POST | /{memberId}/suspend · /{memberId}/activate | 계정 활동 정지(is_active=false, 로그인 차단) / 정지 해제 |
+
+### Admin Mentoring(mentoring) — `/api/admin/mentoring` (AdminGuard)
+| Method | Path | 설명 |
+|--------|------|------|
+| POST | /run | 선택 멤버(memberIds) 수동 매칭 실행 (semester 미입력 시 현재 학기) |
+| GET | /matches · /queue | 전체 매칭 현황 / 매칭 대기열(ACTIVE 매칭 없는 활성 멤버) |
+> 로컬 전용 `POST /api/mentoring/run`(`@Profile("local")`)도 별도 존재. 자동 스케줄러는 `mentoring.scheduler.enabled=true`일 때만 동작(기본 off).
 
 ### Translation — `/api/translate`
 | Method | Path | 설명 |
@@ -303,13 +374,16 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 
 > **실제 IP, SSH 키, RDS 엔드포인트는 팀 내부 채널에서 관리.**
 
-### 백엔드 재배포
+### 백엔드 재배포 — systemd(`globalhub.service`)
+- **자동 배포**: `main` push 시 GitHub Actions(`.github/workflows/deploy.yml`)가 `bootJar -x test` → scp로 `~/app.jar` 전송 → `sudo systemctl restart globalhub` → 8080 리슨 대기(최대 ~40s, 실패 시 `journalctl` 출력하고 exit 1). 수동 실행은 Actions 탭 → Run workflow.
+- **systemd 서비스**(`/etc/systemd/system/globalhub.service`): `ExecStart`가 `~/.env` source 후 `java -Xmx420m -jar app.jar --spring.profiles.active=prod --spring.jpa.hibernate.ddl-auto=update`. `Restart=always`(RestartSec=5) — **OOM/크래시 자동 복구**. `SuccessExitStatus=143`(SIGTERM 정상 종료).
+- 수동 재배포 시:
 ```bash
 ./gradlew bootJar -x test
 scp -i "{KEY}.pem" build/libs/globalhub-0.0.1-SNAPSHOT.jar ubuntu@{EC2_IP}:~/app.jar
-# 재기동: ~/.env export 후 setsid java -jar --ddl-auto=update (CLI로 최우선 강제)
+ssh -i "{KEY}.pem" ubuntu@{EC2_IP} "mv -f ~/globalhub-*.jar ~/app.jar 2>/dev/null; sudo systemctl restart globalhub"
 ```
-> ⚠️ **운영 기동 함정**: ① 운영 스키마가 baseline 드리프트로 `validate` 실패 → CLI `--spring.jpa.hibernate.ddl-auto=update`로 강제(컬럼 추가만, 삭제 X = 데이터 안전). ② `pkill -f app.jar`는 ssh 셸 cmdline에도 'app.jar'가 있어 자기 자신을 죽임 → self-excluding 패턴(`pkill -f 'active=pro[d]'`) 사용. ③ 비가역 마이그레이션 포함 배포 전 **RDS 스냅샷** 필수.
+> ⚠️ **운영 기동 함정**: ① 운영 스키마가 baseline 드리프트로 `validate` 실패 → 서비스 `ExecStart`에 `--spring.jpa.hibernate.ddl-auto=update` 박아 강제(컬럼 추가만, 삭제 X = 데이터 안전). ② **systemd 전환으로 옛 `setsid`/`nohup`(ssh 세션 종료 시 죽던 문제)·`pkill -f app.jar`(자기 자신 죽이던 문제) 제거** — `systemctl restart`가 세션 독립 관리·자동 복구. ③ 힙은 `-Xmx420m`(t3.micro·스왑 없음 OOM 방지, ARCHITECTURE §11/MEMORY) — service 파일 `ExecStart`에 고정. ④ 비가역 마이그레이션 포함 배포 전 **RDS 스냅샷** 필수.
 
 ### 프론트 웹 재배포
 ```bash
@@ -343,8 +417,10 @@ DB_USERNAME=... DB_PASSWORD=... DDL_AUTO=validate
 JWT_SECRET=... AZURE_TRANSLATOR_KEY=... AZURE_REGION=...
 AWS_S3_BUCKET=... AWS_S3_REGION=... AWS_ACCESS_KEY=... AWS_SECRET_KEY=...
 MAIL_USERNAME=... MAIL_PASSWORD=...
+ADMIN_EMAIL=...                      # 단일 관리자 계정 — 부팅 시 is_admin 동기화 (미설정 시 관리자 없음)
+MENTORING_SCHEDULER_ENABLED=false   # 자동 매칭 스케줄러 (기본 off — 운영은 관리자 수동 매칭)
 ```
-> Flyway가 스키마를 관리하므로 운영은 `validate` 유지. 스키마 변경은 새 마이그레이션으로만.
+> Flyway가 스키마를 관리하므로 운영은 `validate` 유지. 스키마 변경은 새 마이그레이션으로만. (단, 현재 service `ExecStart`는 baseline 드리프트 회피로 `ddl-auto=update` 사용 — §7 함정 ①)
 
 ---
 
@@ -382,7 +458,6 @@ frontend/app/(main)/
 
 | 항목 | 비고 |
 |------|------|
-| 학사 가이드 백엔드 | campusguide BC에 추가 예정 (퀴즈와 같은 BC) |
 | Q&A 채택 마일리지 | 채택 구현 완료, 마일리지 추후 |
 | 게시글 신고/블라인드 · 푸시 알림 | Phase 2 |
 | 게시글·댓글 수정 API | 삭제만 구현 |
@@ -403,6 +478,8 @@ frontend/app/(main)/
 | S3 고아 파일 | 게시글/프로필 이미지 교체·삭제 시 기존 S3 파일 미삭제 |
 | commentCount 동시성 | 수동 증감 — 대규모 동시요청 시 race 가능 |
 | 채팅 폴링 | 실시간성 낮음. 사용자 증가 시 WebSocket 전환 권장 |
+| 관리자 권한 모델 | 단일 운영자(ADMIN_EMAIL 1계정)만 `is_admin` — 세분화된 역할/권한(RBAC)·관리자 감사 로그 없음. 다계정 운영 시 확장 필요 |
+| 가이드/퀴즈 시드 의존 | 초기 콘텐츠는 `seed/content_*.json`(프론트 생성)에 의존 — 미완 언어 파일은 KO 폴백. 운영 DB는 관리자 CRUD로 보강 |
 | APK 빌드 | 최신 프론트로 EAS Build 재실행 필요 |
 
 ---

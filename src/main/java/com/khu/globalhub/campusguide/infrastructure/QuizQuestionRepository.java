@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Long> {
     List<QuizQuestion> findByCategory(String category);
-    boolean existsByQuestion(String question);
 }
