@@ -2,6 +2,7 @@ package com.khu.globalhub.campusguide.presentation;
 
 import com.khu.globalhub.campusguide.application.QuizAdminService;
 import com.khu.globalhub.campusguide.application.QuizService;
+import com.khu.globalhub.campusguide.domain.BadgeId;
 import com.khu.globalhub.campusguide.presentation.dto.AdminQuizQuestionRequest;
 import com.khu.globalhub.campusguide.presentation.dto.AdminQuizQuestionResponse;
 import com.khu.globalhub.shared.common.AdminGuard;
@@ -29,7 +30,7 @@ public class AdminQuizController {
     /** 관리자 문항 목록 (정답/해설 포함 — 수정 폼 프리필용). */
     @GetMapping
     public ResponseEntity<ApiResponse<List<AdminQuizQuestionResponse>>> list(
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BadgeId category,
             @RequestParam(required = false) Language language
     ) {
         adminGuard.check();

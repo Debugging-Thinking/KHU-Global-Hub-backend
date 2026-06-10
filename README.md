@@ -75,10 +75,10 @@
 
 ## 4. 로컬 개발 / 실행
 
-> 로컬 풀스택 실행 · 환경 설정 · **테스트 계정** 등 상세는 → **[`localtest.md`](./localtest.md)**
+> 로컬 풀스택 실행 · 환경 설정 · **테스트 계정** 등 상세는 → **[`localtest.md`](./docs/localtest.md)**
 
 요약: `docker compose up -d` → `./gradlew bootRun` (또는 원클릭 `dev.ps1`/`dev.sh`) → 프론트 `npm run web`.
-- 로그인은 자동 시드 계정 사용 (회원가입 불필요) — 자세히는 `localtest.md`.
+- 로그인은 자동 시드 계정 사용 (회원가입 불필요) — 자세히는 `docs/localtest.md`.
 - 프론트 기본 API 주소 = 로컬 백엔드 `http://localhost:8080`.
 - 운영 배포 절차는 [`ARCHITECTURE.md`](./ARCHITECTURE.md) §7.
 
