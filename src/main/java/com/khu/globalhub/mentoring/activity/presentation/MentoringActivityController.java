@@ -19,24 +19,22 @@ public class MentoringActivityController {
 
     private final MentoringActivityService activityService;
 
-    /** 활동 기록 목록 조회 */
     @GetMapping
     public ResponseEntity<ApiResponse<List<ActivityResponse>>> getActivities(
             @PathVariable Long matchId
     ) {
         Long myId = SecurityUtil.getCurrentMemberId();
-        List<ActivityResponse> result = activityService.getActivities(matchId, myId);
-        return ResponseEntity.ok(ApiResponse.ok("활동 기록을 조회했습니다.", result));
+        return ResponseEntity.ok(ApiResponse.ok("활동 기록을 조회했습니다.",
+                activityService.getActivities(matchId, myId)));
     }
 
-    /** 활동 기록 작성 */
     @PostMapping
     public ResponseEntity<ApiResponse<ActivityResponse>> createActivity(
             @PathVariable Long matchId,
             @Valid @RequestBody CreateActivityRequest req
     ) {
         Long myId = SecurityUtil.getCurrentMemberId();
-        ActivityResponse result = activityService.createActivity(matchId, myId, req);
-        return ResponseEntity.ok(ApiResponse.ok("활동 기록이 등록되었습니다.", result));
+        return ResponseEntity.ok(ApiResponse.ok("활동 기록이 등록되었습니다.",
+                activityService.createActivity(matchId, myId, req)));
     }
 }

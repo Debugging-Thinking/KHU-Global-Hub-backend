@@ -4,6 +4,9 @@ import com.khu.globalhub.shared.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "mentoring_activities")
 @Getter
@@ -16,19 +19,19 @@ public class MentoringActivity extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 매칭 ID */
     @Column(nullable = false)
     private Long matchId;
 
-    /** 작성자 ID */
     @Column(nullable = false)
     private Long authorId;
 
-    /** 제목 */
     @Column(nullable = false)
     private String title;
 
-    /** 내용 */
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ActivityImage> images = new ArrayList<>();
 }
