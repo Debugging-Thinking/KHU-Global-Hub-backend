@@ -17,4 +17,7 @@ public interface MemberQueryPort {
 
     /** 관리자 계정 여부 (예: 삭제 권한·관리자 전용 API 가드). 미존재 시 false. */
     boolean isAdmin(Long memberId);
+
+    /** 활동 가능 여부(정지 아님). 미존재 시 false. */
+    boolean isActive(Long memberId);
 }

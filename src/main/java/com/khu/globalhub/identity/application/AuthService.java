@@ -92,6 +92,9 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
+        if (Boolean.FALSE.equals(member.getIsActive())) {
+            throw new CustomException(ErrorCode.ACCOUNT_SUSPENDED);
+        }
 
         return issueTokens(member);
     }

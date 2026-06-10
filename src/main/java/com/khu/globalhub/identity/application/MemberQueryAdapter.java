@@ -32,4 +32,9 @@ public class MemberQueryAdapter implements MemberQueryPort {
     public boolean isAdmin(Long memberId) {
         return memberRepository.findById(memberId).map(Member::getIsAdmin).orElse(false);
     }
+
+    @Override
+    public boolean isActive(Long memberId) {
+        return memberRepository.findById(memberId).map(Member::getIsActive).orElse(false);
+    }
 }

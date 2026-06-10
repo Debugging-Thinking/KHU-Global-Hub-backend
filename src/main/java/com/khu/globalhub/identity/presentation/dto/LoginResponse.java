@@ -14,7 +14,8 @@ public class LoginResponse {
     /** false면 프론트에서 프로필 생성 화면으로 이동 */
     private final boolean hasProfile;
 
-    /** 관리자 계정 여부 — 프론트가 관리자 모드 화면 분기에 사용. */
+    /** 관리자 계정 여부 — 프론트가 관리자 모드 화면 분기에 사용. (boolean 직렬화 시 "admin" 되는 것 방지) */
+    @com.fasterxml.jackson.annotation.JsonProperty("isAdmin")
     private final boolean isAdmin;
 
     public static LoginResponse of(String accessToken, String refreshToken, boolean hasProfile, boolean isAdmin) {

@@ -5,6 +5,7 @@ import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.mentoring.presentation.dto.MentoringMatchResponse;
 import com.khu.globalhub.mentoring.presentation.dto.AdminMatchResponse;
+import com.khu.globalhub.mentoring.presentation.dto.MentoringQueueResponse;
 import com.khu.globalhub.mentoring.domain.MentorMenteeMatch;
 import com.khu.globalhub.mentoring.infrastructure.MentorMenteeMatchRepository;
 import com.khu.globalhub.shared.extevent.mentoring.MatchCreatedEvent;
@@ -79,6 +80,30 @@ public class MentoringService {
                 .toList();
     }
 
+    /** 대기열 = 현재 ACTIVE 매칭 없는 활성 멤버(관리자 제외). 학기 무관 전역 풀. */
+    @Transactional(readOnly = true)
+    public MentoringQueueResponse getQueue() {
+        return new MentoringQueueResponse(
+                waitingCards(MentoringRole.MENTOR),
+                waitingCards(MentoringRole.MENTEE)
+        );
+    }
+
+    private List<MentoringQueueResponse.MemberCard> waitingCards(MentoringRole role) {
+        return profileRepository.findByMentoringRole(role).stream()
+                .filter(this::isWaiting)
+                .map(p -> new MentoringQueueResponse.MemberCard(
+                        p.getMemberId(), p.getName(), p.getDepartment(), p.getNationality(), p.getAdmissionYear()))
+                .toList();
+    }
+
+    /** 매칭 대상 자격: 현재 ACTIVE 매칭이 없고, 관리자가 아니며, 활동 정지되지 않은 멤버. */
+    private boolean isWaiting(Profile p) {
+        return matchRepository.findActiveMatchesByMemberId(p.getMemberId(), MatchStatus.ACTIVE).isEmpty()
+                && !memberQueryPort.isAdmin(p.getMemberId())
+                && memberQueryPort.isActive(p.getMemberId());
+    }
+
     @Transactional
     public void promoteOldMenteesToMentor() {
         int currentYear = LocalDate.now().getYear();
@@ -102,18 +127,49 @@ public class MentoringService {
      * Step 2: Greedy 1:1 matching by highest score.
      * Step 3: Round-robin assignment for remaining unmatched members.
      */
+    /** 전역 대기열 전체 매칭 (로컬 dev/스케줄러용). */
     @Transactional
     public void runMatching(String semester) {
-        List<Profile> unmatchedMentees = profileRepository.findByMentoringRole(MentoringRole.MENTEE)
-                .stream()
-                .filter(p -> !matchRepository.existsByMenteeIdAndSemester(p.getMemberId(), semester))
-                .filter(p -> !memberQueryPort.isAdmin(p.getMemberId()))   // 관리자는 매칭 풀에서 제외
+        List<Long> waiting = java.util.stream.Stream.concat(
+                        profileRepository.findByMentoringRole(MentoringRole.MENTEE).stream(),
+                        profileRepository.findByMentoringRole(MentoringRole.MENTOR).stream())
+                .filter(this::isWaiting)
+                .map(Profile::getMemberId)
+                .toList();
+        runMatching(semester, waiting);
+    }
+
+    /**
+     * 선택 매칭 — 관리자가 고른 memberIds 부분집합에만 그리디 알고리즘을 적용한다.
+     * 선택 멤버 중 입학 1년+ 멘티는 매칭 직전 자동으로 멘토 전환(승격).
+     * 대기열 자격(ACTIVE 매칭 없음·관리자 아님·활성)이 아닌 ID는 무시.
+     */
+    @Transactional
+    public void runMatching(String semester, List<Long> memberIds) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            log.info("[Mentoring] Matching skipped: no members selected");
+            return;
+        }
+
+        List<Profile> selected = memberIds.stream()
+                .map(profileRepository::findByMemberId)
+                .flatMap(java.util.Optional::stream)
+                .filter(this::isWaiting)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        List<Profile> unmatchedMentors = profileRepository.findByMentoringRole(MentoringRole.MENTOR)
-                .stream()
-                .filter(p -> !matchRepository.existsByMentorIdAndSemester(p.getMemberId(), semester))
-                .filter(p -> !memberQueryPort.isAdmin(p.getMemberId()))   // 관리자는 매칭 풀에서 제외
+        // 자동 승격: 선택 멤버 중 입학년도 < 올해인 멘티 → 멘토
+        int promoteYear = LocalDate.now().getYear();
+        for (Profile p : selected) {
+            if (p.getMentoringRole() == MentoringRole.MENTEE && p.getAdmissionYear() < promoteYear) {
+                p.updateMentoringRole(MentoringRole.MENTOR);
+            }
+        }
+
+        List<Profile> unmatchedMentors = selected.stream()
+                .filter(p -> p.getMentoringRole() == MentoringRole.MENTOR)
+                .collect(Collectors.toCollection(ArrayList::new));
+        List<Profile> unmatchedMentees = selected.stream()
+                .filter(p -> p.getMentoringRole() == MentoringRole.MENTEE)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (unmatchedMentors.isEmpty() || unmatchedMentees.isEmpty()) {

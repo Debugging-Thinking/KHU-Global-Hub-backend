@@ -20,6 +20,7 @@ public enum ErrorCode {
 
     // ── Member ────────────────────────────────────────
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
+    ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "정지된 계정입니다. 관리자에게 문의하세요."),
 
     // ── Admin ─────────────────────────────────────────
     ADMIN_ONLY(HttpStatus.FORBIDDEN, "관리자만 접근할 수 있습니다."),

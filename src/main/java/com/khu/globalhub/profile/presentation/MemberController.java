@@ -79,4 +79,14 @@ public class MemberController {
         adminGuard.check();
         return ResponseEntity.ok(ApiResponse.ok(memberService.searchByName(name, pageable)));
     }
+
+    /** 관리자 역할 변경 — 타인 멤버의 멘토링 역할 직접 변경(관리자 전용). */
+    @PatchMapping("/{memberId}/role")
+    public ResponseEntity<ApiResponse<ProfileResponse>> adminUpdateRole(
+            @PathVariable Long memberId,
+            @Valid @RequestBody UpdateMentoringRoleRequest request
+    ) {
+        adminGuard.check();
+        return ResponseEntity.ok(ApiResponse.ok("역할이 변경되었습니다.", memberService.adminUpdateRole(memberId, request.mentoringRole())));
+    }
 }

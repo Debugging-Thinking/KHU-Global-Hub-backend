@@ -97,7 +97,7 @@ public class MemberService {
     public ProfileResponse getProfile(Long targetMemberId) {
         Profile profile = profileRepository.findByMemberId(targetMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
-        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()));
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()), memberQueryPort.isActive(profile.getMemberId()));
     }
 
     /** 프로필 수정 (본인만). */
@@ -127,7 +127,7 @@ public class MemberService {
                 pref,
                 req.bio()
         );
-        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()));
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()), memberQueryPort.isActive(profile.getMemberId()));
     }
 
     /** 프로필 이미지 업로드 및 URL 저장. 갱신된 전체 프로필을 반환(프론트 setProfile용). */
@@ -138,7 +138,7 @@ public class MemberService {
 
         String url = s3Service.uploadProfileImage(memberId, imageBytes, contentType);
         profile.updateProfileImage(url);
-        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()));
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()), memberQueryPort.isActive(profile.getMemberId()));
     }
 
     /**
@@ -158,11 +158,21 @@ public class MemberService {
         }
 
         profile.updateMentoringRole(req.mentoringRole());
-        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()));
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()), memberQueryPort.isActive(profile.getMemberId()));
     }
 
     /** 회원 이름 검색 (관리자 회원검색 화면용). 부분일치·대소문자 무시. */
     public Page<MemberSearchResponse> searchByName(String name, Pageable pageable) {
         return profileRepository.findByNameContainingIgnoreCase(name, pageable).map(MemberSearchResponse::from);
+    }
+
+    /** 관리자 역할 변경 — 타인 프로필의 mentoringRole을 직접 변경(관리자 전용, 신입생 제약 없음). */
+    @Transactional
+    public ProfileResponse adminUpdateRole(Long memberId, MentoringRole role) {
+        Profile profile = profileRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILE_NOT_FOUND));
+        profile.updateMentoringRole(role);
+        return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()),
+                memberQueryPort.isAdmin(profile.getMemberId()), memberQueryPort.isActive(profile.getMemberId()));
     }
 }

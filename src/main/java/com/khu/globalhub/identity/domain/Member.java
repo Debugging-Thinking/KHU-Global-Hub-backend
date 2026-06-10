@@ -37,6 +37,11 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private Boolean isAdmin = false;
 
+    /** 활동 가능 여부. false면 정지된 계정 — 로그인 차단. */
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
     // 이메일 인증 코드 (인증 완료 후 null로 초기화)
     private String emailVerificationCode;
     private LocalDateTime codeExpiredAt;
@@ -73,6 +78,16 @@ public class Member extends BaseTimeEntity {
 
     public void revokeAdmin() {
         this.isAdmin = false;
+    }
+
+    /** 활동 정지(관리자). 로그인 차단됨. */
+    public void suspend() {
+        this.isActive = false;
+    }
+
+    /** 활동 정지 해제(관리자). */
+    public void activate() {
+        this.isActive = true;
     }
 
     public void updatePassword(String encodedPassword) {

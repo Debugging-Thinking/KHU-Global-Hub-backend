@@ -17,14 +17,15 @@ public record ProfileResponse(
         MentoringRole mentoringRole,
         double quizScore,
         String bio,
-        boolean isAdmin
+        boolean isAdmin,
+        boolean isActive
 ) {
-    /** isAdmin 불필요한 컨텍스트(예: 멘토링 파트너 카드)용 오버로드 — false 위임. */
+    /** isAdmin/isActive 불필요한 컨텍스트(예: 멘토링 파트너 카드)용 오버로드 — 기본값 위임. */
     public static ProfileResponse from(Profile profile, String email) {
-        return from(profile, email, false);
+        return from(profile, email, false, true);
     }
 
-    public static ProfileResponse from(Profile profile, String email, boolean isAdmin) {
+    public static ProfileResponse from(Profile profile, String email, boolean isAdmin, boolean isActive) {
         // 레거시 행(preferredLanguage=null)은 language enum의 Azure 코드로 폴백.
         String preferred = profile.getPreferredLanguage() != null
                 ? profile.getPreferredLanguage()
@@ -42,7 +43,8 @@ public record ProfileResponse(
                 profile.getMentoringRole(),
                 profile.getQuizScore(),
                 profile.getBio(),
-                isAdmin
+                isAdmin,
+                isActive
         );
     }
 }
