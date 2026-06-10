@@ -2,6 +2,7 @@ package com.khu.globalhub.qna.application;
 
 import com.khu.globalhub.shared.anonymous.service.AnonymousAliasService;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
+import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.qna.presentation.dto.*;
 import com.khu.globalhub.qna.domain.*;
 import com.khu.globalhub.qna.infrastructure.*;
@@ -30,6 +31,7 @@ public class QnAService {
     private final AnswerTranslationRepository answerTranslationRepository;
     private final AnswerLikeRepository answerLikeRepository;
     private final ProfileQueryPort profileQueryPort;
+    private final MemberQueryPort memberQueryPort;
     private final TranslationService translationService;
     private final AnonymousAliasService anonymousAliasService;
 
@@ -99,7 +101,7 @@ public class QnAService {
     public void deleteQnA(Long qnaId, Long memberId) {
         QnA qna = qnaRepository.findById(qnaId)
                 .orElseThrow(() -> new CustomException(ErrorCode.QNA_NOT_FOUND));
-        if (!qna.getAuthorId().equals(memberId)) {
+        if (!qna.getAuthorId().equals(memberId) && !memberQueryPort.isAdmin(memberId)) {
             throw new CustomException(ErrorCode.QNA_UNAUTHORIZED);
         }
 
@@ -182,7 +184,7 @@ public class QnAService {
     public void deleteAnswer(Long answerId, Long memberId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_NOT_FOUND));
-        if (!answer.getAuthorId().equals(memberId)) {
+        if (!answer.getAuthorId().equals(memberId) && !memberQueryPort.isAdmin(memberId)) {
             throw new CustomException(ErrorCode.ANSWER_UNAUTHORIZED);
         }
 

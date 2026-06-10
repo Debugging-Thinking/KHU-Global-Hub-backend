@@ -14,4 +14,7 @@ public interface MemberQueryPort {
 
     /** 이메일. 계정 미존재 시 empty (예: 프로필 응답 조립). */
     Optional<String> findEmail(Long memberId);
+
+    /** 관리자 계정 여부 (예: 삭제 권한·관리자 전용 API 가드). 미존재 시 false. */
+    boolean isAdmin(Long memberId);
 }

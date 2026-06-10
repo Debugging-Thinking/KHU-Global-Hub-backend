@@ -4,6 +4,7 @@ import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.profile.infrastructure.ProfileRepository;
 import com.khu.globalhub.mentoring.presentation.dto.MentoringMatchResponse;
+import com.khu.globalhub.mentoring.presentation.dto.AdminMatchResponse;
 import com.khu.globalhub.mentoring.domain.MentorMenteeMatch;
 import com.khu.globalhub.mentoring.infrastructure.MentorMenteeMatchRepository;
 import com.khu.globalhub.shared.extevent.mentoring.MatchCreatedEvent;
@@ -62,6 +63,22 @@ public class MentoringService {
         }).filter(java.util.Objects::nonNull).toList();
     }
 
+    /** 관리자 전체 매칭 현황 (멘토/멘티 이름 포함, 탈퇴 시 "(탈퇴)" 폴백). */
+    @Transactional(readOnly = true)
+    public List<AdminMatchResponse> getAllMatches() {
+        return matchRepository.findAll().stream()
+                .map(m -> new AdminMatchResponse(
+                        m.getId(),
+                        m.getMentorId(),
+                        profileRepository.findByMemberId(m.getMentorId()).map(Profile::getName).orElse("(탈퇴)"),
+                        m.getMenteeId(),
+                        profileRepository.findByMemberId(m.getMenteeId()).map(Profile::getName).orElse("(탈퇴)"),
+                        m.getSemester(),
+                        m.getStatus().name(),
+                        m.getMatchedAt()))
+                .toList();
+    }
+
     @Transactional
     public void promoteOldMenteesToMentor() {
         int currentYear = LocalDate.now().getYear();
@@ -90,11 +107,13 @@ public class MentoringService {
         List<Profile> unmatchedMentees = profileRepository.findByMentoringRole(MentoringRole.MENTEE)
                 .stream()
                 .filter(p -> !matchRepository.existsByMenteeIdAndSemester(p.getMemberId(), semester))
+                .filter(p -> !memberQueryPort.isAdmin(p.getMemberId()))   // 관리자는 매칭 풀에서 제외
                 .collect(Collectors.toCollection(ArrayList::new));
 
         List<Profile> unmatchedMentors = profileRepository.findByMentoringRole(MentoringRole.MENTOR)
                 .stream()
                 .filter(p -> !matchRepository.existsByMentorIdAndSemester(p.getMemberId(), semester))
+                .filter(p -> !memberQueryPort.isAdmin(p.getMemberId()))   // 관리자는 매칭 풀에서 제외
                 .collect(Collectors.toCollection(ArrayList::new));
 
         if (unmatchedMentors.isEmpty() || unmatchedMentees.isEmpty()) {

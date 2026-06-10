@@ -32,6 +32,11 @@ public class Member extends BaseTimeEntity {
     @Builder.Default
     private Boolean isEmailVerified = false;
 
+    /** 관리자 계정 여부. 단일 운영자(ADMIN_EMAIL)에만 true. */
+    @Column(name = "is_admin", nullable = false)
+    @Builder.Default
+    private Boolean isAdmin = false;
+
     // 이메일 인증 코드 (인증 완료 후 null로 초기화)
     private String emailVerificationCode;
     private LocalDateTime codeExpiredAt;
@@ -59,6 +64,15 @@ public class Member extends BaseTimeEntity {
     public void logout() {
         this.refreshToken = null;
         this.refreshTokenExpiredAt = null;
+    }
+
+    /** 관리자 권한 부여(부팅 시 ADMIN_EMAIL 동기화용). 멱등. */
+    public void grantAdmin() {
+        this.isAdmin = true;
+    }
+
+    public void revokeAdmin() {
+        this.isAdmin = false;
     }
 
     public void updatePassword(String encodedPassword) {

@@ -2,6 +2,8 @@ package com.khu.globalhub.profile.infrastructure;
 
 import com.khu.globalhub.profile.domain.Profile;
 import com.khu.globalhub.shared.enums.MentoringRole;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -18,4 +20,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
     /** 입학년도가 기준 연도 미만이고 역할이 MENTEE인 프로필 조회 (3월 자동 승격용) */
     List<Profile> findByAdmissionYearLessThanAndMentoringRole(int year, MentoringRole role);
+
+    /** 이름 부분일치 검색 (대소문자 무시) — 관리자 회원검색용 */
+    Page<Profile> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

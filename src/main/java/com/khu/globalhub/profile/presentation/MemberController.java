@@ -4,7 +4,11 @@ import com.khu.globalhub.profile.presentation.dto.ProfileResponse;
 import com.khu.globalhub.profile.presentation.dto.UpdateMentoringRoleRequest;
 import com.khu.globalhub.profile.presentation.dto.UpdateProfileRequest;
 import com.khu.globalhub.profile.application.MemberService;
+import com.khu.globalhub.profile.presentation.dto.MemberSearchResponse;
+import com.khu.globalhub.shared.common.AdminGuard;
 import com.khu.globalhub.shared.common.ApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.khu.globalhub.shared.util.SecurityUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,7 @@ import java.io.IOException;
 public class MemberController {
 
     private final MemberService memberService;
+    private final AdminGuard adminGuard;
 
     /** 내 프로필 조회. */
     @GetMapping("/me")
@@ -63,5 +68,15 @@ public class MemberController {
         Long myId = SecurityUtil.getCurrentMemberId();
         ProfileResponse updated = memberService.updateProfileImage(myId, image.getBytes(), image.getContentType());
         return ResponseEntity.ok(ApiResponse.ok("프로필 이미지가 업데이트되었습니다.", updated));
+    }
+
+    /** 회원 이름 검색 — 관리자 전용(채팅 탭 대체 회원검색 화면). */
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<MemberSearchResponse>>> searchMembers(
+            @RequestParam String name,
+            Pageable pageable
+    ) {
+        adminGuard.check();
+        return ResponseEntity.ok(ApiResponse.ok(memberService.searchByName(name, pageable)));
     }
 }

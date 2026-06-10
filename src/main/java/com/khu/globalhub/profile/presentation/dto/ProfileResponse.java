@@ -16,9 +16,15 @@ public record ProfileResponse(
         String preferredLanguage,
         MentoringRole mentoringRole,
         double quizScore,
-        String bio
+        String bio,
+        boolean isAdmin
 ) {
+    /** isAdmin 불필요한 컨텍스트(예: 멘토링 파트너 카드)용 오버로드 — false 위임. */
     public static ProfileResponse from(Profile profile, String email) {
+        return from(profile, email, false);
+    }
+
+    public static ProfileResponse from(Profile profile, String email, boolean isAdmin) {
         // 레거시 행(preferredLanguage=null)은 language enum의 Azure 코드로 폴백.
         String preferred = profile.getPreferredLanguage() != null
                 ? profile.getPreferredLanguage()
@@ -35,7 +41,8 @@ public record ProfileResponse(
                 preferred,
                 profile.getMentoringRole(),
                 profile.getQuizScore(),
-                profile.getBio()
+                profile.getBio(),
+                isAdmin
         );
     }
 }

@@ -10,6 +10,7 @@ import com.khu.globalhub.board.infrastructure.CommentLikeRepository;
 import com.khu.globalhub.board.infrastructure.CommentRepository;
 import com.khu.globalhub.board.infrastructure.CommentTranslationRepository;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
+import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.board.domain.Post;
 import com.khu.globalhub.board.infrastructure.PostRepository;
 import com.khu.globalhub.shared.enums.AliasContextType;
@@ -38,6 +39,7 @@ public class CommentService {
     private final CommentLikeRepository commentLikeRepository;
     private final PostRepository postRepository;
     private final ProfileQueryPort profileQueryPort;
+    private final MemberQueryPort memberQueryPort;
     private final TranslationService translationService;
     private final AnonymousAliasService anonymousAliasService;
 
@@ -117,7 +119,7 @@ public class CommentService {
     public void deleteComment(Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-        if (!comment.getAuthorId().equals(memberId)) {
+        if (!comment.getAuthorId().equals(memberId) && !memberQueryPort.isAdmin(memberId)) {
             throw new CustomException(ErrorCode.COMMENT_UNAUTHORIZED);
         }
 

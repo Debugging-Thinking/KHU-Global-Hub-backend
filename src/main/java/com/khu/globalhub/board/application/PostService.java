@@ -14,6 +14,7 @@ import com.khu.globalhub.board.domain.Comment;
 import com.khu.globalhub.board.infrastructure.CommentLikeRepository;
 import com.khu.globalhub.board.infrastructure.CommentRepository;
 import com.khu.globalhub.shared.port.ProfileQueryPort;
+import com.khu.globalhub.shared.port.MemberQueryPort;
 import com.khu.globalhub.shared.enums.AliasContextType;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.exception.CustomException;
@@ -43,6 +44,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final ProfileQueryPort profileQueryPort;
+    private final MemberQueryPort memberQueryPort;
     private final TranslationService translationService;
     private final S3Service s3Service;
     private final AnonymousAliasService anonymousAliasService;
@@ -185,7 +187,7 @@ public class PostService {
     public void deletePost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-        if (!post.getAuthorId().equals(memberId)) {
+        if (!post.getAuthorId().equals(memberId) && !memberQueryPort.isAdmin(memberId)) {
             throw new CustomException(ErrorCode.POST_UNAUTHORIZED);
         }
 

@@ -165,7 +165,7 @@ public class AuthService {
         member.updateRefreshToken(refreshToken, LocalDateTime.now().plusDays(7));
 
         boolean hasProfile = profileGateway.exists(member.getId());
-        return LoginResponse.of(accessToken, refreshToken, hasProfile);
+        return LoginResponse.of(accessToken, refreshToken, hasProfile, Boolean.TRUE.equals(member.getIsAdmin()));
     }
 
     private String generateVerificationCode() {

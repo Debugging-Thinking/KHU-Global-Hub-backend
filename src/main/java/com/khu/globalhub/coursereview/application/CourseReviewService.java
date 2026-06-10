@@ -16,6 +16,7 @@ import com.khu.globalhub.coursereview.presentation.dto.LectureSummaryResponse;
 import com.khu.globalhub.shared.enums.Language;
 import com.khu.globalhub.shared.exception.CustomException;
 import com.khu.globalhub.shared.exception.ErrorCode;
+import com.khu.globalhub.shared.port.MemberQueryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 public class CourseReviewService {
 
     private final LectureRepository lectureRepository;
+    private final MemberQueryPort memberQueryPort;
     private final CourseReviewRepository reviewRepository;
     private final CourseReviewTranslationRepository translationRepository;
     private final CourseReviewTranslationWriter translationWriter;
@@ -115,7 +117,7 @@ public class CourseReviewService {
     public void deleteReview(Long reviewId, Long memberId) {
         CourseReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
-        if (!review.getAuthorId().equals(memberId)) {
+        if (!review.getAuthorId().equals(memberId) && !memberQueryPort.isAdmin(memberId)) {
             throw new CustomException(ErrorCode.REVIEW_UNAUTHORIZED);
         }
         reviewRepository.delete(review);

@@ -27,4 +27,9 @@ public class MemberQueryAdapter implements MemberQueryPort {
     public Optional<String> findEmail(Long memberId) {
         return memberRepository.findById(memberId).map(Member::getEmail);
     }
+
+    @Override
+    public boolean isAdmin(Long memberId) {
+        return memberRepository.findById(memberId).map(Member::getIsAdmin).orElse(false);
+    }
 }
