@@ -4,7 +4,7 @@
 > 민감 정보(실제 IP, 키, 엔드포인트)는 포함하지 않습니다 — 운영 접속 정보는 팀 내부 채널에서 관리.
 > **코드 변경 시 이 문서도 함께 업데이트할 것.**
 >
-> 🛠 로컬 실행: [`localtest.md`](./localtest.md) · 팀 협업 규칙 요약: [`README.md` §10](./README.md) · 리팩토링 로그: [`docs/refactor-bc-isolation.md`](../Lim/refactor-bc-isolation.md)
+> 🛠 로컬 실행: [`localtest.md`](./docs/localtest.md) · 팀 협업 규칙 요약: [`README.md` §10](./README.md) · 리팩토링 로그: [`docs/refactor-bc-isolation.md`](../Lim/refactor-bc-isolation.md)
 
 ---
 
@@ -166,6 +166,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 ### 3-11. 퀴즈 (campusguide)
 - 응시 채점 후 `QuizResult` 저장 + `QuizCompletedEvent(memberId, score)` 발행 → profile이 최고점수(quizScore) 갱신. (campusguide는 profile을 모름)
 - **카테고리별 독립 응시**: `QuizQuestion.category`로 분류. 공개 조회 `GET /api/quiz/questions?category=`로 특정 카테고리만(생략 시 전체) 받아 그 셋만 제출(`POST /api/quiz/submit`) → 카테고리 단위로 채점·점수 산출. 점수는 `정답수/문항수`(소수 1자리 %).
+- **category는 `BadgeId` enum(닫힌 집합, 5종)에 바인딩** ⭐: `QuizQuestion.category`·요청/응답 DTO·`@RequestParam`이 모두 자유 문자열이 아니라 `BadgeId`(COURSE_REG/TRANSPORT/FOOD/CAMPUS_SITE/HUMANITIES). 가이드 `badgeKey`·뱃지와 **단일 어휘(enum)** 공유. 허용 외 값(오타·옛 한글 키 "수강신청" 등)은 역직렬화/파라미터 변환 단계에서 **400으로 즉시 거부**(`GlobalExceptionHandler`의 `HttpMessageNotReadable`·`MethodArgumentTypeMismatch` 핸들러) — "값이 틀렸는데 조용히 빈 목록"이 구조적으로 불가능. DB 컬럼은 VARCHAR 그대로 enum 이름 저장(`@Enumerated(STRING)`, 스키마/와이어포맷 무변경). ⚠️ 과거 운영 사고: 옛 시드가 한글 category(`수강신청`)로 적재됐는데 신규 프론트가 영문 키로 조회 → 전 문항 미노출. enum 바인딩으로 재발 차단(2026-06-11).
 - **다국어 DB(V16)**: `QuizQuestion`은 메타(category·answerIndex)만 보유, 텍스트(question·options·explanation)는 `QuizQuestionTranslation`(language enum, options는 JSON 배열 문자열 — `QuizOptionsCodec`)으로 분리 — 게시판식 사전번역. 조회는 `?language=`(요청언어→KO→첫행 폴백). 채점은 answerIndex 기준이라 언어 무관(공개 조회 응답엔 정답·해설 미포함).
 - **관리자 CRUD(`/api/admin/quiz/questions`, AdminGuard)**: 생성/수정 시 메타 저장 + 원문(KO 등) 번역 행 동기 저장 + `QuizTranslationWriter @Async`로 나머지 언어 번역(질문 1+보기 N+해설 1을 한 번에 보내 입력 인덱스로 분해, 원문 언어 자동 감지 후 라벨 보정). 삭제는 번역행 함께 제거. `GET`은 **정답(answerIndex)·해설 포함** 응답(`getQuestionsForAdmin`, 수정 폼 프리필용 — 공개 조회와 분리).
 - **시드**: `QuizDataInitializer`가 최초 기동(`quiz_questions` 비었을 때) 시 `seed/content_meta.json`(메타) + `seed/content_<lang>.json`(언어별 텍스트)으로 문항·번역 행 적재. 기동 시 Azure 호출 없음(시드 JSON은 프론트 `extract_seed.ts`+번역 도구가 생성). 존재하는 언어 파일만 로드(미완 언어는 KO 폴백). 로컬 리셋(TRUNCATE)에서 퀴즈 테이블 제외 → 재시작에도 보존.
@@ -220,6 +221,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
   | `V15__add_member_is_active.sql` | `members.is_active`(BOOLEAN NOT NULL DEFAULT true) 추가 — 회원 활동 정지 플래그(false면 로그인 차단) |
   | `V16__quiz_multilang.sql` | `quiz_question_translations` 생성 + 기존 문항(question/explanation)·`quiz_options`를 KO 번역행으로 이관 후 `quiz_questions.question/explanation`·`quiz_options` 제거 (퀴즈 다국어 전환) |
   | `V17__guide_tables.sql` | 학사 가이드 4개 테이블 생성 — `guide_categories`/`guide_category_translations`(title) + `guide_tips`/`guide_tip_translations`(title·content). 메타+언어별 번역 행 분리(퀴즈식 사전번역, 신규 기능) |
+  | `V18__add_activity_images.sql` | `activity_images` 테이블 생성(멘토링 활동 사진) — 커밋 21c4595에서 엔티티만 추가되고 마이그레이션이 누락돼 `validate`/테스트가 "missing table"로 실패하던 것을 보완. 운영 드리프트 대비 `CREATE TABLE IF NOT EXISTS`(이미 ddl-auto=update로 생성된 운영엔 무해 스킵) |
 - 스키마 변경은 **반드시 새 Flyway 마이그레이션**으로. 운영 적용 전 **RDS 스냅샷** 필수.
 - `@ManyToOne Member` → `Long memberId`는 매핑 컬럼(`*_id`) 동일 → 스키마 무변경(기존 데이터 그대로). DB FK 제약 유지.
 
@@ -450,7 +452,7 @@ frontend/app/(main)/
 - **characterization 테스트**: 인증/게시판/댓글/Q&A/채택/좋아요/채팅/멘토링/퀴즈 핵심 경로 동작 박제.
 - **ArchUnit**(`BoundedContextRulesTest`): BC 의존 경계 강제.
 - 검증: `./gradlew test`. 리팩토링·기능 추가 후 그린이면 "동작 불변 + 경계 유지" 보장.
-- 로컬은 `LocalTestDataInitializer`(@Profile local)가 테스트 계정·데이터 자동 시드 → localtest.md 참고.
+- 로컬은 `LocalTestDataInitializer`(@Profile local)가 테스트 계정·데이터 자동 시드 → docs/localtest.md 참고.
 
 ---
 
@@ -486,7 +488,7 @@ frontend/app/(main)/
 
 ## 12. 개발 환경 주의사항
 
-- 로컬 실행: [`localtest.md`](./localtest.md) (`dev.ps1`/`dev.sh` 원클릭 — 카톡 공유, gitignore)
+- 로컬 실행: [`localtest.md`](./docs/localtest.md) (`dev.ps1`/`dev.sh` 원클릭 — 카톡 공유, gitignore)
 - `application-local.yml`·`application-prod.yml`은 `.gitignore` (dev 런처가 `.example`에서 자동 생성). `*.pem`, `*.env`, `CLAUDE.md`도 gitignore.
 - 메일/Azure/AWS 키는 더미 기본값이 있어 **키 없이도 앱 실행 가능**(해당 기능만 비활성). 실제 테스트 시 환경변수 주입.
 - 로컬 DB는 docker 포트 **5433**(네이티브 PostgreSQL 5432 충돌 방지). Flyway가 스키마 생성.

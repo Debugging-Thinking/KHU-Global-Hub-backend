@@ -5,6 +5,7 @@ import com.khu.globalhub.campusguide.presentation.dto.MyQuizResultResponse;
 import com.khu.globalhub.campusguide.presentation.dto.QuizQuestionResponse;
 import com.khu.globalhub.campusguide.presentation.dto.QuizSubmitRequest;
 import com.khu.globalhub.campusguide.presentation.dto.QuizSubmitResponse;
+import com.khu.globalhub.campusguide.domain.BadgeId;
 import com.khu.globalhub.campusguide.domain.QuizQuestion;
 import com.khu.globalhub.campusguide.domain.QuizQuestionTranslation;
 import com.khu.globalhub.campusguide.domain.QuizResult;
@@ -38,8 +39,8 @@ public class QuizService {
      * 전체 문제 조회 (정답 미포함). 카테고리 필터 선택 가능.
      * 문항 텍스트는 요청 언어 번역 행으로 조립(없으면 KO → 첫 행 폴백).
      */
-    public List<QuizQuestionResponse> getQuestions(String category, Language language) {
-        List<QuizQuestion> questions = (category != null && !category.isBlank())
+    public List<QuizQuestionResponse> getQuestions(BadgeId category, Language language) {
+        List<QuizQuestion> questions = (category != null)
                 ? questionRepository.findByCategory(category)
                 : questionRepository.findAll();
 
@@ -50,7 +51,7 @@ public class QuizService {
             QuizQuestionTranslation picked = pick(byQuestion.getOrDefault(q.getId(), List.of()), language);
             String question = picked != null ? picked.getQuestion() : "";
             List<String> options = picked != null ? QuizOptionsCodec.deserialize(picked.getOptionsJson()) : List.of();
-            return new QuizQuestionResponse(q.getId(), q.getCategory(), question, options);
+            return new QuizQuestionResponse(q.getId(), q.getCategory().name(), question, options);
         }).toList();
     }
 
@@ -58,8 +59,8 @@ public class QuizService {
      * 관리자 전용 문항 조회 (정답 answerIndex + 해설 explanation 포함).
      * 수정 폼 프리필용 — 공개 {@link #getQuestions}와 달리 정답/해설을 내려준다 (AdminGuard 뒤에서만 호출).
      */
-    public List<AdminQuizQuestionResponse> getQuestionsForAdmin(String category, Language language) {
-        List<QuizQuestion> questions = (category != null && !category.isBlank())
+    public List<AdminQuizQuestionResponse> getQuestionsForAdmin(BadgeId category, Language language) {
+        List<QuizQuestion> questions = (category != null)
                 ? questionRepository.findByCategory(category)
                 : questionRepository.findAll();
 
@@ -72,7 +73,7 @@ public class QuizService {
             List<String> options = picked != null ? QuizOptionsCodec.deserialize(picked.getOptionsJson()) : List.of();
             String explanation = picked != null ? picked.getExplanation() : "";
             return new AdminQuizQuestionResponse(
-                    q.getId(), q.getCategory(), question, options, q.getAnswerIndex(), explanation);
+                    q.getId(), q.getCategory().name(), question, options, q.getAnswerIndex(), explanation);
         }).toList();
     }
 

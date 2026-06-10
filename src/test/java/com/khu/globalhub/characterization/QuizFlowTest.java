@@ -69,8 +69,8 @@ class QuizFlowTest extends AbstractIntegrationTest {
         String token = signUpWithProfile("quiz1@khu.ac.kr", "퀴즈1");
         JsonNode questions = fetchQuestions(token);
 
-        // 현재 동작: 시드 문항은 18개 (ARCHITECTURE 문서에는 14개로 적혀 있으나 실제 코드 시드는 18개)
-        assertThat(questions).hasSize(18);
+        // 시드 문항 23개 (seed/content_meta.json: COURSE_REG 6 + TRANSPORT 5 + FOOD 4 + CAMPUS_SITE 4 + HUMANITIES 4)
+        assertThat(questions).hasSize(23);
         JsonNode first = questions.get(0);
         assertThat(first.has("answerIndex")).isFalse();
         assertThat(first.has("answer")).isFalse();
@@ -79,19 +79,30 @@ class QuizFlowTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("category 필터: '수강신청' 카테고리만 반환 (시드상 6문항)")
+    @DisplayName("category 필터: 'COURSE_REG' 카테고리만 반환 (시드상 6문항)")
     void getQuestionsByCategory() throws Exception {
         String token = signUpWithProfile("quiz2@khu.ac.kr", "퀴즈2");
         MvcResult result = mockMvc.perform(get("/api/quiz/questions")
-                        .param("category", "수강신청")
+                        .param("category", "COURSE_REG")
                         .header("Authorization", bearer(token)))
                 .andExpect(status().isOk())
                 .andReturn();
         JsonNode questions = readData(result);
         assertThat(questions).hasSize(6);
         for (JsonNode q : questions) {
-            assertThat(q.get("category").asText()).isEqualTo("수강신청");
+            assertThat(q.get("category").asText()).isEqualTo("COURSE_REG");
         }
+    }
+
+    @Test
+    @DisplayName("category는 BadgeId enum 닫힌 집합 — 알 수 없는 값(옛 한글 키 등)은 빈 목록이 아니라 400으로 거부된다")
+    void unknownCategoryRejected() throws Exception {
+        String token = signUpWithProfile("quiz6@khu.ac.kr", "퀴즈6");
+        // 운영 사고를 일으킨 옛 한글 키. 이제는 조용히 사라지지 않고 명확히 400.
+        mockMvc.perform(get("/api/quiz/questions")
+                        .param("category", "수강신청")
+                        .header("Authorization", bearer(token)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
