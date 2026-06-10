@@ -62,7 +62,7 @@ jobs:
             source ~/.env
             set +a
             # -Xmx420m: t3.micro(1GB)에서 힙 제한이 없으면 기동 중 OOM으로 죽는다 (재발 방지)
-            setsid java -Xmx420m -jar ~/app.jar \
+            nohup setsid java -Xmx420m -jar ~/app.jar \
               --spring.profiles.active=prod \
               --spring.jpa.hibernate.ddl-auto=update \
               > ~/app.log 2>&1 < /dev/null &
