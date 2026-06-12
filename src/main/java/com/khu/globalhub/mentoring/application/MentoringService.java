@@ -141,7 +141,8 @@ public class MentoringService {
 
     /**
      * 선택 매칭 — 관리자가 고른 memberIds 부분집합에만 그리디 알고리즘을 적용한다.
-     * 선택 멤버 중 입학 1년+ 멘티는 매칭 직전 자동으로 멘토 전환(승격).
+     * 멤버는 저장된 역할(MENTOR/MENTEE) 그대로 매칭한다. 선배를 멘토로 쓰려면 역할을
+     * 명시적으로 변경하면 된다(3월 일괄 승격은 promoteOldMenteesToMentor가 담당).
      * 대기열 자격(ACTIVE 매칭 없음·관리자 아님·활성)이 아닌 ID는 무시.
      */
     @Transactional
@@ -157,14 +158,8 @@ public class MentoringService {
                 .filter(this::isWaiting)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        // 자동 승격: 선택 멤버 중 입학년도 < 올해인 멘티 → 멘토
-        int promoteYear = LocalDate.now().getYear();
-        for (Profile p : selected) {
-            if (p.getMentoringRole() == MentoringRole.MENTEE && p.getAdmissionYear() < promoteYear) {
-                p.updateMentoringRole(MentoringRole.MENTOR);
-            }
-        }
-
+        // 저장된 역할 그대로 매칭한다. (입학년도 기반 자동승격 제거 — 선택된 멘티가 전원
+        //  선배일 때 모두 멘토로 승격돼 멘티가 0명이 되고 매칭이 통째로 스킵되던 버그.)
         List<Profile> unmatchedMentors = selected.stream()
                 .filter(p -> p.getMentoringRole() == MentoringRole.MENTOR)
                 .collect(Collectors.toCollection(ArrayList::new));
