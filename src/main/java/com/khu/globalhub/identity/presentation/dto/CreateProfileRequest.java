@@ -35,4 +35,7 @@ public class CreateProfileRequest {
 
     /** 자기소개 (선택, 최대 500자). */
     private String bio;
+
+    /** UI 테마 선호 ("LIGHT" | "DARK"). 선택값 — 미입력 시 서버가 LIGHT로 처리. */
+    private String theme;
 }
