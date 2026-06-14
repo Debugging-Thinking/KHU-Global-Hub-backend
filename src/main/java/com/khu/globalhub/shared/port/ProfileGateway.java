@@ -25,6 +25,7 @@ public interface ProfileGateway {
             Language language,
             String preferredLanguage,
             MentoringRole mentoringRole,
-            String bio
+            String bio,
+            String theme
     ) {}
 }

@@ -17,6 +17,7 @@ public record ProfileResponse(
         MentoringRole mentoringRole,
         double quizScore,
         String bio,
+        String theme,
         boolean isAdmin,
         boolean isActive
 ) {
@@ -43,6 +44,7 @@ public record ProfileResponse(
                 profile.getMentoringRole(),
                 profile.getQuizScore(),
                 profile.getBio(),
+                profile.getTheme(),
                 isAdmin,
                 isActive
         );

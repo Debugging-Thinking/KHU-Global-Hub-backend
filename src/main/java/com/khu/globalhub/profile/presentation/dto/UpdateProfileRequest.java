@@ -29,5 +29,8 @@ public record UpdateProfileRequest(
         MentoringRole mentoringRole,
 
         // 선택값: 자기소개 (최대 500자)
-        String bio
+        String bio,
+
+        // 선택값: UI 테마 선호 ("LIGHT" | "DARK"). 미입력 시 LIGHT.
+        String theme
 ) {}

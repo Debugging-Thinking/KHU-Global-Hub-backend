@@ -74,6 +74,11 @@ public class Profile extends BaseTimeEntity {
     @Column(length = 500)
     private String bio;
 
+    /** UI 테마 선호 ("LIGHT" | "DARK"). 기본 LIGHT. 프론트 표시 전용 — 서버는 불투명 문자열로 저장/반환. */
+    @Column(nullable = false)
+    @Builder.Default
+    private String theme = "LIGHT";
+
     public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
@@ -91,7 +96,7 @@ public class Profile extends BaseTimeEntity {
     }
 
     public void updateProfile(String name, String department, String nationality,
-                              Integer admissionYear, Language language, String preferredLanguage, String bio) {
+                              Integer admissionYear, Language language, String preferredLanguage, String bio, String theme) {
         this.name = name;
         this.department = department;
         this.nationality = nationality;
@@ -99,5 +104,6 @@ public class Profile extends BaseTimeEntity {
         this.language = language;
         this.preferredLanguage = preferredLanguage;
         this.bio = bio;
+        this.theme = theme;
     }
 }

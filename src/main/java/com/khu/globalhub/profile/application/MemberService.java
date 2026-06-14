@@ -42,7 +42,7 @@ public class MemberService {
     @Transactional
     public void createProfile(Long memberId, String name, String department, String nationality,
                               Integer admissionYear, Language language, String preferredLanguage,
-                              MentoringRole mentoringRole, String bio) {
+                              MentoringRole mentoringRole, String bio, String theme) {
         if (profileRepository.existsByMemberId(memberId)) {
             throw new CustomException(ErrorCode.PROFILE_ALREADY_EXISTS);
         }
@@ -67,6 +67,7 @@ public class MemberService {
                 .preferredLanguage(pref)
                 .mentoringRole(mentoringRole)
                 .bio(bio)
+                .theme(normalizeTheme(theme))
                 .build();
         profileRepository.save(profile);
     }
@@ -78,6 +79,11 @@ public class MemberService {
         return (preferredLanguage != null && !preferredLanguage.isBlank())
                 ? preferredLanguage
                 : language.toAzureCode();
+    }
+
+    /** 테마 정규화: 미입력/공백 → LIGHT (NOT NULL 컬럼 보호). 값 자체는 검증 없이 저장(프론트 표시 전용). */
+    private String normalizeTheme(String theme) {
+        return (theme == null || theme.isBlank()) ? "LIGHT" : theme;
     }
 
     /**
@@ -125,7 +131,8 @@ public class MemberService {
                 req.admissionYear(),
                 bucket,
                 pref,
-                req.bio()
+                req.bio(),
+                normalizeTheme(req.theme())
         );
         return ProfileResponse.from(profile, resolveEmail(profile.getMemberId()), memberQueryPort.isAdmin(profile.getMemberId()), memberQueryPort.isActive(profile.getMemberId()));
     }
