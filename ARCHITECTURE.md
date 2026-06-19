@@ -170,6 +170,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 - **다국어 DB(V16)**: `QuizQuestion`은 메타(category·answerIndex)만 보유, 텍스트(question·options·explanation)는 `QuizQuestionTranslation`(language enum, options는 JSON 배열 문자열 — `QuizOptionsCodec`)으로 분리 — 게시판식 사전번역. 조회는 `?language=`(요청언어→KO→첫행 폴백). 채점은 answerIndex 기준이라 언어 무관(공개 조회 응답엔 정답·해설 미포함).
 - **관리자 CRUD(`/api/admin/quiz/questions`, AdminGuard)**: 생성/수정 시 메타 저장 + 원문(KO 등) 번역 행 동기 저장 + `QuizTranslationWriter @Async`로 나머지 언어 번역(질문 1+보기 N+해설 1을 한 번에 보내 입력 인덱스로 분해, 원문 언어 자동 감지 후 라벨 보정). 삭제는 번역행 함께 제거. `GET`은 **정답(answerIndex)·해설 포함** 응답(`getQuestionsForAdmin`, 수정 폼 프리필용 — 공개 조회와 분리).
 - **시드**: `QuizDataInitializer`가 최초 기동(`quiz_questions` 비었을 때) 시 `seed/content_meta.json`(메타) + `seed/content_<lang>.json`(언어별 텍스트)으로 문항·번역 행 적재. 기동 시 Azure 호출 없음(시드 JSON은 프론트 `extract_seed.ts`+번역 도구가 생성). 존재하는 언어 파일만 로드(미완 언어는 KO 폴백). 로컬 리셋(TRUNCATE)에서 퀴즈 테이블 제외 → 재시작에도 보존.
+- **번역 백필(`QuizTranslationBackfill`, ApplicationRunner)** ⭐: 기동 시 6개 언어를 다 갖추지 못한 문항을 소스(KO 우선) 기준으로 `QuizTranslationWriter`에 재번역 위임(멱등 — 완비 문항은 스킵, Azure 미호출). ⚠️ 과거 사고: `V16`이 **이미 존재하던 운영 문항을 KO 행으로만 이관**했고 시더는 `count>0`이라 통째로 스킵 → 운영 퀴즈가 KO-only로 남아 비-한국어 사용자에게 번역 안 됨(가이드는 `V17` 신규 테이블이라 빈 상태에서 6개 언어 시드돼 정상이었음 — "가이드는 되는데 퀴즈만 안 됨"의 원인). 백필이 이 백로그를 자동 보정(2026-06).
 
 ### 3-12. 비밀번호 재설정 (identity)
 - `forgot-password`: 이메일 인증된 계정만 코드 발송(10분). `reset-password`: 코드 검증 후 적용, 성공 시 refreshToken 무효화(전 기기 로그아웃).
@@ -186,6 +187,7 @@ MatchCreatedEvent(Long mentorId, Long menteeId)     // mentoring 발행 → chat
 - **다국어 DB(V17)**: 퀴즈와 동일한 사전번역 방식. 텍스트만 언어별 행으로 분리 — `GuideCategoryTranslation`(title), `GuideTipTranslation`(title·content). 메타(badgeKey/emoji/color/icon/link/정렬)는 언어 무관. 조회 선택은 `?language=`(요청언어→KO→첫행 폴백).
 - **관리자 CRUD(`/api/admin/guide`, AdminGuard)**: 카테고리/팁 각각 생성·수정·삭제. 생성/수정 시 메타 저장 + 원문(KO 등) 번역 행 동기 저장 + `GuideTranslationWriter @Async`로 나머지 언어 번역(카테고리=title 1개, 팁=title+content 2개를 한 번에, 원문 언어 자동 감지 후 라벨 보정). 카테고리 삭제 시 하위 팁·번역행까지 정리(DB FK ON DELETE CASCADE + 앱 레벨 명시 제거).
 - **시드**: `GuideDataInitializer`가 최초 기동(`guide_categories` 비었을 때) 시 `seed/content_meta.json`(카테고리/팁 메타, 팁 키 `"<catId>#<i>"`로 카테고리 연결) + `seed/content_<lang>.json`(언어별 텍스트)으로 적재. 퀴즈와 동일하게 Azure 호출 없음·존재 언어만 로드. **로컬 리셋(TRUNCATE)에서 가이드 4개 테이블 제외 → 재시작에도 보존**(과거 시드 유실 버그 수정).
+- **번역 백필(`GuideTranslationBackfill`, ApplicationRunner)**: 퀴즈와 대칭 — 기동 시 6개 언어를 다 갖추지 못한 카테고리/팁을 소스(KO 우선) 기준으로 `GuideTranslationWriter`에 재번역 위임(멱등, 완비 항목 스킵). 관리자 생성 항목 중 일부 언어 번역이 실패해 빠진 행을 자가 보정.
 
 ### 3-15. 뱃지 (campusguide)
 - `BadgeId` enum 5종: `COURSE_REG`(수강신청 박사) · `TRANSPORT`(교통 박사) · `FOOD`(맛집 박사) · `CAMPUS_SITE`(사이트 박사) · `HUMANITIES`(교양 박사). 각 enum이 KO/EN 이름 + 이모지 보유.
